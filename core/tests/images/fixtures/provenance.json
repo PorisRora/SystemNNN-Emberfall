@@ -1,0 +1,99 @@
+{
+  "task": "DW-005",
+  "origin": "Self-authored synthetic legal DWQ type0 fixtures; no game assets",
+  "expectations": "Separate manually fixed RGB literals; not decoded or roundtrip-generated expectations",
+  "generator": "research/driftwood/DW-005/reference/generate_fixtures.py",
+  "generator_sha256": "3e5896a21c5b963f989e2f983ba95ba8ba59f12458e2941d8e887d0f18aedf26",
+  "files": [
+    {
+      "path": "expected_cases.hpp",
+      "bytes": 2790,
+      "sha256": "310360d6137424d51713b2e00fd82a40d9caad7526ae1dade80ecceffdb9b303"
+    },
+    {
+      "path": "index8_1x1_p3.dwq",
+      "bytes": 134,
+      "sha256": "e022ccbbd2764b89a7c5f4e1fe380c705a7d42f086be1e0946fb6071be17a033"
+    },
+    {
+      "path": "index8_256_palette_explicit.dwq",
+      "bytes": 1150,
+      "sha256": "adaa8b2204cd006b1b4dfda95aff1f3d4b50c484f9ca302619565fbd4b7eda1c"
+    },
+    {
+      "path": "index8_256_palette_implicit.dwq",
+      "bytes": 1150,
+      "sha256": "7c46b2898b372b70d7693a3af02a1e85cd16fe2336f8cc27053994c4ce8fc458"
+    },
+    {
+      "path": "index8_2x3_p2_small_palette.dwq",
+      "bytes": 146,
+      "sha256": "5a96b332b82506b42be532d46fb77900a6ea06e599bc2157df57dae25de03125"
+    },
+    {
+      "path": "index8_3x2_p1_small_palette.dwq",
+      "bytes": 142,
+      "sha256": "5de7edde3ef43d2e970f40c587ce825f046eaceb239c38215723f5458ca613ef"
+    },
+    {
+      "path": "index8_4x2_p0_small_palette.dwq",
+      "bytes": 142,
+      "sha256": "8e8085439832f6075fe895b5f911258f5bdc6078853f4b9263f8cd5255336f29"
+    },
+    {
+      "path": "index8_negative_height_3x2.dwq",
+      "bytes": 142,
+      "sha256": "43ccd1b0f5e73d8843ec3ad30c2601290cb179db77c7f77d5ed390513250b2e7"
+    },
+    {
+      "path": "index8_one_color_palette.dwq",
+      "bytes": 130,
+      "sha256": "c6cbbdae3a94b4b0115c66529817c5316e8a50fcfa5beb4d7c708fe9ff9968e0"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 14170,
+      "sha256": "f0493ebcf6172a262878a4e8cb5b658a684e682311c3267c3fdc407be2938ef2"
+    },
+    {
+      "path": "rgb24_1x1_red_p1.dwq",
+      "bytes": 122,
+      "sha256": "e77531ffc15418525e781a0054c7e68adbcc5a0a16a630494afd1538413b52da"
+    },
+    {
+      "path": "rgb24_2x3_corners_p2.dwq",
+      "bytes": 142,
+      "sha256": "18f388f9eab9b2431377359bcf6c9be85df3ce3566b75b26ab3ef877c568114c"
+    },
+    {
+      "path": "rgb24_3x2_bars_p3.dwq",
+      "bytes": 142,
+      "sha256": "8a25c44d761fecab195054d3f9e87ee8bb4858e51ba5623442432ae84dfb040f"
+    },
+    {
+      "path": "rgb24_4x2_checker_p0.dwq",
+      "bytes": 142,
+      "sha256": "4344b48aa7c6c0cbdbe5985b20d07236afa313acd0301d0bb54af7f73299eda6"
+    },
+    {
+      "path": "rgb24_4x3_corner_marker.dwq",
+      "bytes": 154,
+      "sha256": "e3145b367a843bbd8561153c9de65d3c5578a36f1a28d71cc49308455092503d"
+    },
+    {
+      "path": "rgb24_negative_height_3x2.dwq",
+      "bytes": 142,
+      "sha256": "efb0fc950105dae44e80dead34164b14b3ebffe29efeb411730b0744c9f5a800"
+    },
+    {
+      "path": "rgb24_opaque_dwq_word32.dwq",
+      "bytes": 126,
+      "sha256": "c2840647f4721300ffc1fa8fbb5ed0df6ab68b5c2bc6f50b9910ab25c1af13b8"
+    },
+    {
+      "path": "rgb24_zero_size_image.dwq",
+      "bytes": 126,
+      "sha256": "7edae2337cc52590c6752643e4ba04d4dffff5bc11a937793f7e9f427129f0f8"
+    }
+  ]
+}

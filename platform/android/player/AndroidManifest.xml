@@ -1,0 +1,22 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tyranor.runtime.systemnnn"
+    android:versionCode="64" android:versionName="0.6.4">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <application android:label="SystemNNN-Emberfall" android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"
+        android:allowBackup="false" android:extractNativeLibs="false" android:requestLegacyExternalStorage="true">
+        <activity android:name=".PlayerActivity" android:exported="true" android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+            <intent-filter>
+                <action android:name="com.tyranor.runtime.action.LAUNCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="com.tyranor.runtime.MANIFEST" android:resource="@raw/tyranor_runtime"/>
+        </activity>
+    </application>
+</manifest>

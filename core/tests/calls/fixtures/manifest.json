@@ -1,0 +1,4858 @@
+{
+  "task": "DW-008",
+  "source_commit": "78a05053c78b3b80065a9a209c6685a7c60a2e83",
+  "expectation_method": "Assembler resolves authored symbolic addresses only; paths, events, and per-instruction active frame lists are fixed by the case author, never interpreted from opcodes.",
+  "producer_adjustment_contract": "One shared registration slot per SUB or GOTO in source PC order. SUB writes its PC and retains that slot index as ID; GOTO consumes a raw unused hole word without an ID. Hole words are fixed by the fixture author and are never interpreted as targets.",
+  "fixtures": [
+    {
+      "name": "single_call",
+      "binary": "single_call.spt",
+      "words": 145,
+      "sha256": "560b2581cae56058034775297057250b6df5a72b5bc80a86c1870fc0cfc71401",
+      "description": "One story call with PRINT and UserCommand yields, then exact saved next-record return.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "call_leaf",
+          "pc": 37,
+          "words": 5
+        },
+        {
+          "label": "caller_after",
+          "pc": 42,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 48,
+          "words": 3
+        },
+        {
+          "label": "leaf",
+          "pc": 51,
+          "words": 5
+        },
+        {
+          "label": "leaf_first",
+          "pc": 56,
+          "words": 6
+        },
+        {
+          "label": "leaf_user",
+          "pc": 62,
+          "words": 5
+        },
+        {
+          "label": "leaf_return",
+          "pc": 67,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 70,
+          "words": 6
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 76,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 80,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 84,
+          "words": 22
+        },
+        {
+          "label": "string_table",
+          "pc": 106,
+          "words": 18
+        },
+        {
+          "label": "int32_table",
+          "pc": 124,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 128,
+          "words": 5
+        },
+        {
+          "label": "select_table",
+          "pc": 133,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 137,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 141,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "call_leaf": 37,
+        "caller_after": 42,
+        "end": 48,
+        "leaf": 51,
+        "leaf_first": 56,
+        "leaf_user": 62,
+        "leaf_return": 67,
+        "main_label_table": 70,
+        "film_koma_offset_table": 76,
+        "koma_jump_table": 80,
+        "message_table": 84,
+        "string_table": 106,
+        "int32_table": 124,
+        "sub_table": 128,
+        "select_table": 133,
+        "command_table": 137,
+        "script_table": 141
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "leaf",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_leaf",
+          "raw_table_word": 37
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "call_leaf",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "leaf",
+          "pc": 51,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "leaf_first",
+          "pc": 56,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "leaf_user",
+          "pc": 62,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "leaf_return",
+          "pc": 67,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "caller_after",
+          "pc": 42,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 48,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 62,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 67,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 48,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 48,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 single_call main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 single_call leaf",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 single_call leaf_first",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18433,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 single_call caller_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 51,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 56,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 67,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 42,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    },
+    {
+      "name": "nested_calls",
+      "binary": "nested_calls.spt",
+      "words": 184,
+      "sha256": "08313d898adc55007507ff26bbe5f28a80117acab737b47d32f876e1a19b907d",
+      "description": "Two nested calls with different producer call-site IDs and active frame snapshots at every callback and yield.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "call_a",
+          "pc": 37,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 42,
+          "words": 5
+        },
+        {
+          "label": "end",
+          "pc": 47,
+          "words": 3
+        },
+        {
+          "label": "a",
+          "pc": 50,
+          "words": 5
+        },
+        {
+          "label": "a_before",
+          "pc": 55,
+          "words": 6
+        },
+        {
+          "label": "call_b",
+          "pc": 61,
+          "words": 5
+        },
+        {
+          "label": "a_after",
+          "pc": 66,
+          "words": 6
+        },
+        {
+          "label": "a_return",
+          "pc": 72,
+          "words": 3
+        },
+        {
+          "label": "b",
+          "pc": 75,
+          "words": 5
+        },
+        {
+          "label": "b_first",
+          "pc": 80,
+          "words": 5
+        },
+        {
+          "label": "b_second",
+          "pc": 85,
+          "words": 6
+        },
+        {
+          "label": "b_return",
+          "pc": 91,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 94,
+          "words": 7
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 101,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 105,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 109,
+          "words": 28
+        },
+        {
+          "label": "string_table",
+          "pc": 137,
+          "words": 25
+        },
+        {
+          "label": "int32_table",
+          "pc": 162,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 166,
+          "words": 6
+        },
+        {
+          "label": "select_table",
+          "pc": 172,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 176,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 180,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "call_a": 37,
+        "main_after": 42,
+        "end": 47,
+        "a": 50,
+        "a_before": 55,
+        "call_b": 61,
+        "a_after": 66,
+        "a_return": 72,
+        "b": 75,
+        "b_first": 80,
+        "b_second": 85,
+        "b_return": 91,
+        "main_label_table": 94,
+        "film_koma_offset_table": 101,
+        "koma_jump_table": 105,
+        "message_table": 109,
+        "string_table": 137,
+        "int32_table": 162,
+        "sub_table": 166,
+        "select_table": 172,
+        "command_table": 176,
+        "script_table": 180
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "a",
+          "role": "story"
+        },
+        {
+          "label": "b",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_a",
+          "raw_table_word": 37
+        },
+        {
+          "slot": 1,
+          "role": "sub",
+          "label": "call_b",
+          "raw_table_word": 61
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "call_a",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "a",
+          "pc": 50,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "a_before",
+          "pc": 55,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "call_b",
+          "pc": 61,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "b",
+          "pc": 75,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            },
+            {
+              "return_pc": 66,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "b_first",
+          "pc": 80,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            },
+            {
+              "return_pc": 66,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "b_second",
+          "pc": 85,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            },
+            {
+              "return_pc": 66,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "b_return",
+          "pc": 91,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            },
+            {
+              "return_pc": 66,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "a_after",
+          "pc": 66,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "a_return",
+          "pc": 72,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 42,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 47,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 61,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 85,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              },
+              {
+                "return_pc": 66,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 91,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              },
+              {
+                "return_pc": 66,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 72,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 47,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 47,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 nested_calls main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 nested_calls a",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 nested_calls a_before",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 nested_calls b",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18434,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8003,
+            "text_ascii": "DW008 nested_calls b_second",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 nested_calls a_after",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18433,
+            "parameters": []
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 50,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 55,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 75,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              },
+              {
+                "return_pc": 66,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 85,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              },
+              {
+                "return_pc": 66,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 85,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              },
+              {
+                "return_pc": 66,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 66,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 47,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    },
+    {
+      "name": "sequential_calls",
+      "binary": "sequential_calls.spt",
+      "words": 181,
+      "sha256": "cbcdbb175831e9801bd1076e9686f4caff92704e78459c7638ddaac8e4237146",
+      "description": "Sequential calls reuse a target but preserve distinct IDs and return addresses; inactive frames never appear.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "call_a1",
+          "pc": 37,
+          "words": 5
+        },
+        {
+          "label": "between",
+          "pc": 42,
+          "words": 6
+        },
+        {
+          "label": "call_b",
+          "pc": 48,
+          "words": 5
+        },
+        {
+          "label": "call_a2",
+          "pc": 53,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 58,
+          "words": 5
+        },
+        {
+          "label": "end",
+          "pc": 63,
+          "words": 3
+        },
+        {
+          "label": "a",
+          "pc": 66,
+          "words": 5
+        },
+        {
+          "label": "a_print",
+          "pc": 71,
+          "words": 6
+        },
+        {
+          "label": "a_return",
+          "pc": 77,
+          "words": 3
+        },
+        {
+          "label": "b",
+          "pc": 80,
+          "words": 5
+        },
+        {
+          "label": "b_user",
+          "pc": 85,
+          "words": 5
+        },
+        {
+          "label": "b_return",
+          "pc": 90,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 93,
+          "words": 7
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 100,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 104,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 108,
+          "words": 22
+        },
+        {
+          "label": "string_table",
+          "pc": 130,
+          "words": 28
+        },
+        {
+          "label": "int32_table",
+          "pc": 158,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 162,
+          "words": 7
+        },
+        {
+          "label": "select_table",
+          "pc": 169,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 173,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 177,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "call_a1": 37,
+        "between": 42,
+        "call_b": 48,
+        "call_a2": 53,
+        "main_after": 58,
+        "end": 63,
+        "a": 66,
+        "a_print": 71,
+        "a_return": 77,
+        "b": 80,
+        "b_user": 85,
+        "b_return": 90,
+        "main_label_table": 93,
+        "film_koma_offset_table": 100,
+        "koma_jump_table": 104,
+        "message_table": 108,
+        "string_table": 130,
+        "int32_table": 158,
+        "sub_table": 162,
+        "select_table": 169,
+        "command_table": 173,
+        "script_table": 177
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "a",
+          "role": "story"
+        },
+        {
+          "label": "b",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_a1",
+          "raw_table_word": 37
+        },
+        {
+          "slot": 1,
+          "role": "sub",
+          "label": "call_b",
+          "raw_table_word": 48
+        },
+        {
+          "slot": 2,
+          "role": "sub",
+          "label": "call_a2",
+          "raw_table_word": 53
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "call_a1",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "a",
+          "pc": 66,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "a_print",
+          "pc": 71,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "a_return",
+          "pc": 77,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "between",
+          "pc": 42,
+          "frames": []
+        },
+        {
+          "label": "call_b",
+          "pc": 48,
+          "frames": []
+        },
+        {
+          "label": "b",
+          "pc": 80,
+          "frames": [
+            {
+              "return_pc": 53,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "b_user",
+          "pc": 85,
+          "frames": [
+            {
+              "return_pc": 53,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "b_return",
+          "pc": 90,
+          "frames": [
+            {
+              "return_pc": 53,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "call_a2",
+          "pc": 53,
+          "frames": []
+        },
+        {
+          "label": "a",
+          "pc": 66,
+          "frames": [
+            {
+              "return_pc": 58,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "a_print",
+          "pc": 71,
+          "frames": [
+            {
+              "return_pc": 58,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "a_return",
+          "pc": 77,
+          "frames": [
+            {
+              "return_pc": 58,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 58,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 63,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 77,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 48,
+            "frames": []
+          },
+          {
+            "return": 286326785,
+            "pc_after": 90,
+            "frames": [
+              {
+                "return_pc": 53,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 77,
+            "frames": [
+              {
+                "return_pc": 58,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 63,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 63,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 sequential_calls main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 sequential_calls a",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 sequential_calls a_print",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 sequential_calls between",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 sequential_calls b",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18434,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 sequential_calls a",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 sequential_calls a_print",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18433,
+            "parameters": []
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 66,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 71,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 42,
+            "frames": []
+          },
+          {
+            "pc": 80,
+            "frames": [
+              {
+                "return_pc": 53,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 90,
+            "frames": [
+              {
+                "return_pc": 53,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 66,
+            "frames": [
+              {
+                "return_pc": 58,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "pc": 71,
+            "frames": [
+              {
+                "return_pc": 58,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "pc": 63,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    },
+    {
+      "name": "callee_branch_true",
+      "binary": "callee_branch_true.spt",
+      "words": 178,
+      "sha256": "d69f7a8c11b02630170963c909eb4c7b3e5df234b2dafcaafff05b46d7f26efa",
+      "description": "Existing paired IF and GOTO inside a subroutine; manual selected path 1",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "init",
+          "pc": 37,
+          "words": 8
+        },
+        {
+          "label": "call_worker",
+          "pc": 45,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 50,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 56,
+          "words": 3
+        },
+        {
+          "label": "worker",
+          "pc": 59,
+          "words": 5
+        },
+        {
+          "label": "if",
+          "pc": 64,
+          "words": 6
+        },
+        {
+          "label": "open",
+          "pc": 70,
+          "words": 4
+        },
+        {
+          "label": "taken",
+          "pc": 74,
+          "words": 5
+        },
+        {
+          "label": "close",
+          "pc": 79,
+          "words": 3,
+          "paired_open": "open"
+        },
+        {
+          "label": "jump_to_return",
+          "pc": 82,
+          "words": 4
+        },
+        {
+          "label": "unreachable",
+          "pc": 86,
+          "words": 6
+        },
+        {
+          "label": "worker_return",
+          "pc": 92,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 95,
+          "words": 6
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 101,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 105,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 109,
+          "words": 25
+        },
+        {
+          "label": "string_table",
+          "pc": 134,
+          "words": 22
+        },
+        {
+          "label": "int32_table",
+          "pc": 156,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 160,
+          "words": 6
+        },
+        {
+          "label": "select_table",
+          "pc": 166,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 170,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 174,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "init": 37,
+        "call_worker": 45,
+        "main_after": 50,
+        "end": 56,
+        "worker": 59,
+        "if": 64,
+        "open": 70,
+        "taken": 74,
+        "close": 79,
+        "jump_to_return": 82,
+        "unreachable": 86,
+        "worker_return": 92,
+        "main_label_table": 95,
+        "film_koma_offset_table": 101,
+        "koma_jump_table": 105,
+        "message_table": 109,
+        "string_table": 134,
+        "int32_table": 156,
+        "sub_table": 160,
+        "select_table": 166,
+        "command_table": 170,
+        "script_table": 174
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "worker",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_worker",
+          "raw_table_word": 45
+        },
+        {
+          "slot": 1,
+          "role": "goto_hole",
+          "label": "jump_to_return",
+          "raw_table_word": 4294967295
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "init",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "call_worker",
+          "pc": 45,
+          "frames": []
+        },
+        {
+          "label": "worker",
+          "pc": 59,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "if",
+          "pc": 64,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "open",
+          "pc": 70,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "taken",
+          "pc": 74,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "close",
+          "pc": 79,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "jump_to_return",
+          "pc": 82,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "worker_return",
+          "pc": 92,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 50,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 56,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 286326785,
+            "pc_after": 79,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 56,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 56,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 callee_branch_true main",
+            "para3": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 callee_branch_true worker",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 1
+          },
+          {
+            "kind": "user_command",
+            "code": 18435,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 callee_branch_true main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 59,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 64,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 79,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 50,
+            "frames": []
+          }
+        ],
+        "final_variables": {
+          "100": 1
+        }
+      }
+    },
+    {
+      "name": "callee_branch_false",
+      "binary": "callee_branch_false.spt",
+      "words": 180,
+      "sha256": "903a9c4f47ae571f6451aebe39e0bab5f50e2eb0a8f8604353682eba3f829117",
+      "description": "Existing paired IF and GOTO inside a subroutine; manual selected path 0",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "init",
+          "pc": 37,
+          "words": 8
+        },
+        {
+          "label": "call_worker",
+          "pc": 45,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 50,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 56,
+          "words": 3
+        },
+        {
+          "label": "worker",
+          "pc": 59,
+          "words": 5
+        },
+        {
+          "label": "if",
+          "pc": 64,
+          "words": 6
+        },
+        {
+          "label": "open",
+          "pc": 70,
+          "words": 4
+        },
+        {
+          "label": "taken",
+          "pc": 74,
+          "words": 5
+        },
+        {
+          "label": "close",
+          "pc": 79,
+          "words": 3,
+          "paired_open": "open"
+        },
+        {
+          "label": "jump_to_return",
+          "pc": 82,
+          "words": 4
+        },
+        {
+          "label": "unreachable",
+          "pc": 86,
+          "words": 6
+        },
+        {
+          "label": "worker_return",
+          "pc": 92,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 95,
+          "words": 6
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 101,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 105,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 109,
+          "words": 26
+        },
+        {
+          "label": "string_table",
+          "pc": 135,
+          "words": 23
+        },
+        {
+          "label": "int32_table",
+          "pc": 158,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 162,
+          "words": 6
+        },
+        {
+          "label": "select_table",
+          "pc": 168,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 172,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 176,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "init": 37,
+        "call_worker": 45,
+        "main_after": 50,
+        "end": 56,
+        "worker": 59,
+        "if": 64,
+        "open": 70,
+        "taken": 74,
+        "close": 79,
+        "jump_to_return": 82,
+        "unreachable": 86,
+        "worker_return": 92,
+        "main_label_table": 95,
+        "film_koma_offset_table": 101,
+        "koma_jump_table": 105,
+        "message_table": 109,
+        "string_table": 135,
+        "int32_table": 158,
+        "sub_table": 162,
+        "select_table": 168,
+        "command_table": 172,
+        "script_table": 176
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "worker",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_worker",
+          "raw_table_word": 45
+        },
+        {
+          "slot": 1,
+          "role": "goto_hole",
+          "label": "jump_to_return",
+          "raw_table_word": 4294967295
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "init",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "call_worker",
+          "pc": 45,
+          "frames": []
+        },
+        {
+          "label": "worker",
+          "pc": 59,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "if",
+          "pc": 64,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "jump_to_return",
+          "pc": 82,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "worker_return",
+          "pc": 92,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 50,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 56,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 56,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 56,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 callee_branch_false main",
+            "para3": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 callee_branch_false worker",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 callee_branch_false main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 59,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 64,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 50,
+            "frames": []
+          }
+        ],
+        "final_variables": {
+          "100": 0
+        }
+      }
+    },
+    {
+      "name": "bounded_recursion",
+      "binary": "bounded_recursion.spt",
+      "words": 188,
+      "sha256": "874e9b5ab2184b6bedbb10ab37537d97fe355bfd7328e47ce289d82a812efb99",
+      "description": "Three active frames at the leaf of source-bounded recursion, then manual unwinding to the entry caller.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "init",
+          "pc": 37,
+          "words": 8
+        },
+        {
+          "label": "call_root",
+          "pc": 45,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 50,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 56,
+          "words": 3
+        },
+        {
+          "label": "recursive",
+          "pc": 59,
+          "words": 5
+        },
+        {
+          "label": "entry",
+          "pc": 64,
+          "words": 6
+        },
+        {
+          "label": "if",
+          "pc": 70,
+          "words": 6
+        },
+        {
+          "label": "open",
+          "pc": 76,
+          "words": 4
+        },
+        {
+          "label": "decrement",
+          "pc": 80,
+          "words": 10
+        },
+        {
+          "label": "call_recursive",
+          "pc": 90,
+          "words": 5
+        },
+        {
+          "label": "close",
+          "pc": 95,
+          "words": 3,
+          "paired_open": "open"
+        },
+        {
+          "label": "exit",
+          "pc": 98,
+          "words": 5
+        },
+        {
+          "label": "recursive_return",
+          "pc": 103,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 106,
+          "words": 6
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 112,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 116,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 120,
+          "words": 23
+        },
+        {
+          "label": "string_table",
+          "pc": 143,
+          "words": 23
+        },
+        {
+          "label": "int32_table",
+          "pc": 166,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 170,
+          "words": 6
+        },
+        {
+          "label": "select_table",
+          "pc": 176,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 180,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 184,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "init": 37,
+        "call_root": 45,
+        "main_after": 50,
+        "end": 56,
+        "recursive": 59,
+        "entry": 64,
+        "if": 70,
+        "open": 76,
+        "decrement": 80,
+        "call_recursive": 90,
+        "close": 95,
+        "exit": 98,
+        "recursive_return": 103,
+        "main_label_table": 106,
+        "film_koma_offset_table": 112,
+        "koma_jump_table": 116,
+        "message_table": 120,
+        "string_table": 143,
+        "int32_table": 166,
+        "sub_table": 170,
+        "select_table": 176,
+        "command_table": 180,
+        "script_table": 184
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "recursive",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_root",
+          "raw_table_word": 45
+        },
+        {
+          "slot": 1,
+          "role": "sub",
+          "label": "call_recursive",
+          "raw_table_word": 90
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "init",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "call_root",
+          "pc": 45,
+          "frames": []
+        },
+        {
+          "label": "recursive",
+          "pc": 59,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "entry",
+          "pc": 64,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "if",
+          "pc": 70,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "open",
+          "pc": 76,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "decrement",
+          "pc": 80,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "call_recursive",
+          "pc": 90,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "recursive",
+          "pc": 59,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "entry",
+          "pc": 64,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "if",
+          "pc": 70,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "open",
+          "pc": 76,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "decrement",
+          "pc": 80,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "call_recursive",
+          "pc": 90,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "recursive",
+          "pc": 59,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "entry",
+          "pc": 64,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "if",
+          "pc": 70,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "exit",
+          "pc": 98,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "recursive_return",
+          "pc": 103,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "close",
+          "pc": 95,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "exit",
+          "pc": 98,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "recursive_return",
+          "pc": 103,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            },
+            {
+              "return_pc": 95,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "close",
+          "pc": 95,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "exit",
+          "pc": 98,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "recursive_return",
+          "pc": 103,
+          "frames": [
+            {
+              "return_pc": 50,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 50,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 56,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 70,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 70,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 70,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 103,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 103,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 103,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 56,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 56,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 bounded_recursion main",
+            "para3": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 2
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 bounded_recursion recursive",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 bounded_recursion entry",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2
+          },
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 bounded_recursion recursive",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 bounded_recursion entry",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 1
+          },
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 bounded_recursion recursive",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 bounded_recursion entry",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18436,
+            "parameters": []
+          },
+          {
+            "kind": "user_command",
+            "code": 18436,
+            "parameters": []
+          },
+          {
+            "kind": "user_command",
+            "code": 18436,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 bounded_recursion main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 59,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 64,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 70,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 80,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 80,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 80,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 59,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 64,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 70,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 80,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 80,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 80,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 59,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 64,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 70,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 103,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 103,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              },
+              {
+                "return_pc": 95,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 103,
+            "frames": [
+              {
+                "return_pc": 50,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 50,
+            "frames": []
+          }
+        ],
+        "final_variables": {
+          "100": 0
+        }
+      }
+    },
+    {
+      "name": "film_call",
+      "binary": "film_call.spt",
+      "words": 130,
+      "sha256": "c4250824ea178ddc9fd9cc5c24a7d611808e9ee138aeb4f97ae57c394b5b7ab9",
+      "description": "Explicitly narrow film target begins directly at FILMNAME; one film with zero koma entries, no film-end effects claimed.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "call_film",
+          "pc": 37,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 42,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 48,
+          "words": 3
+        },
+        {
+          "label": "film",
+          "pc": 51,
+          "words": 5
+        },
+        {
+          "label": "film_yield",
+          "pc": 56,
+          "words": 5
+        },
+        {
+          "label": "film_return",
+          "pc": 61,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 64,
+          "words": 6
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 70,
+          "words": 5
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 75,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 79,
+          "words": 12
+        },
+        {
+          "label": "string_table",
+          "pc": 91,
+          "words": 18
+        },
+        {
+          "label": "int32_table",
+          "pc": 109,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 113,
+          "words": 5
+        },
+        {
+          "label": "select_table",
+          "pc": 118,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 122,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 126,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "call_film": 37,
+        "main_after": 42,
+        "end": 48,
+        "film": 51,
+        "film_yield": 56,
+        "film_return": 61,
+        "main_label_table": 64,
+        "film_koma_offset_table": 70,
+        "koma_jump_table": 75,
+        "message_table": 79,
+        "string_table": 91,
+        "int32_table": 109,
+        "sub_table": 113,
+        "select_table": 118,
+        "command_table": 122,
+        "script_table": 126
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "film",
+          "role": "film"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_film",
+          "raw_table_word": 37
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "call_film",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "film",
+          "pc": 51,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "film_yield",
+          "pc": 56,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "film_return",
+          "pc": 61,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 42,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 48,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 286326785,
+            "pc_after": 61,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 48,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 48,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 film_call main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980432,
+            "para1": 1,
+            "text_ascii": "DW008 film_call film",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18437,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 film_call main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 51,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 61,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 42,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    },
+    {
+      "name": "film_koma_markers",
+      "binary": "film_koma_markers.spt",
+      "words": 188,
+      "sha256": "2a628f509b94bbf45c681bb52b86bb7f9561a891644736f802644a11dbad031c",
+      "description": "Two films own one koma target each: PREPAREOVERRAP and NOMESSAGEWINDOW, exact zero-argument records and callbacks.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "call_film_a",
+          "pc": 37,
+          "words": 5
+        },
+        {
+          "label": "call_film_b",
+          "pc": 42,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 47,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 53,
+          "words": 3
+        },
+        {
+          "label": "film_a",
+          "pc": 56,
+          "words": 5
+        },
+        {
+          "label": "koma_a",
+          "pc": 61,
+          "words": 4
+        },
+        {
+          "label": "film_a_print",
+          "pc": 65,
+          "words": 6
+        },
+        {
+          "label": "film_a_return",
+          "pc": 71,
+          "words": 3
+        },
+        {
+          "label": "film_b",
+          "pc": 74,
+          "words": 5
+        },
+        {
+          "label": "koma_b",
+          "pc": 79,
+          "words": 4
+        },
+        {
+          "label": "film_b_user",
+          "pc": 83,
+          "words": 5
+        },
+        {
+          "label": "film_b_return",
+          "pc": 88,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 91,
+          "words": 7
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 98,
+          "words": 6
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 104,
+          "words": 6
+        },
+        {
+          "label": "message_table",
+          "pc": 110,
+          "words": 25
+        },
+        {
+          "label": "string_table",
+          "pc": 135,
+          "words": 31
+        },
+        {
+          "label": "int32_table",
+          "pc": 166,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 170,
+          "words": 6
+        },
+        {
+          "label": "select_table",
+          "pc": 176,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 180,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 184,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "call_film_a": 37,
+        "call_film_b": 42,
+        "main_after": 47,
+        "end": 53,
+        "film_a": 56,
+        "koma_a": 61,
+        "film_a_print": 65,
+        "film_a_return": 71,
+        "film_b": 74,
+        "koma_b": 79,
+        "film_b_user": 83,
+        "film_b_return": 88,
+        "main_label_table": 91,
+        "film_koma_offset_table": 98,
+        "koma_jump_table": 104,
+        "message_table": 110,
+        "string_table": 135,
+        "int32_table": 166,
+        "sub_table": 170,
+        "select_table": 176,
+        "command_table": 180,
+        "script_table": 184
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "film_a",
+          "role": "film"
+        },
+        {
+          "label": "film_b",
+          "role": "film"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_film_a",
+          "raw_table_word": 37
+        },
+        {
+          "slot": 1,
+          "role": "sub",
+          "label": "call_film_b",
+          "raw_table_word": 42
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "call_film_a",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "film_a",
+          "pc": 56,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "koma_a",
+          "pc": 61,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "film_a_print",
+          "pc": 65,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "film_a_return",
+          "pc": 71,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "call_film_b",
+          "pc": 42,
+          "frames": []
+        },
+        {
+          "label": "film_b",
+          "pc": 74,
+          "frames": [
+            {
+              "return_pc": 47,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "koma_b",
+          "pc": 79,
+          "frames": [
+            {
+              "return_pc": 47,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "film_b_user",
+          "pc": 83,
+          "frames": [
+            {
+              "return_pc": 47,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "film_b_return",
+          "pc": 88,
+          "frames": [
+            {
+              "return_pc": 47,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 47,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 53,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 71,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 286326785,
+            "pc_after": 88,
+            "frames": [
+              {
+                "return_pc": 47,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 53,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 53,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 film_koma_markers main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980432,
+            "para1": 1,
+            "text_ascii": "DW008 film_koma_markers film_a",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980369,
+            "para1": 0,
+            "text_ascii": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 film_koma_markers film_a_print",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980432,
+            "para1": 1,
+            "text_ascii": "DW008 film_koma_markers film_b",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980375,
+            "para1": 0,
+            "text_ascii": "",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18438,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8001,
+            "text_ascii": "DW008 film_koma_markers main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 56,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 61,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 65,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 74,
+            "frames": [
+              {
+                "return_pc": 47,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 79,
+            "frames": [
+              {
+                "return_pc": 47,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 88,
+            "frames": [
+              {
+                "return_pc": 47,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 47,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    },
+    {
+      "name": "goto_before_sub",
+      "binary": "goto_before_sub.spt",
+      "words": 154,
+      "sha256": "2cf13ef83b7e2ca495794bee479adbd429c335bf10ae3f0bd1fb70e157ca12af",
+      "description": "GOTO before SUB consumes slot0 with raw hole0; real SUB ID1 maps slot1 and returns exactly to caller.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "first_goto",
+          "pc": 37,
+          "words": 4
+        },
+        {
+          "label": "unreachable",
+          "pc": 41,
+          "words": 6
+        },
+        {
+          "label": "call_leaf",
+          "pc": 47,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 52,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 58,
+          "words": 3
+        },
+        {
+          "label": "leaf",
+          "pc": 61,
+          "words": 5
+        },
+        {
+          "label": "leaf_user",
+          "pc": 66,
+          "words": 5
+        },
+        {
+          "label": "leaf_return",
+          "pc": 71,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 74,
+          "words": 6
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 80,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 84,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 88,
+          "words": 24
+        },
+        {
+          "label": "string_table",
+          "pc": 112,
+          "words": 20
+        },
+        {
+          "label": "int32_table",
+          "pc": 132,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 136,
+          "words": 6
+        },
+        {
+          "label": "select_table",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 150,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "first_goto": 37,
+        "unreachable": 41,
+        "call_leaf": 47,
+        "main_after": 52,
+        "end": 58,
+        "leaf": 61,
+        "leaf_user": 66,
+        "leaf_return": 71,
+        "main_label_table": 74,
+        "film_koma_offset_table": 80,
+        "koma_jump_table": 84,
+        "message_table": 88,
+        "string_table": 112,
+        "int32_table": 132,
+        "sub_table": 136,
+        "select_table": 142,
+        "command_table": 146,
+        "script_table": 150
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "leaf",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "goto_hole",
+          "label": "first_goto",
+          "raw_table_word": 0
+        },
+        {
+          "slot": 1,
+          "role": "sub",
+          "label": "call_leaf",
+          "raw_table_word": 47
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "first_goto",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "call_leaf",
+          "pc": 47,
+          "frames": []
+        },
+        {
+          "label": "leaf",
+          "pc": 61,
+          "frames": [
+            {
+              "return_pc": 52,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "leaf_user",
+          "pc": 66,
+          "frames": [
+            {
+              "return_pc": 52,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "leaf_return",
+          "pc": 71,
+          "frames": [
+            {
+              "return_pc": 52,
+              "id": 1
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 52,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 58,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 286326785,
+            "pc_after": 71,
+            "frames": [
+              {
+                "return_pc": 52,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 58,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 58,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 goto_before_sub main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 goto_before_sub leaf",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18440,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 goto_before_sub main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 61,
+            "frames": [
+              {
+                "return_pc": 52,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 71,
+            "frames": [
+              {
+                "return_pc": 52,
+                "id": 1
+              }
+            ]
+          },
+          {
+            "pc": 52,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    },
+    {
+      "name": "goto_between_subs",
+      "binary": "goto_between_subs.spt",
+      "words": 193,
+      "sha256": "e85a75ad8da63e0c0b5b3517a55327b66297df9ee764997a353d2b604b30d5f6",
+      "description": "GOTO between SUB sites consumes raw UINT32_MAX slot1; SUB IDs0 and2 remain raw producer IDs, never compacted.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "call_a",
+          "pc": 37,
+          "words": 5
+        },
+        {
+          "label": "middle_goto",
+          "pc": 42,
+          "words": 4
+        },
+        {
+          "label": "unreachable",
+          "pc": 46,
+          "words": 6
+        },
+        {
+          "label": "call_b",
+          "pc": 52,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 57,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 63,
+          "words": 3
+        },
+        {
+          "label": "a",
+          "pc": 66,
+          "words": 5
+        },
+        {
+          "label": "a_user",
+          "pc": 71,
+          "words": 5
+        },
+        {
+          "label": "a_return",
+          "pc": 76,
+          "words": 3
+        },
+        {
+          "label": "b",
+          "pc": 79,
+          "words": 5
+        },
+        {
+          "label": "b_print",
+          "pc": 84,
+          "words": 6
+        },
+        {
+          "label": "b_return",
+          "pc": 90,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 93,
+          "words": 7
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 100,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 104,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 108,
+          "words": 33
+        },
+        {
+          "label": "string_table",
+          "pc": 141,
+          "words": 29
+        },
+        {
+          "label": "int32_table",
+          "pc": 170,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 174,
+          "words": 7
+        },
+        {
+          "label": "select_table",
+          "pc": 181,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 185,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 189,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "call_a": 37,
+        "middle_goto": 42,
+        "unreachable": 46,
+        "call_b": 52,
+        "main_after": 57,
+        "end": 63,
+        "a": 66,
+        "a_user": 71,
+        "a_return": 76,
+        "b": 79,
+        "b_print": 84,
+        "b_return": 90,
+        "main_label_table": 93,
+        "film_koma_offset_table": 100,
+        "koma_jump_table": 104,
+        "message_table": 108,
+        "string_table": 141,
+        "int32_table": 170,
+        "sub_table": 174,
+        "select_table": 181,
+        "command_table": 185,
+        "script_table": 189
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "a",
+          "role": "story"
+        },
+        {
+          "label": "b",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "sub",
+          "label": "call_a",
+          "raw_table_word": 37
+        },
+        {
+          "slot": 1,
+          "role": "goto_hole",
+          "label": "middle_goto",
+          "raw_table_word": 4294967295
+        },
+        {
+          "slot": 2,
+          "role": "sub",
+          "label": "call_b",
+          "raw_table_word": 52
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "call_a",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "a",
+          "pc": 66,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "a_user",
+          "pc": 71,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "a_return",
+          "pc": 76,
+          "frames": [
+            {
+              "return_pc": 42,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "label": "middle_goto",
+          "pc": 42,
+          "frames": []
+        },
+        {
+          "label": "call_b",
+          "pc": 52,
+          "frames": []
+        },
+        {
+          "label": "b",
+          "pc": 79,
+          "frames": [
+            {
+              "return_pc": 57,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "b_print",
+          "pc": 84,
+          "frames": [
+            {
+              "return_pc": 57,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "b_return",
+          "pc": 90,
+          "frames": [
+            {
+              "return_pc": 57,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 57,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 63,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 286326785,
+            "pc_after": 76,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 90,
+            "frames": [
+              {
+                "return_pc": 57,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 63,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 63,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 goto_between_subs main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 goto_between_subs a",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18441,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 goto_between_subs b",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8003,
+            "text_ascii": "DW008 goto_between_subs b_print",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 goto_between_subs main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 66,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 76,
+            "frames": [
+              {
+                "return_pc": 42,
+                "id": 0
+              }
+            ]
+          },
+          {
+            "pc": 79,
+            "frames": [
+              {
+                "return_pc": 57,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "pc": 84,
+            "frames": [
+              {
+                "return_pc": 57,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "pc": 57,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    },
+    {
+      "name": "consecutive_goto_holes",
+      "binary": "consecutive_goto_holes.spt",
+      "words": 166,
+      "sha256": "65184b5d51ce121e029a8a14ddac9af42064236669968731f3a844ab21996742",
+      "description": "Two consecutive GOTOs consume out-of-range non-target raw words; following SUB has ID2, while GOTO never changes active frames.",
+      "upstream_differential": true,
+      "profile": "strict_labels_v1",
+      "expectation_tier": "manual_instruction_paths_and_frames_confirmed_by_real_upstream",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "main",
+          "pc": 32,
+          "words": 5
+        },
+        {
+          "label": "first_goto",
+          "pc": 37,
+          "words": 4
+        },
+        {
+          "label": "second_goto",
+          "pc": 41,
+          "words": 4
+        },
+        {
+          "label": "unreachable",
+          "pc": 45,
+          "words": 6
+        },
+        {
+          "label": "call_leaf",
+          "pc": 51,
+          "words": 5
+        },
+        {
+          "label": "main_after",
+          "pc": 56,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 62,
+          "words": 3
+        },
+        {
+          "label": "leaf",
+          "pc": 65,
+          "words": 5
+        },
+        {
+          "label": "leaf_user",
+          "pc": 70,
+          "words": 5
+        },
+        {
+          "label": "leaf_return",
+          "pc": 75,
+          "words": 3
+        },
+        {
+          "label": "main_label_table",
+          "pc": 78,
+          "words": 6
+        },
+        {
+          "label": "film_koma_offset_table",
+          "pc": 84,
+          "words": 4
+        },
+        {
+          "label": "koma_jump_table",
+          "pc": 88,
+          "words": 4
+        },
+        {
+          "label": "message_table",
+          "pc": 92,
+          "words": 27
+        },
+        {
+          "label": "string_table",
+          "pc": 119,
+          "words": 24
+        },
+        {
+          "label": "int32_table",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "sub_table",
+          "pc": 147,
+          "words": 7
+        },
+        {
+          "label": "select_table",
+          "pc": 154,
+          "words": 4
+        },
+        {
+          "label": "command_table",
+          "pc": 158,
+          "words": 4
+        },
+        {
+          "label": "script_table",
+          "pc": 162,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "main": 32,
+        "first_goto": 37,
+        "second_goto": 41,
+        "unreachable": 45,
+        "call_leaf": 51,
+        "main_after": 56,
+        "end": 62,
+        "leaf": 65,
+        "leaf_user": 70,
+        "leaf_return": 75,
+        "main_label_table": 78,
+        "film_koma_offset_table": 84,
+        "koma_jump_table": 88,
+        "message_table": 92,
+        "string_table": 119,
+        "int32_table": 143,
+        "sub_table": 147,
+        "select_table": 154,
+        "command_table": 158,
+        "script_table": 162
+      },
+      "main_label_roles": [
+        {
+          "label": "main",
+          "role": "story"
+        },
+        {
+          "label": "leaf",
+          "role": "story"
+        }
+      ],
+      "sub_adjustment_registration": [
+        {
+          "slot": 0,
+          "role": "goto_hole",
+          "label": "first_goto",
+          "raw_table_word": 305419896
+        },
+        {
+          "slot": 1,
+          "role": "goto_hole",
+          "label": "second_goto",
+          "raw_table_word": 2271560481
+        },
+        {
+          "slot": 2,
+          "role": "sub",
+          "label": "call_leaf",
+          "raw_table_word": 51
+        }
+      ],
+      "goto_hole_contract": "SUB and GOTO share the producer registration counter. Only SUB saves an ID and writes its PC into that slot. Fixed GOTO-hole words are unused raw metadata, never branch targets or saved IDs.",
+      "explicit_instruction_trace": [
+        {
+          "label": "main",
+          "pc": 32,
+          "frames": []
+        },
+        {
+          "label": "first_goto",
+          "pc": 37,
+          "frames": []
+        },
+        {
+          "label": "second_goto",
+          "pc": 41,
+          "frames": []
+        },
+        {
+          "label": "call_leaf",
+          "pc": 51,
+          "frames": []
+        },
+        {
+          "label": "leaf",
+          "pc": 65,
+          "frames": [
+            {
+              "return_pc": 56,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "leaf_user",
+          "pc": 70,
+          "frames": [
+            {
+              "return_pc": 56,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "leaf_return",
+          "pc": 75,
+          "frames": [
+            {
+              "return_pc": 56,
+              "id": 2
+            }
+          ]
+        },
+        {
+          "label": "main_after",
+          "pc": 56,
+          "frames": []
+        },
+        {
+          "label": "end",
+          "pc": 62,
+          "frames": []
+        }
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 286326785,
+            "pc_after": 75,
+            "frames": [
+              {
+                "return_pc": 56,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "return": 572653569,
+            "pc_after": 62,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 62,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 consecutive_goto_holes main",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW008 consecutive_goto_holes leaf",
+            "para3": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 18442,
+            "parameters": []
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 8002,
+            "text_ascii": "DW008 consecutive_goto_holes main_after",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 65,
+            "frames": [
+              {
+                "return_pc": 56,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "pc": 75,
+            "frames": [
+              {
+                "return_pc": 56,
+                "id": 2
+              }
+            ]
+          },
+          {
+            "pc": 56,
+            "frames": []
+          }
+        ],
+        "final_variables": {}
+      }
+    }
+  ]
+}

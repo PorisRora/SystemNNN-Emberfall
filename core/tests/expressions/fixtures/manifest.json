@@ -1,0 +1,7887 @@
+{
+  "task": "DW-003",
+  "source_commit": "78a05053c78b3b80065a9a209c6685a7c60a2e83",
+  "content_origin": "new self-authored synthetic ASCII SPT; all results manually fixed; old fixtures untouched",
+  "fixtures": [
+    {
+      "name": "add_positive",
+      "binary": "add_positive.spt",
+      "words": 152,
+      "sha256": "f6d40bec762d6ab5b6fa783c75fa6b08682ecd1b3bf1cb07697c99ce4508930e",
+      "operator_description": "+",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 19
+        },
+        {
+          "label": "strings",
+          "pc": 122,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 132,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 136,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 140,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 144,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 148,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 122,
+        "constants": 132,
+        "sub": 136,
+        "select": 140,
+        "command": 144,
+        "script": 148
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 123
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 456
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 456
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 456
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 579
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 579
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 add_positive BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 456
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 456
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 579
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              123,
+              456,
+              579,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 add_positive END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 123,
+          "101": 456,
+          "110": 579,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "add_negative",
+      "binary": "add_negative.spt",
+      "words": 152,
+      "sha256": "03d2f10b2064f925a74f309e1b606590b0692b43558f5e55478b647a331ecdb8",
+      "operator_description": "+",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 19
+        },
+        {
+          "label": "strings",
+          "pc": 122,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 132,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 136,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 140,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 144,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 148,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 122,
+        "constants": 132,
+        "sub": 136,
+        "select": 140,
+        "command": 144,
+        "script": 148
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -9
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -9
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -9
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": -7
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 add_negative BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -9
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -9
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -9,
+              2,
+              -7,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 add_negative END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -9,
+          "101": 2,
+          "110": -7,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "subtract_negative",
+      "binary": "subtract_negative.spt",
+      "words": 154,
+      "sha256": "5e8fd32c84aaba6e83ee18ea0166e3a5a2ac99c3fc09cbf4aa5c9b306eaf39d5",
+      "operator_description": "-",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 21
+        },
+        {
+          "label": "strings",
+          "pc": 124,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 134,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 138,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 150,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 124,
+        "constants": 134,
+        "sub": 138,
+        "select": 142,
+        "command": 146,
+        "script": 150
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 10
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 10
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 10
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": -7
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 subtract_negative BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 10
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 10
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              3,
+              10,
+              -7,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 subtract_negative END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 3,
+          "101": 10,
+          "110": -7,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "subtract_two_negatives",
+      "binary": "subtract_two_negatives.spt",
+      "words": 157,
+      "sha256": "9209c25fc6bddbddd2515f434485c4ba891c1e88d2dfd253d3b8f077cdf2bfee",
+      "operator_description": "-",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 24
+        },
+        {
+          "label": "strings",
+          "pc": 127,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 137,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 141,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 145,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 149,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 153,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 127,
+        "constants": 137,
+        "sub": 141,
+        "select": 145,
+        "command": 149,
+        "script": 153
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": -12
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -12
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -12
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 5
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 5
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 subtract_two_negatives BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -12
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": -12
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 5
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -7,
+              -12,
+              5,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 subtract_two_negatives END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -7,
+          "101": -12,
+          "110": 5,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "multiply_negative",
+      "binary": "multiply_negative.spt",
+      "words": 154,
+      "sha256": "0b8cf6f48aa73e509bdbd6d2fc95b769adf6655b8814874cd04266ee49b65878",
+      "operator_description": "*",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 21
+        },
+        {
+          "label": "strings",
+          "pc": 124,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 134,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 138,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 150,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 124,
+        "constants": 134,
+        "sub": 138,
+        "select": 142,
+        "command": 146,
+        "script": 150
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -6
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -6
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -6
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": -42
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": -42
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 multiply_negative BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -6
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -6
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": -42
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -6,
+              7,
+              -42,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 multiply_negative END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -6,
+          "101": 7,
+          "110": -42,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "multiply_wide_intermediate",
+      "binary": "multiply_wide_intermediate.spt",
+      "words": 159,
+      "sha256": "828a9d9b73877e43f00e046d554246c059579434b3d96160c3c7bff78e1aeae3",
+      "operator_description": "*",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 26
+        },
+        {
+          "label": "strings",
+          "pc": 129,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 139,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 147,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 151,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 155,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 129,
+        "constants": 139,
+        "sub": 143,
+        "select": 147,
+        "command": 151,
+        "script": 155
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 60000
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 60000
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 multiply_wide_intermediate BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 2
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 60000
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              30000,
+              2,
+              60000,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 multiply_wide_intermediate END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 30000,
+          "101": 2,
+          "110": 60000,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "less_true",
+      "binary": "less_true.spt",
+      "words": 150,
+      "sha256": "ec78421fc866a52a1a6fb001165dd261b02a10d01b06797418e02fdb493f18dc",
+      "operator_description": "<",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 17
+        },
+        {
+          "label": "strings",
+          "pc": 120,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 130,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 134,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 138,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 146,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 120,
+        "constants": 130,
+        "sub": 134,
+        "select": 138,
+        "command": 142,
+        "script": 146
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 3
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 less_true BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 3
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 3
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -7,
+              3,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 less_true END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -7,
+          "101": 3,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "less_false",
+      "binary": "less_false.spt",
+      "words": 151,
+      "sha256": "132a79551587ee3824bc97e470a5f442dd85a8cd66dbbd1186469dde6516d6d4",
+      "operator_description": "<",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 18
+        },
+        {
+          "label": "strings",
+          "pc": 121,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 131,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 135,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 139,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 147,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 121,
+        "constants": 131,
+        "sub": 135,
+        "select": 139,
+        "command": 143,
+        "script": 147
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 less_false BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 3
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              3,
+              -7,
+              0,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 less_false END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 3,
+          "101": -7,
+          "110": 0,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "greater_true",
+      "binary": "greater_true.spt",
+      "words": 152,
+      "sha256": "88959ca34017c7bea4fb7ccb978a1ce097d2d69c2c8ed645288814c179a84a96",
+      "operator_description": ">",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 19
+        },
+        {
+          "label": "strings",
+          "pc": 122,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 132,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 136,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 140,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 144,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 148,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 122,
+        "constants": 132,
+        "sub": 136,
+        "select": 140,
+        "command": 144,
+        "script": 148
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 greater_true BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              7,
+              -3,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 greater_true END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 7,
+          "101": -3,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "greater_false",
+      "binary": "greater_false.spt",
+      "words": 152,
+      "sha256": "17c68049cb7088b46e555fe73a4bf0514f2af01c4972fcda3bcae80d4f2706a0",
+      "operator_description": ">",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 19
+        },
+        {
+          "label": "strings",
+          "pc": 122,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 132,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 136,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 140,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 144,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 148,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 122,
+        "constants": 132,
+        "sub": 136,
+        "select": 140,
+        "command": 144,
+        "script": 148
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -3
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -3
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 greater_false BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -3
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -3,
+              7,
+              0,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 greater_false END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -3,
+          "101": 7,
+          "110": 0,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "less_equal_equal",
+      "binary": "less_equal_equal.spt",
+      "words": 154,
+      "sha256": "352598bbab35e1c0e1e2243cb928ddf28650c812a882915d7c48c69956e2866d",
+      "operator_description": "<=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 21
+        },
+        {
+          "label": "strings",
+          "pc": 124,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 134,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 138,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 150,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 124,
+        "constants": 134,
+        "sub": 138,
+        "select": 142,
+        "command": 146,
+        "script": 150
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 less_equal_equal BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -7,
+              -7,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 less_equal_equal END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -7,
+          "101": -7,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "less_equal_strict_true",
+      "binary": "less_equal_strict_true.spt",
+      "words": 157,
+      "sha256": "03ad16a322fdc299282e3745f163e9ad9c877b17780269e863eeaa2821ac6dd4",
+      "operator_description": "<=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 24
+        },
+        {
+          "label": "strings",
+          "pc": 127,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 137,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 141,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 145,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 149,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 153,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 127,
+        "constants": 137,
+        "sub": 141,
+        "select": 145,
+        "command": 149,
+        "script": 153
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 less_equal_strict_true BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": -7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -8,
+              -7,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 less_equal_strict_true END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -8,
+          "101": -7,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "less_equal_false",
+      "binary": "less_equal_false.spt",
+      "words": 154,
+      "sha256": "969c9dfd20e3b18d0c16d4ca47b37c7d49bca33a544d6602d918f9a309948c18",
+      "operator_description": "<=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 21
+        },
+        {
+          "label": "strings",
+          "pc": 124,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 134,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 138,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 150,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 124,
+        "constants": 134,
+        "sub": 138,
+        "select": 142,
+        "command": 146,
+        "script": 150
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 less_equal_false BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              8,
+              7,
+              0,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 less_equal_false END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 8,
+          "101": 7,
+          "110": 0,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "greater_equal_equal",
+      "binary": "greater_equal_equal.spt",
+      "words": 155,
+      "sha256": "fb64c2bfc3d6cbc06c84231779400c49cac05a6e27b2490521d3edb73eb5420c",
+      "operator_description": ">=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 22
+        },
+        {
+          "label": "strings",
+          "pc": 125,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 135,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 139,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 147,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 151,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 125,
+        "constants": 135,
+        "sub": 139,
+        "select": 143,
+        "command": 147,
+        "script": 151
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 greater_equal_equal BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              7,
+              7,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 greater_equal_equal END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 7,
+          "101": 7,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "greater_equal_strict_true",
+      "binary": "greater_equal_strict_true.spt",
+      "words": 158,
+      "sha256": "d3e7cb510627940be91a2f359c72f3da839fe39fca599149e6565d71f43ad60c",
+      "operator_description": ">=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 25
+        },
+        {
+          "label": "strings",
+          "pc": 128,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 138,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 150,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 154,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 128,
+        "constants": 138,
+        "sub": 142,
+        "select": 146,
+        "command": 150,
+        "script": 154
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 greater_equal_strict_true BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 8
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              8,
+              7,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 greater_equal_strict_true END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 8,
+          "101": 7,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "greater_equal_false",
+      "binary": "greater_equal_false.spt",
+      "words": 155,
+      "sha256": "0529df73715afc39301198425566fb68291cef431d3618d5f5c9d796d1386a58",
+      "operator_description": ">=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 22
+        },
+        {
+          "label": "strings",
+          "pc": 125,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 135,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 139,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 147,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 151,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 125,
+        "constants": 135,
+        "sub": 139,
+        "select": 143,
+        "command": 147,
+        "script": 151
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 greater_equal_false BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -8
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -8,
+              7,
+              0,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 greater_equal_false END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -8,
+          "101": 7,
+          "110": 0,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "not_equal_extrema",
+      "binary": "not_equal_extrema.spt",
+      "words": 156,
+      "sha256": "7b661c5fc159aa05a05bc7db31dc85de3719803d706d24d26926ccdb6a024924",
+      "operator_description": "!=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 21
+        },
+        {
+          "label": "strings",
+          "pc": 124,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 134,
+          "words": 6
+        },
+        {
+          "label": "sub",
+          "pc": 140,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 144,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 148,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 152,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 124,
+        "constants": 134,
+        "sub": 140,
+        "select": 144,
+        "command": 148,
+        "script": 152
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 not_equal_extrema BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -2147483648,
+              2147483647,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 not_equal_extrema END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -2147483648,
+          "101": 2147483647,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "not_equal_false",
+      "binary": "not_equal_false.spt",
+      "words": 155,
+      "sha256": "3b6a2592daa09e53ddd80ede63535ef4285d92f09e10225310832ddb30df3d3d",
+      "operator_description": "!=",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 20
+        },
+        {
+          "label": "strings",
+          "pc": 123,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 133,
+          "words": 6
+        },
+        {
+          "label": "sub",
+          "pc": 139,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 147,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 151,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 123,
+        "constants": 133,
+        "sub": 139,
+        "select": 143,
+        "command": 147,
+        "script": 151
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -2147483648
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 not_equal_false BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -2147483648,
+              -2147483648,
+              0,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 not_equal_false END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -2147483648,
+          "101": -2147483648,
+          "110": 0,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "existing_equal_true",
+      "binary": "existing_equal_true.spt",
+      "words": 157,
+      "sha256": "c77fc12103882e979acfcba628b8e9833a5a970677564fd268924a9e7c5a6f8d",
+      "operator_description": "==",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 22
+        },
+        {
+          "label": "strings",
+          "pc": 125,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 135,
+          "words": 6
+        },
+        {
+          "label": "sub",
+          "pc": 141,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 145,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 149,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 153,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 125,
+        "constants": 135,
+        "sub": 141,
+        "select": 145,
+        "command": 149,
+        "script": 153
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 existing_equal_true BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              2147483647,
+              2147483647,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 existing_equal_true END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 2147483647,
+          "101": 2147483647,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "existing_equal_false",
+      "binary": "existing_equal_false.spt",
+      "words": 158,
+      "sha256": "4ba66ebdc56486a1cc282df5c37c97649947c8582e0d12db964aadb0cfcc12d2",
+      "operator_description": "==",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 23
+        },
+        {
+          "label": "strings",
+          "pc": 126,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 136,
+          "words": 6
+        },
+        {
+          "label": "sub",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 150,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 154,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 126,
+        "constants": 136,
+        "sub": 142,
+        "select": 146,
+        "command": 150,
+        "script": 154
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 existing_equal_false BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -2147483648,
+              2147483647,
+              0,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 existing_equal_false END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -2147483648,
+          "101": 2147483647,
+          "110": 0,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "signed16_boundary",
+      "binary": "signed16_boundary.spt",
+      "words": 154,
+      "sha256": "a1121af0a23b96b2c1c36084077871a2af5990d0cd6b7f0e39950daef3a23e0d",
+      "operator_description": "-",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 21
+        },
+        {
+          "label": "strings",
+          "pc": 124,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 134,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 138,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 142,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 150,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 124,
+        "constants": 134,
+        "sub": 138,
+        "select": 142,
+        "command": 146,
+        "script": 150
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -32767
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -32767
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -32767
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": -32768
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": -32768
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 signed16_boundary BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -32767
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -32767
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": -32768
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -32767,
+              1,
+              -32768,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 signed16_boundary END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -32767,
+          "101": 1,
+          "110": -32768,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "int32_min_no_overflow",
+      "binary": "int32_min_no_overflow.spt",
+      "words": 157,
+      "sha256": "793dd2298a973742739a7fe9f246950b0bc31b6649c6acc6223ca06d9a36c4c5",
+      "operator_description": "+",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 23
+        },
+        {
+          "label": "strings",
+          "pc": 126,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 136,
+          "words": 5
+        },
+        {
+          "label": "sub",
+          "pc": 141,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 145,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 149,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 153,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 126,
+        "constants": 136,
+        "sub": 141,
+        "select": 145,
+        "command": 149,
+        "script": 153
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": -2147483648
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 int32_min_no_overflow BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -2147483648,
+              0,
+              -2147483648,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 int32_min_no_overflow END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -2147483648,
+          "101": 0,
+          "110": -2147483648,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "int32_max_no_overflow",
+      "binary": "int32_max_no_overflow.spt",
+      "words": 157,
+      "sha256": "e460e2ff6a3cc69bd5c74fb0bb85b8dc16ae8850f59154f9d7719e448927eae5",
+      "operator_description": "-",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 23
+        },
+        {
+          "label": "strings",
+          "pc": 126,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 136,
+          "words": 5
+        },
+        {
+          "label": "sub",
+          "pc": 141,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 145,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 149,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 153,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 126,
+        "constants": 136,
+        "sub": 141,
+        "select": 145,
+        "command": 149,
+        "script": 153
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 2147483647
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 int32_max_no_overflow BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              2147483647,
+              0,
+              2147483647,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 int32_max_no_overflow END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 2147483647,
+          "101": 0,
+          "110": 2147483647,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "nested_wide_duplicate",
+      "binary": "nested_wide_duplicate.spt",
+      "words": 164,
+      "sha256": "391b7e2b40e291a8426e2c490dd34ecdba8bdcee887b10ed75a0387bc96985d8",
+      "operator_description": "(v100+v100)*(v101-2)",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 14
+        },
+        {
+          "label": "print_begin",
+          "pc": 62,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 68,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 73,
+          "words": 12
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 85,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 93,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 102,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 108,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 111,
+          "words": 23
+        },
+        {
+          "label": "strings",
+          "pc": 134,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 144,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 148,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 152,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 156,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 160,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 62,
+        "storyname": 68,
+        "if_calculation": 73,
+        "conditional_assignment": 85,
+        "user_command": 93,
+        "print_end": 102,
+        "end": 108,
+        "messages": 111,
+        "strings": 134,
+        "constants": 144,
+        "sub": 148,
+        "select": 152,
+        "command": 156,
+        "script": 160
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 68
+          },
+          {
+            "return": 286326785,
+            "pc_after": 102
+          },
+          {
+            "return": 572653569,
+            "pc_after": 108
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 108
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 5
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 5
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 5
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 180000
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 180000
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 nested_wide_duplicate BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 5
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 30000
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 5
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 180000
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              30000,
+              5,
+              180000,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 nested_wide_duplicate END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 30000,
+          "101": 5,
+          "110": 180000,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "nested_negative_duplicate",
+      "binary": "nested_negative_duplicate.spt",
+      "words": 166,
+      "sha256": "07d1d16e389d1888c3c0b7fd923dd8a09971e6c6bd76a18dfc8b25e9893fa9a1",
+      "operator_description": "(v100+v100)*(v101-2)",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 14
+        },
+        {
+          "label": "print_begin",
+          "pc": 62,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 68,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 73,
+          "words": 12
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 85,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 93,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 102,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 108,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 111,
+          "words": 25
+        },
+        {
+          "label": "strings",
+          "pc": 136,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 146,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 150,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 154,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 158,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 162,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 62,
+        "storyname": 68,
+        "if_calculation": 73,
+        "conditional_assignment": 85,
+        "user_command": 93,
+        "print_end": 102,
+        "end": 108,
+        "messages": 111,
+        "strings": 136,
+        "constants": 146,
+        "sub": 150,
+        "select": 154,
+        "command": 158,
+        "script": 162
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 68
+          },
+          {
+            "return": 286326785,
+            "pc_after": 102
+          },
+          {
+            "return": 572653569,
+            "pc_after": 108
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 108
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -10
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -10
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -10
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -10
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 100
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 100
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 nested_negative_duplicate BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -10
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -10
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -10
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": -3
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 100
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -10,
+              -3,
+              100,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 nested_negative_duplicate END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -10,
+          "101": -3,
+          "110": 100,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "computed_extrema_comparison",
+      "binary": "computed_extrema_comparison.spt",
+      "words": 165,
+      "sha256": "c0de71a7521102051a68d30a0e3d2e9768aba9662209af56e1b0d2d7c882132a",
+      "operator_description": "(v100+0)<v101",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 12
+        },
+        {
+          "label": "print_begin",
+          "pc": 60,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 66,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 71,
+          "words": 10
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 81,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 89,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 98,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 104,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 107,
+          "words": 26
+        },
+        {
+          "label": "strings",
+          "pc": 133,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 143,
+          "words": 6
+        },
+        {
+          "label": "sub",
+          "pc": 149,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 153,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 157,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 161,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 60,
+        "storyname": 66,
+        "if_calculation": 71,
+        "conditional_assignment": 81,
+        "user_command": 89,
+        "print_end": 98,
+        "end": 104,
+        "messages": 107,
+        "strings": 133,
+        "constants": 143,
+        "sub": 149,
+        "select": 153,
+        "command": 157,
+        "script": 161
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 66
+          },
+          {
+            "return": 286326785,
+            "pc_after": 98
+          },
+          {
+            "return": 572653569,
+            "pc_after": 104
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 104
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 computed_extrema_comparison BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -2147483648,
+              2147483647,
+              1,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 computed_extrema_comparison END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -2147483648,
+          "101": 2147483647,
+          "110": 1,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "nested_assignment_delayed_reference",
+      "binary": "nested_assignment_delayed_reference.spt",
+      "words": 167,
+      "sha256": "6a3e04ec2f583f773af00953d00837b5b7a34d9032acd4946171288b605a1e40",
+      "operator_description": "(v100=7)+v100",
+      "upstream_differential": true,
+      "expectation_tier": "ordinary_nonoverflow_upstream_differential",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 12
+        },
+        {
+          "label": "print_begin",
+          "pc": 60,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 66,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 71,
+          "words": 10
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 81,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 89,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 98,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 104,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 107,
+          "words": 30
+        },
+        {
+          "label": "strings",
+          "pc": 137,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 147,
+          "words": 4
+        },
+        {
+          "label": "sub",
+          "pc": 151,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 155,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 159,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 163,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 60,
+        "storyname": 66,
+        "if_calculation": 71,
+        "conditional_assignment": 81,
+        "user_command": 89,
+        "print_end": 98,
+        "end": 104,
+        "messages": 107,
+        "strings": 137,
+        "constants": 147,
+        "sub": 151,
+        "select": 155,
+        "command": 159,
+        "script": 163
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 66
+          },
+          {
+            "return": 286326785,
+            "pc_after": 98
+          },
+          {
+            "return": 572653569,
+            "pc_after": 104
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 104
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 12
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 12
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 14
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 14
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 nested_assignment_delayed_reference BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 14
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              7,
+              0,
+              14,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 nested_assignment_delayed_reference END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 7,
+          "101": 0,
+          "110": 14,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "wrap_add_max",
+      "binary": "wrap_add_max.spt",
+      "words": 153,
+      "sha256": "5cd7cc67465cb0cfa0b85fce4ecc08aaa789bde41e37bd33b899f4e4f0d4fad6",
+      "operator_description": "+",
+      "upstream_differential": false,
+      "expectation_tier": "manual_modulo32_contract_not_upstream_binary_evidence",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 19
+        },
+        {
+          "label": "strings",
+          "pc": 122,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 132,
+          "words": 5
+        },
+        {
+          "label": "sub",
+          "pc": 137,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 141,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 145,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 149,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 122,
+        "constants": 132,
+        "sub": 137,
+        "select": 141,
+        "command": 145,
+        "script": 149
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": -2147483648
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 wrap_add_max BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              2147483647,
+              1,
+              -2147483648,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 wrap_add_max END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 2147483647,
+          "101": 1,
+          "110": -2147483648,
+          "111": 0
+        }
+      }
+    },
+    {
+      "name": "wrap_subtract_min",
+      "binary": "wrap_subtract_min.spt",
+      "words": 155,
+      "sha256": "2a25037b845df38b8560a88e65e1be5d3e51f9b606e58739218237192688067f",
+      "operator_description": "-",
+      "upstream_differential": false,
+      "expectation_tier": "manual_modulo32_contract_not_upstream_binary_evidence",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 21
+        },
+        {
+          "label": "strings",
+          "pc": 124,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 134,
+          "words": 5
+        },
+        {
+          "label": "sub",
+          "pc": 139,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 147,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 151,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 124,
+        "constants": 134,
+        "sub": 139,
+        "select": 143,
+        "command": 147,
+        "script": 151
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 2147483647
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 wrap_subtract_min BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "set_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": -2147483648
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 1
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 2147483647
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 123
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              -2147483648,
+              1,
+              2147483647,
+              123
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 wrap_subtract_min END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": -2147483648,
+          "101": 1,
+          "110": 2147483647,
+          "111": 123
+        }
+      }
+    },
+    {
+      "name": "wrap_multiply_full_word",
+      "binary": "wrap_multiply_full_word.spt",
+      "words": 159,
+      "sha256": "a13fc92da37fe10b816bd8d1c4ffb2779defe48ae137feb3892c793758114a8c",
+      "operator_description": "*",
+      "upstream_differential": false,
+      "expectation_tier": "manual_modulo32_contract_not_upstream_binary_evidence",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "label": "header",
+          "pc": 0,
+          "words": 32
+        },
+        {
+          "label": "initialize_left",
+          "pc": 32,
+          "words": 8
+        },
+        {
+          "label": "initialize_right",
+          "pc": 40,
+          "words": 8
+        },
+        {
+          "label": "calculate",
+          "pc": 48,
+          "words": 10
+        },
+        {
+          "label": "print_begin",
+          "pc": 58,
+          "words": 6
+        },
+        {
+          "label": "storyname",
+          "pc": 64,
+          "words": 5
+        },
+        {
+          "label": "if_calculation",
+          "pc": 69,
+          "words": 8
+        },
+        {
+          "label": "conditional_assignment",
+          "pc": 77,
+          "words": 8
+        },
+        {
+          "label": "user_command",
+          "pc": 85,
+          "words": 9
+        },
+        {
+          "label": "print_end",
+          "pc": 94,
+          "words": 6
+        },
+        {
+          "label": "end",
+          "pc": 100,
+          "words": 3
+        },
+        {
+          "label": "messages",
+          "pc": 103,
+          "words": 24
+        },
+        {
+          "label": "strings",
+          "pc": 127,
+          "words": 10
+        },
+        {
+          "label": "constants",
+          "pc": 137,
+          "words": 6
+        },
+        {
+          "label": "sub",
+          "pc": 143,
+          "words": 4
+        },
+        {
+          "label": "select",
+          "pc": 147,
+          "words": 4
+        },
+        {
+          "label": "command",
+          "pc": 151,
+          "words": 4
+        },
+        {
+          "label": "script",
+          "pc": 155,
+          "words": 4
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "initialize_left": 32,
+        "initialize_right": 40,
+        "calculate": 48,
+        "print_begin": 58,
+        "storyname": 64,
+        "if_calculation": 69,
+        "conditional_assignment": 77,
+        "user_command": 85,
+        "print_end": 94,
+        "end": 100,
+        "messages": 103,
+        "strings": 127,
+        "constants": 137,
+        "sub": 143,
+        "select": 147,
+        "command": 151,
+        "script": 155
+      },
+      "expected": {
+        "origin": "manually fixed results and source-traced callback sequence, not produced by the tested core",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 64
+          },
+          {
+            "return": 286326785,
+            "pc_after": 94
+          },
+          {
+            "return": 572653569,
+            "pc_after": 100
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 100
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 65536
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 65536
+          },
+          {
+            "kind": "set_var",
+            "index": 101,
+            "value": 65536
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 65536
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 65536
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 65536
+          },
+          {
+            "kind": "set_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3001,
+            "text_ascii": "DW003 wrap_multiply_full_word BEGIN",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW003-EXPRESSIONS",
+            "para3": 0
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 65536
+          },
+          {
+            "kind": "get_var",
+            "index": 101,
+            "value": 65536
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 65536
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 101,
+            "value": 65536
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 110,
+            "value": 0
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 111,
+            "value": 0
+          },
+          {
+            "kind": "user_command",
+            "code": 9029,
+            "parameters": [
+              65536,
+              65536,
+              0,
+              0
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 3002,
+            "text_ascii": "DW003 wrap_multiply_full_word END",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 65536,
+          "101": 65536,
+          "110": 0,
+          "111": 0
+        }
+      }
+    }
+  ]
+}

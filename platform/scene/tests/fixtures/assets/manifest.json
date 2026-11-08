@@ -1,0 +1,165 @@
+{
+  "task": "DW-011",
+  "authorship": "All pixel literals self-authored; no image decoder or scene compositor used to derive expected bytes.",
+  "format": "DWQ PACKTYPE=8A, zero margins, RGBA8 noninterlaced PNG, filter0",
+  "fixtures": [
+    {
+      "name": "lower",
+      "binary": "lower.dwq",
+      "width": 3,
+      "height": 2,
+      "rgba": [
+        101,
+        51,
+        201,
+        255,
+        101,
+        51,
+        201,
+        255,
+        101,
+        51,
+        201,
+        255,
+        11,
+        151,
+        61,
+        255,
+        11,
+        151,
+        61,
+        255,
+        11,
+        151,
+        61,
+        255
+      ],
+      "sha256": "5f2a9aa0c8313fed20c68ec0f28e6d0c005ff8a3372e25321c24a06c2a67cf35",
+      "bytes": 142
+    },
+    {
+      "name": "upper",
+      "binary": "upper.dwq",
+      "width": 2,
+      "height": 3,
+      "rgba": [
+        250,
+        20,
+        30,
+        255,
+        90,
+        180,
+        70,
+        0,
+        201,
+        101,
+        1,
+        128,
+        21,
+        201,
+        101,
+        128,
+        51,
+        61,
+        71,
+        255,
+        201,
+        31,
+        101,
+        128
+      ],
+      "sha256": "2ca604bddb564f2bf1c7c49c9525ad867ff69d3b00d4eb7f669fc5428f954f2e",
+      "bytes": 157
+    },
+    {
+      "name": "upper_changed",
+      "binary": "upper_changed.dwq",
+      "width": 2,
+      "height": 3,
+      "rgba": [
+        30,
+        220,
+        40,
+        255,
+        1,
+        2,
+        3,
+        0,
+        1,
+        201,
+        101,
+        128,
+        221,
+        1,
+        201,
+        128,
+        151,
+        161,
+        171,
+        255,
+        1,
+        231,
+        201,
+        128
+      ],
+      "sha256": "c99bef8aee895ee5912fd9260cff6a27dd995b60b44e6e57c0237572234fd77b",
+      "bytes": 157
+    },
+    {
+      "name": "tiny_red",
+      "binary": "tiny_red.dwq",
+      "width": 1,
+      "height": 1,
+      "rgba": [
+        255,
+        0,
+        0,
+        255
+      ],
+      "sha256": "2f066216dd0a9a9f60e0f2eb65721d1c6823c6b065c9f373c1b8d62fc242695d",
+      "bytes": 134
+    },
+    {
+      "name": "tiny_green",
+      "binary": "tiny_green.dwq",
+      "width": 1,
+      "height": 1,
+      "rgba": [
+        0,
+        255,
+        0,
+        255
+      ],
+      "sha256": "c640ef6dd34bc6e20bc461ab07df17d1ba244ee5eb6a6416f6b961b3cc07ebd0",
+      "bytes": 134
+    },
+    {
+      "name": "tiny_alpha",
+      "binary": "tiny_alpha.dwq",
+      "width": 1,
+      "height": 1,
+      "rgba": [
+        201,
+        101,
+        1,
+        128
+      ],
+      "sha256": "9b76025e0582d9cfc32f0f9ebd35c51ce980c36babf438a803ef11b134141a7c",
+      "bytes": 134
+    },
+    {
+      "name": "large_black_2048",
+      "binary": "large_black_2048.dwq",
+      "width": 2048,
+      "height": 2048,
+      "uniform_rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "sha256": "c228a7eef5699be89465ea05dfa32185fe4120fd23fe3cb26bd5290a5174eaf7",
+      "bytes": 19769
+    }
+  ]
+}

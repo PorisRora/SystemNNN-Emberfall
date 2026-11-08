@@ -1,0 +1,383 @@
+{
+  "task": "DW-014",
+  "authorship": "Manual raw words, signed values, PC/callback expectations; no VM generated the oracle.",
+  "scope": "Both table profiles, Closed and Foreground load modes. Original source runs each binary once; new core runs all four combinations.",
+  "raw_token_proof": {
+    "SCRIPT_VAR_index7": "0x80000007 is passed as -2147483641, without GetVarData",
+    "SCRIPT_NUMBER7": "0x90000007 is passed as -1879048185, not7"
+  },
+  "fixtures": [
+    {
+      "name": "raw_legacy7",
+      "binary": "raw_legacy7.spt",
+      "sha256": "9b31b13e12d48e099fb762791d1128f56786f7631625c9ed86c2bcb31e1ce2d5",
+      "table_profile": "legacy7",
+      "raw_values": [
+        0,
+        1,
+        4294967295,
+        2147483647,
+        2147483648,
+        2147483649,
+        32767,
+        32768,
+        305419896,
+        2147483655,
+        2415919111
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 93,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 93,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 0,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 1,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -1,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 2147483647,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -2147483648,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -2147483647,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 32767,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 32768,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 305419896,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -2147483641,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -1879048185,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 0,
+            "text_hex": "4d",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 42,
+            "frames": []
+          },
+          {
+            "pc": 47,
+            "frames": []
+          },
+          {
+            "pc": 52,
+            "frames": []
+          },
+          {
+            "pc": 57,
+            "frames": []
+          },
+          {
+            "pc": 62,
+            "frames": []
+          },
+          {
+            "pc": 67,
+            "frames": []
+          },
+          {
+            "pc": 72,
+            "frames": []
+          },
+          {
+            "pc": 77,
+            "frames": []
+          },
+          {
+            "pc": 82,
+            "frames": []
+          },
+          {
+            "pc": 87,
+            "frames": []
+          }
+        ],
+        "final_variables": {},
+        "error_count": 0,
+        "end_reached": true
+      },
+      "source_expected_text_null": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "name": "raw_labels",
+      "binary": "raw_labels.spt",
+      "sha256": "5cad19651c840e552272f806a3f8744de21f08f92e7d419d52b494287f70b8b3",
+      "table_profile": "labels",
+      "raw_values": [
+        0,
+        1,
+        4294967295,
+        2147483647,
+        2147483648,
+        2147483649,
+        32767,
+        32768,
+        305419896,
+        2147483655,
+        2415919111
+      ],
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 93,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 93,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 0,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 1,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -1,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 2147483647,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -2147483648,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -2147483647,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 32767,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 32768,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": 305419896,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -2147483641,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980434,
+            "para1": -1879048185,
+            "text_hex": "",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 0,
+            "text_hex": "4d",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 37,
+            "frames": []
+          },
+          {
+            "pc": 42,
+            "frames": []
+          },
+          {
+            "pc": 47,
+            "frames": []
+          },
+          {
+            "pc": 52,
+            "frames": []
+          },
+          {
+            "pc": 57,
+            "frames": []
+          },
+          {
+            "pc": 62,
+            "frames": []
+          },
+          {
+            "pc": 67,
+            "frames": []
+          },
+          {
+            "pc": 72,
+            "frames": []
+          },
+          {
+            "pc": 77,
+            "frames": []
+          },
+          {
+            "pc": 82,
+            "frames": []
+          },
+          {
+            "pc": 87,
+            "frames": []
+          }
+        ],
+        "final_variables": {},
+        "error_count": 0,
+        "end_reached": true
+      },
+      "source_expected_text_null": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  ]
+}

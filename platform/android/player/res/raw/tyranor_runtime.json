@@ -1,0 +1,9 @@
+{
+  "protocol": 1,
+  "label": "SystemNNN-Emberfall",
+  "scan": {
+    "match": "all",
+    "markers": ["spt/sys.spt"]
+  }
+}
+

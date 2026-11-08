@@ -1,0 +1,470 @@
+{
+  "task": "DW-006",
+  "expectations": "Independent fixed name/data offsets, lengths, member bytes and lookup outcomes; no new-parser or generator roundtrip",
+  "fixtures": [
+    {
+      "name": "three_unsorted_name_pool",
+      "gtb_filename": "three_unsorted_name_pool.gtb",
+      "gpk_filename": "three_unsorted_name_pool.gpk",
+      "gpk_size": 10,
+      "virtual_gpk": false,
+      "format": "Classic32",
+      "gtb_bytes": 45,
+      "gtb_sha256": "a3e4fd3ac7ac61e226d7f51162a16a53721e9f16e97bc65662b9f7bbacb4209e",
+      "gpk_sha256": "84448fdb991926b73ae350919cde325576635f9c6763d7064144fa1fb2c7fa1f",
+      "fixed_name_offsets": [
+        6,
+        12,
+        0
+      ],
+      "fixed_data_offsets": [
+        0,
+        3,
+        8
+      ],
+      "fixed_wide_offsets": null,
+      "fixed_wide_table_offset": null,
+      "entries": [
+        {
+          "name_hex": "616c706861",
+          "offset": 0,
+          "length": 3,
+          "bytes": [
+            65,
+            0,
+            66
+          ],
+          "member_bytes_hex": "410042"
+        },
+        {
+          "name_hex": "62657461",
+          "offset": 3,
+          "length": 5,
+          "bytes": [
+            10,
+            20,
+            30,
+            40,
+            50
+          ],
+          "member_bytes_hex": "0a141e2832"
+        },
+        {
+          "name_hex": "67616d6d61",
+          "offset": 8,
+          "length": 2,
+          "bytes": [
+            255,
+            0
+          ],
+          "member_bytes_hex": "ff00"
+        }
+      ],
+      "queries": [
+        {
+          "query_hex": "616c706861",
+          "found": true,
+          "index": 0,
+          "offset": 0,
+          "legacy_rest_read_size": 3
+        },
+        {
+          "query_hex": "62657461",
+          "found": true,
+          "index": 1,
+          "offset": 3,
+          "legacy_rest_read_size": 5
+        },
+        {
+          "query_hex": "67616d6d61",
+          "found": true,
+          "index": 2,
+          "offset": 8,
+          "legacy_rest_read_size": -777
+        },
+        {
+          "query_hex": "414c504841",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        },
+        {
+          "query_hex": "64656c7461",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        },
+        {
+          "query_hex": "",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        }
+      ],
+      "description": "Sorted logical names point into gamma/alpha/beta physical storage; first/middle/final exact bytes and EOF lengths are fixed."
+    },
+    {
+      "name": "single_member",
+      "gtb_filename": "single_member.gtb",
+      "gpk_filename": "single_member.gpk",
+      "gpk_size": 4,
+      "virtual_gpk": false,
+      "format": "Classic32",
+      "gtb_bytes": 17,
+      "gtb_sha256": "40b3277558caebe8b2491542dfd578514847fbac5dc0c1d2ef348614529cf59b",
+      "gpk_sha256": "63d987d1c6d69751c17297f410f5b3547a65d096a8993b35bcb4f9cad054f176",
+      "fixed_name_offsets": [
+        0
+      ],
+      "fixed_data_offsets": [
+        0
+      ],
+      "fixed_wide_offsets": null,
+      "fixed_wide_table_offset": null,
+      "entries": [
+        {
+          "name_hex": "736f6c6f",
+          "offset": 0,
+          "length": 4,
+          "bytes": [
+            9,
+            8,
+            7,
+            6
+          ],
+          "member_bytes_hex": "09080706"
+        }
+      ],
+      "queries": [
+        {
+          "query_hex": "736f6c6f",
+          "found": true,
+          "index": 0,
+          "offset": 0,
+          "legacy_rest_read_size": -777
+        },
+        {
+          "query_hex": "534f4c4f",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        },
+        {
+          "query_hex": "6d697373696e67",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        }
+      ],
+      "description": "Single entry starts at zero; new length is all four GPK bytes, while original last-length state remains untouched."
+    },
+    {
+      "name": "empty_archive",
+      "gtb_filename": "empty_archive.gtb",
+      "gpk_filename": "empty_archive.gpk",
+      "gpk_size": 0,
+      "virtual_gpk": false,
+      "format": "Classic32",
+      "gtb_bytes": 4,
+      "gtb_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+      "gpk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixed_name_offsets": [],
+      "fixed_data_offsets": [],
+      "fixed_wide_offsets": null,
+      "fixed_wide_table_offset": null,
+      "entries": [],
+      "queries": [
+        {
+          "query_hex": "616e797468696e67",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        }
+      ],
+      "description": "Explicit empty policy: four-byte zero count GTB and zero-byte GPK."
+    },
+    {
+      "name": "raw_byte_names",
+      "gtb_filename": "raw_byte_names.gtb",
+      "gpk_filename": "raw_byte_names.gpk",
+      "gpk_size": 6,
+      "virtual_gpk": false,
+      "format": "Classic32",
+      "gtb_bytes": 35,
+      "gtb_sha256": "5b392edfe085368a60ccab82a15f9638fab353d7298564ced3c8e6dd66bb58ed",
+      "gpk_sha256": "f260475465fb4d28b378177c37f09c6ea74fe42eb6d34aacdaf73e711f00f6a1",
+      "fixed_name_offsets": [
+        5,
+        3,
+        0
+      ],
+      "fixed_data_offsets": [
+        0,
+        1,
+        3
+      ],
+      "fixed_wide_offsets": null,
+      "fixed_wide_table_offset": null,
+      "entries": [
+        {
+          "name_hex": "61",
+          "offset": 0,
+          "length": 1,
+          "bytes": [
+            17
+          ],
+          "member_bytes_hex": "11"
+        },
+        {
+          "name_hex": "7a",
+          "offset": 1,
+          "length": 2,
+          "bytes": [
+            34,
+            35
+          ],
+          "member_bytes_hex": "2223"
+        },
+        {
+          "name_hex": "8140",
+          "offset": 3,
+          "length": 3,
+          "bytes": [
+            68,
+            69,
+            70
+          ],
+          "member_bytes_hex": "444546"
+        }
+      ],
+      "queries": [
+        {
+          "query_hex": "61",
+          "found": true,
+          "index": 0,
+          "offset": 0,
+          "legacy_rest_read_size": 1
+        },
+        {
+          "query_hex": "7a",
+          "found": true,
+          "index": 1,
+          "offset": 1,
+          "legacy_rest_read_size": 2
+        },
+        {
+          "query_hex": "8140",
+          "found": true,
+          "index": 2,
+          "offset": 3,
+          "legacy_rest_read_size": -777
+        },
+        {
+          "query_hex": "81ff",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        },
+        {
+          "query_hex": "41",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        }
+      ],
+      "description": "Opaque high-bit name bytes, unsigned-byte strcmp order, exact case-sensitive lookup; no charset inference or path handling."
+    },
+    {
+      "name": "wide_three_members",
+      "gtb_filename": "wide_three_members.gtb",
+      "gpk_filename": "wide_three_members.gpk",
+      "gpk_size": 10,
+      "virtual_gpk": false,
+      "format": "Extended64",
+      "gtb_bytes": 88,
+      "gtb_sha256": "809bc2eea97bfa030c539bfd08a73ffc3ed7d0144377509cb03c5ac147bec12b",
+      "gpk_sha256": "84448fdb991926b73ae350919cde325576635f9c6763d7064144fa1fb2c7fa1f",
+      "fixed_name_offsets": [
+        6,
+        12,
+        0
+      ],
+      "fixed_data_offsets": [
+        2147483649,
+        4294967295,
+        305419896
+      ],
+      "fixed_wide_offsets": [
+        0,
+        3,
+        8
+      ],
+      "fixed_wide_table_offset": 48,
+      "entries": [
+        {
+          "name_hex": "616c706861",
+          "offset": 0,
+          "length": 3,
+          "bytes": [
+            65,
+            0,
+            66
+          ],
+          "member_bytes_hex": "410042"
+        },
+        {
+          "name_hex": "62657461",
+          "offset": 3,
+          "length": 5,
+          "bytes": [
+            10,
+            20,
+            30,
+            40,
+            50
+          ],
+          "member_bytes_hex": "0a141e2832"
+        },
+        {
+          "name_hex": "67616d6d61",
+          "offset": 8,
+          "length": 2,
+          "bytes": [
+            255,
+            0
+          ],
+          "member_bytes_hex": "ff00"
+        }
+      ],
+      "queries": [
+        {
+          "query_hex": "616c706861",
+          "found": true,
+          "index": 0,
+          "offset": 0,
+          "legacy_rest_read_size": 3
+        },
+        {
+          "query_hex": "62657461",
+          "found": true,
+          "index": 1,
+          "offset": 3,
+          "legacy_rest_read_size": 5
+        },
+        {
+          "query_hex": "67616d6d61",
+          "found": true,
+          "index": 2,
+          "offset": 8,
+          "legacy_rest_read_size": -777
+        },
+        {
+          "query_hex": "616273656e74",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        }
+      ],
+      "description": "Extended64 overrides deliberately different/high-bit legacy offsets. Exact zero padding aligns wide table at absolute byte48."
+    },
+    {
+      "name": "wide_empty_archive",
+      "gtb_filename": "wide_empty_archive.gtb",
+      "gpk_filename": "wide_empty_archive.gpk",
+      "gpk_size": 0,
+      "virtual_gpk": false,
+      "format": "Extended64",
+      "gtb_bytes": 24,
+      "gtb_sha256": "aa944400333a9e57305601461e338d3f378137e8834cc57bc553c5b00321562f",
+      "gpk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixed_name_offsets": [],
+      "fixed_data_offsets": [],
+      "fixed_wide_offsets": [],
+      "fixed_wide_table_offset": 8,
+      "entries": [],
+      "queries": [
+        {
+          "query_hex": "616e797468696e67",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        }
+      ],
+      "description": "Extended empty shape is count0, four zero alignment bytes, no wide entries, and the exact sixteen-byte trailer."
+    },
+    {
+      "name": "wide_virtual_over2g",
+      "gtb_filename": "wide_virtual_over2g.gtb",
+      "gpk_filename": "",
+      "gpk_size": 2147483664,
+      "virtual_gpk": true,
+      "format": "Extended64",
+      "gtb_bytes": 64,
+      "gtb_sha256": "9b873168246730649a8ee34180104882c7c1b93b9b6855e584ce7dba35241380",
+      "gpk_sha256": null,
+      "fixed_name_offsets": [
+        5,
+        0
+      ],
+      "fixed_data_offsets": [
+        2271560481,
+        7
+      ],
+      "fixed_wide_offsets": [
+        0,
+        2147483653
+      ],
+      "fixed_wide_table_offset": 32,
+      "entries": [
+        {
+          "name_hex": "6c61726765",
+          "offset": 0,
+          "length": 2147483653,
+          "bytes": [],
+          "member_bytes_hex": ""
+        },
+        {
+          "name_hex": "7461696c",
+          "offset": 2147483653,
+          "length": 11,
+          "bytes": [],
+          "member_bytes_hex": ""
+        }
+      ],
+      "queries": [
+        {
+          "query_hex": "7461696c",
+          "found": true,
+          "index": 1,
+          "offset": 2147483653,
+          "legacy_rest_read_size": -777
+        },
+        {
+          "query_hex": "5441494c",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        },
+        {
+          "query_hex": "6d697373696e67",
+          "found": false,
+          "index": null,
+          "offset": null,
+          "legacy_rest_read_size": null
+        }
+      ],
+      "description": "Pure index fixture beyond2GiB; no large GPK is created. Source queries only the last high-offset entry, avoiding its old int nonlast-length narrowing."
+    }
+  ]
+}

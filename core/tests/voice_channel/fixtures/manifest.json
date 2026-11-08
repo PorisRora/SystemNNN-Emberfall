@@ -1,0 +1,256 @@
+{
+  "task": "DW-017",
+  "authorship": "Manual raw tuple/PC/callback values; neither VM generates expected.",
+  "fixtures": [
+    {
+      "name": "voice1_legacy7",
+      "binary": "voice1_legacy7.spt",
+      "channels": [
+        1
+      ],
+      "sha256": "eab234c5dcbe80f334bf0aaafd5c543b7058683e4cf85c98a2146fed92268499",
+      "table_profile": "legacy7",
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 44,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 44,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "numeric_script",
+            "code": 858980457,
+            "para1": 2,
+            "parameters": [
+              1,
+              -999
+            ],
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 0,
+            "text_hex": "4d",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 38,
+            "frames": []
+          }
+        ],
+        "final_variables": {},
+        "error_count": 0,
+        "end_reached": true
+      }
+    },
+    {
+      "name": "voice1_labels",
+      "binary": "voice1_labels.spt",
+      "channels": [
+        1
+      ],
+      "sha256": "fe49d6730723a9adc2c1d5cf0617e2b77e80e6419d7e170faab7e8f27df92560",
+      "table_profile": "labels",
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 44,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 44,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "numeric_script",
+            "code": 858980457,
+            "para1": 2,
+            "parameters": [
+              1,
+              -999
+            ],
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 0,
+            "text_hex": "4d",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 38,
+            "frames": []
+          }
+        ],
+        "final_variables": {},
+        "error_count": 0,
+        "end_reached": true
+      }
+    },
+    {
+      "name": "voice01_legacy7",
+      "binary": "voice01_legacy7.spt",
+      "channels": [
+        0,
+        1
+      ],
+      "sha256": "2c7787a560f5fdb5a8dfc68a168e4f529a1a8d11aa01892880bb2b0361e11265",
+      "table_profile": "legacy7",
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 50,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 50,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "numeric_script",
+            "code": 858980457,
+            "para1": 2,
+            "parameters": [
+              0,
+              -999
+            ],
+            "para3": 0
+          },
+          {
+            "kind": "numeric_script",
+            "code": 858980457,
+            "para1": 2,
+            "parameters": [
+              1,
+              -999
+            ],
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 0,
+            "text_hex": "4d",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 38,
+            "frames": []
+          },
+          {
+            "pc": 44,
+            "frames": []
+          }
+        ],
+        "final_variables": {},
+        "error_count": 0,
+        "end_reached": true
+      }
+    },
+    {
+      "name": "voice01_labels",
+      "binary": "voice01_labels.spt",
+      "channels": [
+        0,
+        1
+      ],
+      "sha256": "74e4c9e156fe6df0c6ec4ac5e335d29d20af9fdd2364ba3f44e930ddc181660f",
+      "table_profile": "labels",
+      "expected": {
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 50,
+            "frames": []
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 50,
+            "frames": []
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "numeric_script",
+            "code": 858980457,
+            "para1": 2,
+            "parameters": [
+              0,
+              -999
+            ],
+            "para3": 0
+          },
+          {
+            "kind": "numeric_script",
+            "code": 858980457,
+            "para1": 2,
+            "parameters": [
+              1,
+              -999
+            ],
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 0,
+            "text_hex": "4d",
+            "para3": 0
+          }
+        ],
+        "callback_states": [
+          {
+            "pc": 32,
+            "frames": []
+          },
+          {
+            "pc": 38,
+            "frames": []
+          },
+          {
+            "pc": 44,
+            "frames": []
+          }
+        ],
+        "final_variables": {},
+        "error_count": 0,
+        "end_reached": true
+      }
+    }
+  ]
+}

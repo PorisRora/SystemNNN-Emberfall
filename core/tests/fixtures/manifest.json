@@ -1,0 +1,562 @@
+{
+  "source_commit": "78a05053c78b3b80065a9a209c6685a7c60a2e83",
+  "editor_reference_commit": "e5c46148fa1dc429f3e0391da7c056d7baa82622",
+  "content_origin": "original synthetic ASCII strings and generated instructions; no commercial game assets",
+  "format": "little-endian 32-bit words; all PC/table offsets in words",
+  "native_vm_executed": false,
+  "fixtures": [
+    {
+      "name": "minimal_end",
+      "binary": "minimal_end.spt",
+      "bytes": 252,
+      "sha256": "2794347c8cdd455c6df3738b60207427dcd47cefc6487f15de945ed721d050a0",
+      "word_count": 63,
+      "purpose": "default_safe_fixture",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "pc_word": 0,
+          "length_words": 32,
+          "label": "header"
+        },
+        {
+          "pc_word": 32,
+          "length_words": 3,
+          "label": "end"
+        },
+        {
+          "pc_word": 35,
+          "length_words": 4,
+          "label": "message_table"
+        },
+        {
+          "pc_word": 39,
+          "length_words": 4,
+          "label": "string_table"
+        },
+        {
+          "pc_word": 43,
+          "length_words": 4,
+          "label": "int32_table"
+        },
+        {
+          "pc_word": 47,
+          "length_words": 4,
+          "label": "sub_adjust_table"
+        },
+        {
+          "pc_word": 51,
+          "length_words": 4,
+          "label": "select_adjust_table"
+        },
+        {
+          "pc_word": 55,
+          "length_words": 4,
+          "label": "command_adjust_table"
+        },
+        {
+          "pc_word": 59,
+          "length_words": 4,
+          "label": "script_adjust_table"
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "end": 32,
+        "message_table": 35,
+        "string_table": 39,
+        "int32_table": 43,
+        "sub_adjust_table": 47,
+        "select_adjust_table": 51,
+        "command_adjust_table": 55,
+        "script_adjust_table": 59
+      },
+      "expected": {
+        "execution_evidence": "specification_only_not_executed_by_CExecScript",
+        "exec_calls": [
+          {
+            "return": 1431699461,
+            "pc_after": 32
+          }
+        ],
+        "callback_events": [],
+        "final_variables": {},
+        "repeat_end_behavior": "END returns again without advancing PC"
+      }
+    },
+    {
+      "name": "flow",
+      "binary": "flow.spt",
+      "bytes": 612,
+      "sha256": "7a65396ff599884bd4c6c001d87195f1c1fdbb2293439c414e18e9427634aa02",
+      "word_count": 153,
+      "purpose": "default_safe_fixture",
+      "decode_parameters": {
+        "xorCode": 4294967295,
+        "addXorCode": 0,
+        "addIncCode": 0
+      },
+      "records": [
+        {
+          "pc_word": 0,
+          "length_words": 32,
+          "label": "header"
+        },
+        {
+          "pc_word": 32,
+          "length_words": 8,
+          "label": "set_var100_7"
+        },
+        {
+          "pc_word": 40,
+          "length_words": 8,
+          "label": "if_false"
+        },
+        {
+          "pc_word": 48,
+          "length_words": 8,
+          "label": "skipped_var101_999"
+        },
+        {
+          "pc_word": 56,
+          "length_words": 8,
+          "label": "if_true"
+        },
+        {
+          "pc_word": 64,
+          "length_words": 6,
+          "label": "print_hello"
+        },
+        {
+          "pc_word": 70,
+          "length_words": 4,
+          "label": "goto_string_callback"
+        },
+        {
+          "pc_word": 74,
+          "length_words": 8,
+          "label": "skipped_var100_minus1"
+        },
+        {
+          "pc_word": 82,
+          "length_words": 5,
+          "label": "storyname_string_callback"
+        },
+        {
+          "pc_word": 87,
+          "length_words": 8,
+          "label": "assign_large_constant"
+        },
+        {
+          "pc_word": 95,
+          "length_words": 7,
+          "label": "user_command"
+        },
+        {
+          "pc_word": 102,
+          "length_words": 6,
+          "label": "print_done"
+        },
+        {
+          "pc_word": 108,
+          "length_words": 3,
+          "label": "end"
+        },
+        {
+          "pc_word": 111,
+          "length_words": 12,
+          "label": "message_table"
+        },
+        {
+          "pc_word": 123,
+          "length_words": 9,
+          "label": "string_table"
+        },
+        {
+          "pc_word": 132,
+          "length_words": 5,
+          "label": "int32_table"
+        },
+        {
+          "pc_word": 137,
+          "length_words": 4,
+          "label": "sub_adjust_table"
+        },
+        {
+          "pc_word": 141,
+          "length_words": 4,
+          "label": "select_adjust_table"
+        },
+        {
+          "pc_word": 145,
+          "length_words": 4,
+          "label": "command_adjust_table"
+        },
+        {
+          "pc_word": 149,
+          "length_words": 4,
+          "label": "script_adjust_table"
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "set_var100_7": 32,
+        "if_false": 40,
+        "skipped_var101_999": 48,
+        "if_true": 56,
+        "print_hello": 64,
+        "goto_string_callback": 70,
+        "skipped_var100_minus1": 74,
+        "storyname_string_callback": 82,
+        "assign_large_constant": 87,
+        "user_command": 95,
+        "print_done": 102,
+        "end": 108,
+        "message_table": 111,
+        "string_table": 123,
+        "int32_table": 132,
+        "sub_adjust_table": 137,
+        "select_adjust_table": 141,
+        "command_adjust_table": 145,
+        "script_adjust_table": 149
+      },
+      "expected": {
+        "execution_evidence": "manual_source_trace_specification_not_CExecScript_execution",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 70
+          },
+          {
+            "return": 286326785,
+            "pc_after": 102
+          },
+          {
+            "return": 572653569,
+            "pc_after": 108
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 108
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 1001,
+            "text_ascii": "DW001 HELLO",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW001-SYNTHETIC",
+            "para3": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 102,
+            "value": 50000
+          },
+          {
+            "kind": "get_var",
+            "index": 102,
+            "value": 50000
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "user_command",
+            "code": 4660,
+            "parameters": [
+              7,
+              3
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 1002,
+            "text_ascii": "DW001 DONE",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 7,
+          "101": 0,
+          "102": 50000
+        },
+        "never_executed_labels": [
+          "skipped_var101_999",
+          "skipped_var100_minus1"
+        ],
+        "callback_policy": "Copy text/parameter data during callback; pointer arguments are borrowed.",
+        "host_policy": "Continue calling Exec after PRINT and USERCOMMAND; stop on CODE_CONTROL_END."
+      }
+    },
+    {
+      "name": "flow_evolving_key",
+      "binary": "flow_evolving_key.spt",
+      "bytes": 612,
+      "sha256": "3d686586d3fad1d8cabafd56d935688585336d2eeae59a45f7662ba24f9d8daa",
+      "word_count": 153,
+      "purpose": "diagnostic_only_until_decoder_fix; validate decoded words before Exec",
+      "decode_parameters": {
+        "xorCode": 305419896,
+        "addXorCode": 16843009,
+        "addIncCode": 3
+      },
+      "records": [
+        {
+          "pc_word": 0,
+          "length_words": 32,
+          "label": "header"
+        },
+        {
+          "pc_word": 32,
+          "length_words": 8,
+          "label": "set_var100_7"
+        },
+        {
+          "pc_word": 40,
+          "length_words": 8,
+          "label": "if_false"
+        },
+        {
+          "pc_word": 48,
+          "length_words": 8,
+          "label": "skipped_var101_999"
+        },
+        {
+          "pc_word": 56,
+          "length_words": 8,
+          "label": "if_true"
+        },
+        {
+          "pc_word": 64,
+          "length_words": 6,
+          "label": "print_hello"
+        },
+        {
+          "pc_word": 70,
+          "length_words": 4,
+          "label": "goto_string_callback"
+        },
+        {
+          "pc_word": 74,
+          "length_words": 8,
+          "label": "skipped_var100_minus1"
+        },
+        {
+          "pc_word": 82,
+          "length_words": 5,
+          "label": "storyname_string_callback"
+        },
+        {
+          "pc_word": 87,
+          "length_words": 8,
+          "label": "assign_large_constant"
+        },
+        {
+          "pc_word": 95,
+          "length_words": 7,
+          "label": "user_command"
+        },
+        {
+          "pc_word": 102,
+          "length_words": 6,
+          "label": "print_done"
+        },
+        {
+          "pc_word": 108,
+          "length_words": 3,
+          "label": "end"
+        },
+        {
+          "pc_word": 111,
+          "length_words": 12,
+          "label": "message_table"
+        },
+        {
+          "pc_word": 123,
+          "length_words": 9,
+          "label": "string_table"
+        },
+        {
+          "pc_word": 132,
+          "length_words": 5,
+          "label": "int32_table"
+        },
+        {
+          "pc_word": 137,
+          "length_words": 4,
+          "label": "sub_adjust_table"
+        },
+        {
+          "pc_word": 141,
+          "length_words": 4,
+          "label": "select_adjust_table"
+        },
+        {
+          "pc_word": 145,
+          "length_words": 4,
+          "label": "command_adjust_table"
+        },
+        {
+          "pc_word": 149,
+          "length_words": 4,
+          "label": "script_adjust_table"
+        }
+      ],
+      "labels": {
+        "header": 0,
+        "set_var100_7": 32,
+        "if_false": 40,
+        "skipped_var101_999": 48,
+        "if_true": 56,
+        "print_hello": 64,
+        "goto_string_callback": 70,
+        "skipped_var100_minus1": 74,
+        "storyname_string_callback": 82,
+        "assign_large_constant": 87,
+        "user_command": 95,
+        "print_done": 102,
+        "end": 108,
+        "message_table": 111,
+        "string_table": 123,
+        "int32_table": 132,
+        "sub_adjust_table": 137,
+        "select_adjust_table": 141,
+        "command_adjust_table": 145,
+        "script_adjust_table": 149
+      },
+      "expected": {
+        "execution_evidence": "manual_source_trace_specification_not_CExecScript_execution",
+        "exec_calls": [
+          {
+            "return": 572653569,
+            "pc_after": 70
+          },
+          {
+            "return": 286326785,
+            "pc_after": 102
+          },
+          {
+            "return": 572653569,
+            "pc_after": 108
+          },
+          {
+            "return": 1431699461,
+            "pc_after": 108
+          }
+        ],
+        "callback_events": [
+          {
+            "kind": "set_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "get_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 1001,
+            "text_ascii": "DW001 HELLO",
+            "para3": 0
+          },
+          {
+            "kind": "script",
+            "code": 858980433,
+            "para1": 1,
+            "text_ascii": "DW001-SYNTHETIC",
+            "para3": 0
+          },
+          {
+            "kind": "set_var",
+            "index": 102,
+            "value": 50000
+          },
+          {
+            "kind": "get_var",
+            "index": 102,
+            "value": 50000
+          },
+          {
+            "kind": "get_calcu_var",
+            "index": 100,
+            "value": 7
+          },
+          {
+            "kind": "user_command",
+            "code": 4660,
+            "parameters": [
+              7,
+              3
+            ]
+          },
+          {
+            "kind": "script",
+            "code": 572653569,
+            "para1": 1002,
+            "text_ascii": "DW001 DONE",
+            "para3": 0
+          }
+        ],
+        "final_variables": {
+          "100": 7,
+          "101": 0,
+          "102": 50000
+        },
+        "never_executed_labels": [
+          "skipped_var101_999",
+          "skipped_var100_minus1"
+        ],
+        "callback_policy": "Copy text/parameter data during callback; pointer arguments are borrowed.",
+        "host_policy": "Continue calling Exec after PRINT and USERCOMMAND; stop on CODE_CONTROL_END."
+      }
+    }
+  ]
+}

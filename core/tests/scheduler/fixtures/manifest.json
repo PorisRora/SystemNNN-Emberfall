@@ -1,0 +1,436 @@
+{
+  "task": "DW-013",
+  "authorship": "All bytes and fixed PC/frame/slot/callback expectations self-authored; no current VM used as oracle.",
+  "profile": "Three LABEL tails, original seven tables, canonical one slot0 SCRIPT registry; all SUB callsites mapped.",
+  "files": [
+    {
+      "name": "control",
+      "filename": "control.spt",
+      "sha256": "004716af8f33cbb348a153f2dee7f209bd7eb57957034de6923feb4b96772b58",
+      "words": 110,
+      "raw_target_strings": [
+        "main",
+        "Control"
+      ],
+      "labels": [
+        46
+      ],
+      "script_registry": [
+        51
+      ]
+    },
+    {
+      "name": "main",
+      "filename": "main.spt",
+      "sha256": "e3f875d885ce894f56fcaf0f533c5a901abe5a22d35928f2060824deb1aa2178",
+      "words": 104,
+      "raw_target_strings": [
+        "_sub",
+        "Main"
+      ],
+      "labels": [
+        40
+      ],
+      "script_registry": [
+        45
+      ]
+    },
+    {
+      "name": "_sub",
+      "filename": "_sub.spt",
+      "sha256": "9f36c8396ec4ce8603b73fb08c08a72e7e4159bfa2babba3609a316498d365a9",
+      "words": 103,
+      "raw_target_strings": [
+        "__sub",
+        "Sub"
+      ],
+      "labels": [
+        40
+      ],
+      "script_registry": [
+        45
+      ]
+    },
+    {
+      "name": "__sub",
+      "filename": "__sub.spt",
+      "sha256": "70a188b0162f67f1a0e4914de1d6dcfabe4b6a455a83f2486d4a7b5df00a458d",
+      "words": 95,
+      "raw_target_strings": [
+        "Deep"
+      ],
+      "labels": [
+        40
+      ],
+      "script_registry": []
+    }
+  ],
+  "chain": {
+    "root": "control.spt",
+    "reader_map": {
+      "spt/main.spt": "main.spt",
+      "spt/_sub.spt": "_sub.spt",
+      "spt/__sub.spt": "__sub.spt"
+    },
+    "reader_requests": [
+      "spt/main.spt",
+      "spt/_sub.spt",
+      "spt/__sub.spt"
+    ],
+    "steps": [
+      {
+        "code": 1431699466,
+        "executed_mode": 0,
+        "active_mode": 1,
+        "pc": 56,
+        "pcs": [
+          56,
+          0,
+          0,
+          0
+        ],
+        "frames": [
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [],
+          [],
+          []
+        ],
+        "slots": [
+          0,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "code": 1431699478,
+        "executed_mode": 1,
+        "active_mode": 2,
+        "pc": 50,
+        "pcs": [
+          56,
+          50,
+          0,
+          0
+        ],
+        "frames": [
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [],
+          []
+        ],
+        "slots": [
+          0,
+          0,
+          null,
+          null
+        ]
+      },
+      {
+        "code": 1431699478,
+        "executed_mode": 2,
+        "active_mode": 3,
+        "pc": 50,
+        "pcs": [
+          56,
+          50,
+          50,
+          0
+        ],
+        "frames": [
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          []
+        ],
+        "slots": [
+          0,
+          0,
+          0,
+          null
+        ]
+      },
+      {
+        "code": 1431699462,
+        "executed_mode": 3,
+        "active_mode": 2,
+        "pc": 45,
+        "pcs": [
+          56,
+          50,
+          50,
+          45
+        ],
+        "frames": [
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ]
+        ],
+        "slots": [
+          0,
+          0,
+          0,
+          null
+        ]
+      },
+      {
+        "code": 1431699462,
+        "executed_mode": 2,
+        "active_mode": 1,
+        "pc": 37,
+        "pcs": [
+          56,
+          50,
+          37,
+          45
+        ],
+        "frames": [
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ]
+        ],
+        "slots": [
+          0,
+          0,
+          0,
+          null
+        ]
+      },
+      {
+        "code": 1431699462,
+        "executed_mode": 1,
+        "active_mode": 0,
+        "pc": 37,
+        "pcs": [
+          56,
+          37,
+          37,
+          45
+        ],
+        "frames": [
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ],
+          [],
+          [],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ]
+        ],
+        "slots": [
+          0,
+          0,
+          0,
+          null
+        ]
+      },
+      {
+        "code": 572653569,
+        "executed_mode": 0,
+        "active_mode": 0,
+        "pc": 43,
+        "pcs": [
+          43,
+          37,
+          37,
+          45
+        ],
+        "frames": [
+          [],
+          [],
+          [],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ]
+        ],
+        "slots": [
+          0,
+          0,
+          0,
+          null
+        ]
+      },
+      {
+        "code": 1431699461,
+        "executed_mode": 0,
+        "active_mode": 0,
+        "pc": 43,
+        "pcs": [
+          43,
+          37,
+          37,
+          45
+        ],
+        "frames": [
+          [],
+          [],
+          [],
+          [
+            {
+              "return_pc": 37,
+              "id": 0
+            }
+          ]
+        ],
+        "slots": [
+          0,
+          0,
+          0,
+          null
+        ]
+      }
+    ],
+    "callback_events": [
+      {
+        "mode": 0,
+        "pc": 46,
+        "code": 858980433,
+        "para1": 1,
+        "text_hex": "436f6e74726f6c",
+        "para3": 0
+      },
+      {
+        "mode": 0,
+        "pc": 51,
+        "code": 1431699466,
+        "para1": 0,
+        "text_hex": "6d61696e",
+        "para3": 0
+      },
+      {
+        "mode": 1,
+        "pc": 40,
+        "code": 858980433,
+        "para1": 1,
+        "text_hex": "4d61696e",
+        "para3": 0
+      },
+      {
+        "mode": 1,
+        "pc": 45,
+        "code": 1431699478,
+        "para1": 0,
+        "text_hex": "5f737562",
+        "para3": 0
+      },
+      {
+        "mode": 2,
+        "pc": 40,
+        "code": 858980433,
+        "para1": 1,
+        "text_hex": "537562",
+        "para3": 0
+      },
+      {
+        "mode": 2,
+        "pc": 45,
+        "code": 1431699478,
+        "para1": 0,
+        "text_hex": "5f5f737562",
+        "para3": 0
+      },
+      {
+        "mode": 3,
+        "pc": 40,
+        "code": 858980433,
+        "para1": 1,
+        "text_hex": "44656570",
+        "para3": 0
+      },
+      {
+        "mode": 0,
+        "pc": 37,
+        "code": 572653569,
+        "para1": 0,
+        "text_hex": "4d",
+        "para3": 0
+      }
+    ],
+    "callback_event_counts_after_step": [
+      2,
+      4,
+      6,
+      7,
+      7,
+      7,
+      8,
+      8
+    ]
+  }
+}

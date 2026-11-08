@@ -1,0 +1,16 @@
+*.sh text eol=lf
+*.spt binary
+*.dwq binary
+*.gtb binary
+*.gpk binary
+*.fxf binary
+*.xtx binary
+*.bin binary
+*.png binary
+*.jpg binary
+*.ogg binary
+*.wav binary
+*.vaw binary
+*.wgq binary
+*.vtb binary
+*.vpk binary

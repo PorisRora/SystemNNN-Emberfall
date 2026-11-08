@@ -1,0 +1,175 @@
+{
+  "task": "DW-012",
+  "expectations": "Manually fixed token arrays and first stopf5 match; no tokenizer evaluator derives expectations.",
+  "fixtures": [
+    {
+      "name": "stop_first",
+      "binary": "stop_first.xtx",
+      "bytes": 17,
+      "sha256": "4954297fd9603f08801ed94dc305dca9a776c4e5e7954f2e849a9ccc803d7957",
+      "expected_tokens_hex": [
+        "73746f706635",
+        "41",
+        "616c706861",
+        "42"
+      ],
+      "expected_stopf5_id": 0,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "stop_third",
+      "binary": "stop_third.xtx",
+      "bytes": 24,
+      "sha256": "da87bc246829b986df86c117bb6c02a9d19cc07087f23f74a7290619f984f7a8",
+      "expected_tokens_hex": [
+        "616c706861",
+        "41",
+        "62657461",
+        "42",
+        "73746f706635",
+        "43"
+      ],
+      "expected_stopf5_id": 2,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "stop_middle_case",
+      "binary": "stop_middle_case.xtx",
+      "bytes": 23,
+      "sha256": "bd14b6529d4e110841688d18bd0212916363fb2c264b099150cef5ab917c3824",
+      "expected_tokens_hex": [
+        "616c706861",
+        "41",
+        "53744f704635",
+        "42",
+        "62657461",
+        "43"
+      ],
+      "expected_stopf5_id": 1,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "whitespace_stream",
+      "binary": "whitespace_stream.xtx",
+      "bytes": 22,
+      "sha256": "1adc64bc60b1f05aaea80c73043ebf087ffea8c4db8da1c93dedf2db7a915cbb",
+      "expected_tokens_hex": [
+        "616c706861",
+        "41",
+        "53744f704635",
+        "42"
+      ],
+      "expected_stopf5_id": 1,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "empty_description",
+      "binary": "empty_description.xtx",
+      "bytes": 15,
+      "sha256": "41ef0453b70c5ffd850a9eccebccec47cf7df97bbd5760b1f44b76c02f4c219a",
+      "expected_tokens_hex": [
+        "616c706861",
+        "",
+        "73746f706635",
+        "42"
+      ],
+      "expected_stopf5_id": 1,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "empty_name_slot",
+      "binary": "empty_name_slot.xtx",
+      "bytes": 24,
+      "sha256": "b70d0001f91742e5c430b95620418bec45a51fdfca19b0b51740de7b295740ea",
+      "expected_tokens_hex": [
+        "616c706861",
+        "41",
+        "",
+        "68696464656e",
+        "73746f706635",
+        "42"
+      ],
+      "expected_stopf5_id": 2,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "duplicate_first_wins",
+      "binary": "duplicate_first_wins.xtx",
+      "bytes": 17,
+      "sha256": "27de524a511fa57485c7033d772609bea57024e7fde23bd64bb6467d54b0b920",
+      "expected_tokens_hex": [
+        "53544f504635",
+        "41",
+        "73746f706635",
+        "42"
+      ],
+      "expected_stopf5_id": 0,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "missing",
+      "binary": "missing.xtx",
+      "bytes": 14,
+      "sha256": "c7a1eed400148740bf4dfd30bd72019a1ecdfff10b6286ce153fe9356165d55c",
+      "expected_tokens_hex": [
+        "616c706861",
+        "41",
+        "62657461",
+        "42"
+      ],
+      "expected_stopf5_id": -1,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "same_id_other_name",
+      "binary": "same_id_other_name.xtx",
+      "bytes": 25,
+      "sha256": "d1cd972cfff051d556974f4e99ecd7d0ecd5ab93631367b12c35b75aed2236f0",
+      "expected_tokens_hex": [
+        "616c706861",
+        "41",
+        "62657461",
+        "42",
+        "73746f7070696e67",
+        "43"
+      ],
+      "expected_stopf5_id": -1,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "leading_trailing_separator",
+      "binary": "leading_trailing_separator.xtx",
+      "bytes": 12,
+      "sha256": "cd8dac87701b71b122ec6e899e524f954717c8a84da11fc62042e682a5f86305",
+      "expected_tokens_hex": [
+        "73746f706635",
+        "41"
+      ],
+      "expected_stopf5_id": 0,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    },
+    {
+      "name": "quoted_name_is_literal",
+      "binary": "quoted_name_is_literal.xtx",
+      "bytes": 10,
+      "sha256": "d8938f80c6213078d8c89431609a5bdcf34bbfc4f3884e881b31428ff3492c7f",
+      "expected_tokens_hex": [
+        "2273746f70663522",
+        "41"
+      ],
+      "expected_stopf5_id": -1,
+      "original_safe_differential": true,
+      "authorship": "Self-authored ASCII tokens; description bytes are synthetic."
+    }
+  ]
+}

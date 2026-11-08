@@ -1,0 +1,85 @@
+{
+  "task": "DW-006",
+  "origin": "Entirely self-authored synthetic archives; no game assets",
+  "expectations": "Separate manual name/data offsets, member lengths/bytes and lookup outcomes; no new-parser roundtrip",
+  "generator": "research/driftwood/DW-006/reference/generate_fixtures.py",
+  "generator_sha256": "724caf9f38ce38f9f48ef30ec2a7d630fce02e12d6b59229d3af92d2fc2cf0c9",
+  "virtual_large_archive": "wide_virtual_over2g has only a small GTB and an external declared GPK size; no large GPK is created",
+  "files": [
+    {
+      "path": "empty_archive.gpk",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "empty_archive.gtb",
+      "bytes": 4,
+      "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+    },
+    {
+      "path": "expected_cases.hpp",
+      "bytes": 2080,
+      "sha256": "6640b4120d99eed4d59f05c18c895fefdde6ce1dd57baecbe10621d528b9573a"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 12675,
+      "sha256": "d9cde9c0af89905305bcc9421a66cf940648cd51d7dc4c548595e17ffe05fb9b"
+    },
+    {
+      "path": "raw_byte_names.gpk",
+      "bytes": 6,
+      "sha256": "f260475465fb4d28b378177c37f09c6ea74fe42eb6d34aacdaf73e711f00f6a1"
+    },
+    {
+      "path": "raw_byte_names.gtb",
+      "bytes": 35,
+      "sha256": "5b392edfe085368a60ccab82a15f9638fab353d7298564ced3c8e6dd66bb58ed"
+    },
+    {
+      "path": "single_member.gpk",
+      "bytes": 4,
+      "sha256": "63d987d1c6d69751c17297f410f5b3547a65d096a8993b35bcb4f9cad054f176"
+    },
+    {
+      "path": "single_member.gtb",
+      "bytes": 17,
+      "sha256": "40b3277558caebe8b2491542dfd578514847fbac5dc0c1d2ef348614529cf59b"
+    },
+    {
+      "path": "three_unsorted_name_pool.gpk",
+      "bytes": 10,
+      "sha256": "84448fdb991926b73ae350919cde325576635f9c6763d7064144fa1fb2c7fa1f"
+    },
+    {
+      "path": "three_unsorted_name_pool.gtb",
+      "bytes": 45,
+      "sha256": "a3e4fd3ac7ac61e226d7f51162a16a53721e9f16e97bc65662b9f7bbacb4209e"
+    },
+    {
+      "path": "wide_empty_archive.gpk",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "wide_empty_archive.gtb",
+      "bytes": 24,
+      "sha256": "aa944400333a9e57305601461e338d3f378137e8834cc57bc553c5b00321562f"
+    },
+    {
+      "path": "wide_three_members.gpk",
+      "bytes": 10,
+      "sha256": "84448fdb991926b73ae350919cde325576635f9c6763d7064144fa1fb2c7fa1f"
+    },
+    {
+      "path": "wide_three_members.gtb",
+      "bytes": 88,
+      "sha256": "809bc2eea97bfa030c539bfd08a73ffc3ed7d0144377509cb03c5ac147bec12b"
+    },
+    {
+      "path": "wide_virtual_over2g.gtb",
+      "bytes": 64,
+      "sha256": "9b873168246730649a8ee34180104882c7c1b93b9b6855e584ce7dba35241380"
+    }
+  ]
+}

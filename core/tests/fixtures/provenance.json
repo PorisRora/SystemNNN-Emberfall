@@ -1,0 +1,49 @@
+{
+  "source_task": "DW-001",
+  "source_baseline": "78a05053c78b3b80065a9a209c6685a7c60a2e83",
+  "copy_policy": "byte-for-byte copies; manifest and existing expectations unchanged",
+  "fixtures": [
+    {
+      "file": "manifest.json",
+      "source": "research/driftwood/DW-001/spt-fixture/fixtures/manifest.json",
+      "sha256": "01cdaf4b912caa2cb3eaee8d1da6e5c21bef12dbda642fb7f29e0930ffef285e",
+      "bytes": 14351
+    },
+    {
+      "file": "minimal_end.spt",
+      "source": "research/driftwood/DW-001/spt-fixture/fixtures/minimal_end.spt",
+      "sha256": "2794347c8cdd455c6df3738b60207427dcd47cefc6487f15de945ed721d050a0",
+      "bytes": 252
+    },
+    {
+      "file": "minimal_end.decoded_words.json",
+      "source": "research/driftwood/DW-001/spt-fixture/fixtures/minimal_end.decoded_words.json",
+      "sha256": "c78338ca6ad29e20b9b3dad56c5258f4b6c08675e96ef31bfd0294ab49178d65",
+      "bytes": 648
+    },
+    {
+      "file": "flow.spt",
+      "source": "research/driftwood/DW-001/spt-fixture/fixtures/flow.spt",
+      "sha256": "7a65396ff599884bd4c6c001d87195f1c1fdbb2293439c414e18e9427634aa02",
+      "bytes": 612
+    },
+    {
+      "file": "flow.decoded_words.json",
+      "source": "research/driftwood/DW-001/spt-fixture/fixtures/flow.decoded_words.json",
+      "sha256": "0302adb8ee4d78f44a56ff3b754ffdaa00a50000bfb2034c5df04d2ab5a2da74",
+      "bytes": 1676
+    },
+    {
+      "file": "flow_evolving_key.spt",
+      "source": "research/driftwood/DW-001/spt-fixture/fixtures/flow_evolving_key.spt",
+      "sha256": "3d686586d3fad1d8cabafd56d935688585336d2eeae59a45f7662ba24f9d8daa",
+      "bytes": 612
+    },
+    {
+      "file": "flow_evolving_key.decoded_words.json",
+      "source": "research/driftwood/DW-001/spt-fixture/fixtures/flow_evolving_key.decoded_words.json",
+      "sha256": "0302adb8ee4d78f44a56ff3b754ffdaa00a50000bfb2034c5df04d2ab5a2da74",
+      "bytes": 1676
+    }
+  ]
+}
