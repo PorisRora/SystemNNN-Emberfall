@@ -102,6 +102,10 @@ void frame_meta(JNIEnv* env,Player& p,jintArray meta) {
         static_cast<jint>(p.width),static_cast<jint>(p.height),static_cast<jint>(p.game->frame_ms()),
         static_cast<jint>(f.wait==emberfall::scene::Wait::Choice?f.choice_remaining_ms:f.remaining_frames)};
     env->SetIntArrayRegion(meta,0,7,values);
+    if (env->GetArrayLength(meta)>=10) {
+        const jint cursor=f.script_cursor;
+        env->SetIntArrayRegion(meta,9,1,&cursor);
+    }
 }
 void step_title(Player& p) {
     emberfall::scene::InputState input;
@@ -302,6 +306,7 @@ API void JNICALL FN(tick)(JNIEnv* env,jclass,jlong handle,jint ms,jint x,jint y,
             const jint info[]={6,0,0,static_cast<jint>(p.width),static_cast<jint>(p.height),static_cast<jint>(p.game->frame_ms()),0};
             env->SetIntArrayRegion(meta,0,7,info);
             if (with_clock) {const jint empty[]={0,0};env->SetIntArrayRegion(meta,7,2,empty);}
+            if (env->GetArrayLength(meta)>=10) {const jint cursor=0;env->SetIntArrayRegion(meta,9,1,&cursor);}
             return;
         }
         if (replay) {

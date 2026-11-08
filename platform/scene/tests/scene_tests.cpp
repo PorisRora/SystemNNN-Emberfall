@@ -1241,6 +1241,44 @@ int main(){
         invalid=bytes;invalid.push_back(0);
         require(rejected(invalid),"trailing bytes accepted");
     });
+    suite.test("script message cursors survive saves without changing the configured cursor",[]{
+        Model model;model.message=true;model.code.print(1);
+        model.code.number(0x33330056U,{2});model.code.print(2);
+        model.code.number(0x33330056U,{0});model.code.print(3);model.code.end();
+        TempGame temp(model);
+        Model background;background.code.number(0x33330056U,{3});background.code.present(10);background.code.end();
+        temp.write("spt/cursor_back.spt",script(background));
+        Model quiet;quiet.code.present(10);quiet.code.end();
+        temp.write("spt/quiet_back.spt",script(quiet));
+        scene::GameSession game(temp.root,test_options());
+        require(game.step_frame(0).script_cursor==0,"fresh story cursor must start at zero");
+        const auto legacy=game.snapshot();
+        require(legacy[4]==9,"zero cursor unnecessarily upgraded the ordinary snapshot");
+        const auto configured=game.runtime()->cursor_variants();
+        scene::InputState advance;advance.advance=true;
+        require(game.step_frame(0,advance).script_cursor==2 && game.runtime()->cursor_variants()==configured,
+            "CURSORNUMBER changed the configured cursor or was not delivered in the frame");
+        const auto saved=game.snapshot(),pc=game.export_pc_save();
+        require(saved[4]==11 && scene::pc::parse_save(pc).status.cursor_number==2,"saved cursor state is missing");
+        require(game.step_frame(0,advance).script_cursor==0,"CURSORNUMBER zero did not reset the script cursor");
+        game.restore_snapshot(saved);
+        require(game.state().script_cursor==2,"native snapshot lost the script cursor");
+        game.restore_snapshot(legacy);
+        require(game.state().script_cursor==0,"old snapshot inherited a later script cursor");
+        auto pc_state=scene::pc::parse_save(pc,"SAVEDATA",scene::pc::first_extension_code);pc_state.status.cursor_number=1;
+        game.restore_pc_save(scene::pc::write_save(pc_state));
+        require(game.state().script_cursor==1 && scene::pc::parse_save(game.export_pc_save()).status.cursor_number==1,
+            "PC slot cursor was not restored and exported");
+        scene::GameSession fresh(temp.root,test_options());
+        require(fresh.step_frame(0).script_cursor==0,"new story inherited a previous cursor");
+        auto options=test_options();options.runtime=game.runtime();
+        auto preview=scene::GameSession::create_ui_preview(temp.root,options);
+        preview->start_ui_background("cursor_back",12);
+        require(preview->step_ui_background({},false).script_cursor==3 && game.state().script_cursor==1,
+            "decorative cursor escaped into the persistent story");
+        preview->reset_ui_background("quiet_back",12,game.runtime());
+        require(preview->step_ui_background({},false).script_cursor==0,"reused preview retained the previous script cursor");
+    });
     suite.test("PC slot loading is atomic and both slot formats preserve global progress",[]{
         Model model;model.message=true;model.code.print(1);model.code.print(2);model.code.end();
         TempGame temp(model);

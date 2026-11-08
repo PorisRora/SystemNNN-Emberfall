@@ -478,7 +478,8 @@ final class GameSave {
                 int n=1;
                 // Skip may advance a dialogue per logical tick, so never combine skip ticks.
                 if (clockDate==0 && !r.skip && !r.advance && r.choice==0 && r.ms>0) {
-                    if (meta[0]==NativeGame.DIALOGUE || meta[0]==NativeGame.CHOICE) n=Math.min(left,60000/r.ms);
+                    // Choice appearance and its countdown consume separate logical ticks.
+                    if (meta[0]==NativeGame.DIALOGUE) n=Math.min(left,60000/r.ms);
                     else if ((meta[0]==NativeGame.DRAW || meta[0]==NativeGame.OVERLAP) && r.ms==meta[5])
                         n=Math.max(1,Math.min(left,Math.min(60000/r.ms,meta[6])));
                 }

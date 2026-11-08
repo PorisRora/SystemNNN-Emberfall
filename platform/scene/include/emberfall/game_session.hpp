@@ -86,6 +86,7 @@ struct FrameState {
     std::uint32_t choice_limit_ms=0,choice_remaining_ms=0;
     bool choice_timed_out=false;
     int config_mask=0,demo_mode=0;
+    int script_cursor=0; // Independent of the user's configured message cursor.
     std::string film_name,story_name;
     unsigned movie=0; // One-based position in spt/movielist.xtx.
     std::optional<nnn::ScriptSelection> selection;

@@ -40,7 +40,7 @@ constexpr nnn::Word config_mask=0x33330053U, var_control_layer=0x33330063U;
 constexpr nnn::Word set_term=0x3333006dU;
 constexpr unsigned variable_count=32768;
 constexpr unsigned first_system_variable=200;
-constexpr std::uint32_t snapshot_magic=0x31534e4eU, snapshot_version=10;
+constexpr std::uint32_t snapshot_magic=0x31534e4eU, snapshot_version=11;
 constexpr int heroine_limit=12,object_limit=1024;
 constexpr std::size_t backlog_capacity=100;
 constexpr std::size_t backlog_jump_budget=24U*1024U*1024U;
@@ -2777,6 +2777,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
                 layer_variables[static_cast<unsigned>(a[0])]=a[1];
             return true;
         case 0x33330054U: if (!a.empty()) window_type=a[0]; return true;
+        case 0x33330056U: if (!a.empty()) frame.script_cursor=a[0]; return true;
         case 0x3333005fU: if (!a.empty()) font_type=a[0]; return true;
         case 0x3333005aU: if (!a.empty()) option_off=a[0]==-1 ? 0 : a[0]; return true;
         case 0x33330057U: case 0x33330058U: case 0x33330059U: {
@@ -3126,6 +3127,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         status.frame_ms=static_cast<int>(period);status.remaining=30;
         status.last_heroine=last_heroine;
         status.window_number=window_type;status.font_type=font_type;status.window_visible=frame.dialogue.window_visible;
+        status.cursor_number=frame.script_cursor;
         status.config_mask=frame.config_mask;status.layer_off=renderer->hidden_layers();
         status.auto_message=auto_message;status.cannot_click=cannot_click;status.cannot_skip=cannot_skip;
         status.surname=surname;status.given_name=given_name;
@@ -3259,6 +3261,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         frame.config_mask=status.config_mask;
         frame.dialogue.window_visible=status.window_visible;
         window_type=std::max(0,status.window_number);font_type=std::max(0,status.font_type);
+        frame.script_cursor=status.cursor_number;
         auto_message=status.auto_message;cannot_click=status.cannot_click;cannot_skip=status.cannot_skip;
         surname=status.surname;given_name=status.given_name;
         const auto global=shared_runtime->runtime_text();
@@ -3332,6 +3335,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         }
         frame.config_mask=status.config_mask;
         window_type=std::max(0,status.window_number);font_type=std::max(0,status.font_type);
+        frame.script_cursor=status.cursor_number;
         auto_message=status.auto_message;cannot_click=status.cannot_click;cannot_skip=status.cannot_skip;
         replacements=saved.replacements;surname=status.surname;given_name=status.given_name;
         if (saved.log) for (const auto& old:saved.log->entries) {
@@ -3527,8 +3531,11 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         const bool pending_modal=!save_place && modal_savable();
         if (ui_mode || !replay_films.empty() || (wait>Wait::Choice && wait!=Wait::Place && !pending_modal))
             nnn::snapshot::invalid("Cannot snapshot this game mode");
-        const bool chart_format=chart_available;
-        out(snapshot_magic,chart_format ? snapshot_version : 9U,static_cast<std::uint8_t>(last_heroine),default_period,
+        const bool cursor_format=frame.script_cursor!=0;
+        const bool chart_format=chart_available || cursor_format;
+        out(snapshot_magic,cursor_format ? snapshot_version : chart_format ? 10U : 9U,static_cast<std::uint8_t>(last_heroine));
+        if (cursor_format) out(frame.script_cursor);
+        out(default_period,
             static_cast<std::uint8_t>(wait),frame.script,frame.word,frame.remaining_frames);
         if (pending_modal) {
             const auto& request=*frame.modal;
@@ -3606,6 +3613,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
             in(next.last_heroine);
             if (next.last_heroine>=heroine_limit) invalid("Invalid last heroine in snapshot");
         }
+        if (version>=11) in(next.frame.script_cursor);
         in(frame_period,waiting,next.frame.script,next.frame.word,next.frame.remaining_frames);
         const bool pending_modal=version>=9 && waiting==static_cast<std::uint8_t>(Wait::Modal);
         if (frame_period!=default_period ||

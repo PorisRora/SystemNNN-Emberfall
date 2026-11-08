@@ -198,19 +198,24 @@ final class GameSlotsPanel extends GameUiPanel {
             if(!glyphs(c,p,sprite(data.value("fileNameSaveTimeFont","")),time,x,y,w,h,limit(data.number("saveTimeFontNextX",w),1,512)))
                 line(c,time,x,y,16,Color.WHITE);
         }
+        private boolean serialNumber(Canvas c,boolean mustFit){
+            if(data.number("serialPrintFlag",1)==0)return false;
+            int x=data.number("serialPrintX",cardWidth-24),y=data.number("serialPrintY",5);
+            int w=limit(data.number("serialFontSizeX",14),1,512),h=limit(data.number("serialFontSizeY",20),1,512);
+            int advance=limit(data.number("serialFontNextX",w),1,512);
+            String number=digits(serial,limit(data.number("serialNumberKeta",2),1,4));
+            int width=w+(number.length()-1)*advance;
+            if(mustFit&&(x<0||y<0||x>cardWidth-width||y>cardHeight-h))return false;
+            p.setAlpha(255);
+            return glyphs(c,p,sprite(data.value("fileNameSerialNumberFont","")),number,x,y,w,h,advance)||
+                line(c,number,x,y,14,Color.WHITE)>0;
+        }
         private void contents(Canvas c){
             int px=data.number("picPrintX",6),py=data.number("picPrintY",8);
             int pw=limit(data.number("picSizeX",182),1,512),ph=limit(data.number("picSizeY",102),1,512);
             picture(c,preview,px,py,pw,ph);
             timestamp(c);
-            if(e.slot!=SaveSlots.AUTO&&data.number("serialPrintFlag",1)!=0){
-                int x=data.number("serialPrintX",cardWidth-24),y=data.number("serialPrintY",5);
-                int w=limit(data.number("serialFontSizeX",14),1,512),h=limit(data.number("serialFontSizeY",20),1,512);
-                String number=digits(serial,limit(data.number("serialNumberKeta",2),1,4));
-                p.setAlpha(255);
-                if(!glyphs(c,p,sprite(data.value("fileNameSerialNumberFont","")),number,x,y,w,h,limit(data.number("serialFontNextX",w),1,512)))
-                    line(c,number,x,y,14,Color.WHITE);
-            }
+            if(e.slot!=SaveSlots.AUTO)serialNumber(c,false);
             int x=data.number("textPrintX",210),y=data.number("textPrintY",87),size=limit(data.number("textFontSize",16),8,40);
             String position=e.script+" · 第 "+e.line+" 句";
             int positionY=data.number("addPicPrintY",46);
@@ -234,6 +239,13 @@ final class GameSlotsPanel extends GameUiPanel {
             if(base!=null)picture(canvas,base,0,0,base.getWidth(),base.getHeight());
             if(e.slot==SaveSlots.AUTO&&!e.exists||e.slot==SaveSlots.QUICK&&base==null)
                 line(canvas,e.label(),17,38,20,saving?0xffffb7aa:0xffa4e9ff);
+            if(saving&&base==null&&e.slot>=0&&!e.exists&&!e.corrupt&&!serialNumber(canvas,true)){
+                int x=Math.min(17,cardWidth/4),y=Math.min(38,cardHeight/4);
+                if(line(canvas,e.label(),x,y,Math.min(20,cardHeight-y),0xffffb7aa)==0){
+                    p.setColor(0x99ffb7aa);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1);
+                    canvas.drawRect(0,0,cardWidth,cardHeight,p);p.setStyle(Paint.Style.FILL);
+                }
+            }
             if(e.corrupt)line(canvas,"存档无法读取",data.number("textPrintX",210),data.number("textPrintY",87),16,0xff91a9ba);
             else if(e.exists)contents(canvas);
             int selectMode=data.number("selectPrintMode",1);

@@ -75,6 +75,9 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     private int storyTouchSlop;
     private boolean storyDrag;
     private boolean foreground,permissionPending;
+    private Uri selectedGameTree;
+    private boolean copyingGame,usingGameCopy;
+    private volatile boolean cancelGameCopy;
     private boolean uiHidden,autoMode,skipMode,typing,refreshAfterLoad;
     private int panelsOpen,revealed;
     private String fullBody="";
@@ -82,7 +85,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     private GameRunner.Modal visibleModal,modeUnderPanel;
     private Bitmap optionalGalleryPrevious;
     private boolean openGalleryAfterTitle;
-    private SharedPreferences preferences;
+    private SharedPreferences preferences,userPreferences;
     private PlayerSettings settings;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private final ArrayList<AlertDialog> openedPanels=new ArrayList<>();
@@ -95,14 +98,18 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     private boolean pcSaveBusy;
     private byte[] pendingPcExport;
     private final SharedPreferences.OnSharedPreferenceChangeListener settingsListener=(p,key) -> {
-        if(syncingRuntime||RuntimeSettingsAdapter.isPersistedKey(key))return;
-        settings=PlayerSettings.read(p);
+        if(syncingRuntime||p!=preferences)return;
+        settings=PlayerSettings.read(p,userPreferences);
         if (dialoguePanel!=null) dialoguePanel.settings(settings);
-        if(PlayerSettings.READING_SIZE.equals(key))return;
         selectDialogueVariant();
         if (runner!=null) runner.settings(key,settings);
         immersive();
         updateStatus();
+    };
+    private final SharedPreferences.OnSharedPreferenceChangeListener readingListener=(p,key)->{
+        if(preferences==null||!PlayerSettings.READING_SIZE.equals(key))return;
+        settings=PlayerSettings.read(preferences,p);
+        if(dialoguePanel!=null)dialoguePanel.settings(settings);
     };
 
     @Override public void onCreate(Bundle saved) {
@@ -136,13 +143,17 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
             return insets;
         });
         root.requestApplyInsets();
-        preferences=PlayerSettings.preferences(this); settings=PlayerSettings.read(preferences);
-        preferences.registerOnSharedPreferenceChangeListener(settingsListener);
+        userPreferences=PlayerSettings.preferences(this);
+        userPreferences.registerOnSharedPreferenceChangeListener(readingListener);
         Intent i=getIntent();
         String path=i.getStringExtra(PREFIX+"FOLDER_PATH");
         fromTyn="com.tyranor.runtime.action.LAUNCH".equals(i.getAction());
         if (!fromTyn) {
-            if (saved!=null) path=saved.getString("selectedGame");
+            if (saved!=null){
+                path=saved.getString("selectedGame");
+                String tree=saved.getString("selectedGameTree");
+                if(tree!=null)selectedGameTree=Uri.parse(tree);
+            }
             if (path==null || path.isEmpty()) { chooseHome(null); return; }
         } else if (path==null || path.isEmpty()) {
             chooseHome("TYN 没有传入游戏目录。"); return;
@@ -199,6 +210,10 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
             if (volume==null) throw new IOException("找不到所选存储卷。");
             File selected=new File(volume,id[1]).getCanonicalFile();
             if (!selected.toPath().startsWith(volume.getCanonicalFile().toPath())) throw new IOException("游戏目录无效。");
+            selectedGameTree=uri;
+            if(Build.VERSION.SDK_INT==29)try{
+                getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }catch(SecurityException ignored){}
             game=selected; inspectAccess();
         } catch (IOException | IllegalArgumentException e) { chooseHome(e.getMessage()); }
     }
@@ -249,9 +264,16 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     @Override protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         if (!fromTyn && game!=null) state.putString("selectedGame",game.getPath());
+        if (!fromTyn && selectedGameTree!=null)state.putString("selectedGameTree",selectedGameTree.toString());
     }
     private void inspectAccess() {
-        if (game==null || runner!=null) return;
+        if (game==null || runner!=null || copyingGame) return;
+        if(Build.VERSION.SDK_INT==29&&selectedGameTree!=null)try{
+            String identity=SystemNnnGameImport.sourceIdentity(selectedGameTree);
+            File copy=SystemNnnGameImport.committedRoot(this,identity);
+            usingGameCopy=copy!=null;
+            if(usingGameCopy)game=copy;
+        }catch(IOException e){chooseHome(gameCopyFailure(e));return;}
         File script=GameResourcePaths.file(game,"spt","sys.spt");
         if (script!=null) {
             // Scoped storage may allow stat() and directory listings while denying open().
@@ -261,7 +283,55 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
                 if (probe.read()!=-1) { startGame(); return; }
             } catch (IOException ignored) { /* Show the appropriate storage action below. */ }
         }
-        if(!requestStorageAccess(false))chooseHome("在所选目录里没有找到可读取的 spt/sys.spt。");
+        if(!requestGameAccess(false))chooseHome("在所选目录里没有找到可读取的 spt/sys.spt。");
+    }
+    private boolean requestGameAccess(boolean writing){
+        if(Build.VERSION.SDK_INT!=29||selectedGameTree==null||usingGameCopy)return requestStorageAccess(writing);
+        if(Environment.isExternalStorageLegacy()&&requestStorageAccess(writing))return true;
+        message("复制游戏","系统无法直接访问所选目录。可复制游戏到应用目录后启动，存档会保存在副本的 sav 目录。",
+            "复制到应用目录",v->copySelectedGame());
+        return true;
+    }
+    private void copySelectedGame(){
+        if(copyingGame||selectedGameTree==null)return;
+        Uri tree=selectedGameTree;
+        copyingGame=true;
+        cancelGameCopy=false;
+        message("复制游戏","正在复制游戏。所需时间取决于游戏大小。","取消复制",v->cancelGameCopy=true);
+        new Thread(()->{
+            File copy=null;
+            String failure=null;
+            try{
+                copy=SystemNnnGameImport.importDirectory(this,tree,SystemNnnGameImport.sourceIdentity(tree),()->{
+                    if(cancelGameCopy)throw new java.util.concurrent.CancellationException();
+                });
+            }catch(java.util.concurrent.CancellationException e){failure="已取消复制游戏";}
+            catch(IOException e){failure=gameCopyFailure(e);}
+            File imported=copy;
+            String reason=failure;
+            ui.post(()->{
+                if(isDestroyed()||isFinishing())return;
+                copyingGame=false;
+                if(imported==null){chooseHome(reason);return;}
+                game=imported;
+                usingGameCopy=true;
+                startGame();
+            });
+        },"SystemNNN-Import").start();
+    }
+    private String gameCopyFailure(IOException error){
+        if(error instanceof SystemNnnGameImport.Failure){
+            switch(((SystemNnnGameImport.Failure)error).reason){
+                case NO_GRANT:return "目录授权已失效，请重新选择游戏目录。";
+                case SOURCE_MISSING:case INVALID_SOURCE:return "所选目录缺少可读取的游戏文件，请检查游戏是否已完整解压。";
+                case INCOMPLETE_SOURCE:return "原目录的存档仍在写入或迁移，请关闭游戏后重试。";
+                case NO_SPACE:return "应用存储空间不足，无法复制游戏。";
+                case BUSY:return "这个游戏正在复制，请稍后重试。";
+                case CORRUPT_COPY:return "已有游戏副本不可用，请检查应用目录中的游戏文件。";
+            }
+        }
+        android.util.Log.w("SystemNNN","Could not import the selected game",error);
+        return "无法复制游戏，请检查应用存储和目录授权。";
     }
     private boolean requestStorageAccess(boolean writing) {
         String permission=writing?Manifest.permission.WRITE_EXTERNAL_STORAGE:Manifest.permission.READ_EXTERNAL_STORAGE;
@@ -287,7 +357,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         try{saves=GameSavePaths.forGame(game);}
         catch(IOException|SecurityException e){message("无法打开游戏存档目录",e.getMessage(),"重试",v->inspectAccess());return;}
         File directory=saves.directory();
-        if(!(directory.isDirectory()?directory:game).canWrite() && requestStorageAccess(true))return;
+        if(!(directory.isDirectory()?directory:game).canWrite() && requestGameAccess(true))return;
         root.removeAllViews();
         storyTouchSlop=ViewConfiguration.get(this).getScaledTouchSlop();
         stage=new FrameLayout(this); root.addView(stage,new FrameLayout.LayoutParams(-1,-1,Gravity.CENTER));
@@ -317,7 +387,11 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         status.setBackground(rounded(0xb51a2030,6));
         FrameLayout.LayoutParams statusParams=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.START);
         statusParams.setMargins(dp(8),dp(8),0,0); stage.addView(status,statusParams); status.setVisibility(View.GONE);
-        runner=new GameRunner(game,saves,getFilesDir(),preferences,settings,this);
+        preferences=PlayerSettings.displayPreferences(this,game);
+        settings=PlayerSettings.read(preferences,userPreferences);
+        dialoguePanel.settings(settings);
+        preferences.registerOnSharedPreferenceChangeListener(settingsListener);
+        runner=new GameRunner(getApplicationContext(),game,saves,getFilesDir(),preferences,userPreferences,settings,this);
         screen.getHolder().addCallback(new SurfaceHolder.Callback() {
             public void surfaceCreated(SurfaceHolder holder) {if(runner!=null)runner.surface(holder.getSurface());}
             public void surfaceChanged(SurfaceHolder holder,int format,int w,int h) {if(runner!=null)runner.surface(holder.getSurface());}
@@ -371,6 +445,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
                 currentFrame.word!=frame.word || !currentFrame.script.equals(frame.script) ||
                 !currentFrame.body.equals(frame.body) || !currentFrame.speaker.equals(frame.speaker) || currentFrame.nameWindow!=frame.nameWindow;
             currentFrame=frame;
+            dialoguePanel.scriptCursorVariant(frame.scriptCursor);
             dialoguePanel.storyBody(frame.wait==NativeGame.DIALOGUE);
             selectDialogueVariant();
             if (changed) {
@@ -472,7 +547,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
                 for(OriginalSettingsModel.CharacterControl group:model.characters){boolean enabled=(aux[2+(group.index&31)]&(1<<(group.index/32)))==0;
                     for(int id:group.ids)edit.putBoolean("character."+id+".enabled",enabled);}
                 edit.apply();}
-            settings=PlayerSettings.read(preferences);if(dialoguePanel!=null)dialoguePanel.settings(settings);
+            settings=PlayerSettings.read(preferences,userPreferences);if(dialoguePanel!=null)dialoguePanel.settings(settings);
             if(aux!=null&&aux.length>=36){
                 if(dialoguePanel!=null)dialoguePanel.cursorVariant(aux[34]);
                 if(stage!=null&&mouseVariant!=aux[35]){mouseVariant=aux[35];stage.setPointerIcon(uiAssets.pointer(mouseVariant));}
@@ -658,7 +733,13 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         if(runner==null || titleModel==null)return;
         TitleMenu.Action action=item.action;
         switch(action) {
-        case START:case CONTINUE:runner.enter(action);break;
+        case START:case CONTINUE:
+            TitlePanel source=titlePanel;
+            GameRunner owner=runner;
+            owner.enter(action,()->runOnUiThread(()->{
+                if(source!=null&&source==titlePanel&&owner==runner&&!isDestroyed())source.entryFailed();
+            }));
+            break;
         case LOAD:showSlots(false);break;
         case SETTINGS:showSettings();break;
         case EXTRAS:openGallery(GalleryCatalog.Screen.OMAKE,0,0,-1);break;
@@ -1314,8 +1395,8 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
             if(size==settings.readingSize)selected=i;
         }
         showPanel(new AlertDialog.Builder(this).setTitle("阅读字号 · 剧情正文")
-            .setSingleChoiceItems(labels,selected,(d,i)->preferences.edit().putInt(PlayerSettings.READING_SIZE,sizes[i]).apply())
-            .setNeutralButton("恢复默认",(d,i)->preferences.edit().remove(PlayerSettings.READING_SIZE).apply())
+            .setSingleChoiceItems(labels,selected,(d,i)->userPreferences.edit().putInt(PlayerSettings.READING_SIZE,sizes[i]).apply())
+            .setNeutralButton("恢复默认",(d,i)->userPreferences.edit().remove(PlayerSettings.READING_SIZE).apply())
             .setPositiveButton("完成",null).create());
     }
     private void volumeSetting(LinearLayout box,String title,String key,int current) {
@@ -1407,6 +1488,16 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
             }));slotRows.addView(button,new LinearLayout.LayoutParams(-1,-2));
         }
     });}
+    @Override public void titleReturnCancelled(){runOnUiThread(()->{
+        if(isDestroyed()||isFinishing())return;
+        returningToTitle=false;
+        titlePrevious=null;
+        openGalleryAfterTitle=false;
+        optionalGalleryPrevious=null;
+        if(gamePanel instanceof GameSystemMenuPanel)gamePanel.cancelLeave();
+        else if(gamePanel!=null)closeOriginalPanel();
+        updateVisibility();
+    });}
     @Override public void notice(String text) { runOnUiThread(() -> {
         if(!isDestroyed()) Toast.makeText(this,text,Toast.LENGTH_SHORT).show();
     }); }
@@ -1461,7 +1552,13 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
             View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION:View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         if(root!=null)root.requestApplyInsets();
     }
-    @Override public void onWindowFocusChanged(boolean focus) {super.onWindowFocusChanged(focus); if(focus) immersive();}
+    @Override public void onWindowFocusChanged(boolean focus) {
+        super.onWindowFocusChanged(focus);
+        if(focus){
+            immersive();
+            if(runner!=null)runner.windowFocused();
+        }
+    }
     @Override public boolean dispatchTouchEvent(MotionEvent event) {
         if(pcSaveBusy||returningToTitle||preparingPanel!=null)return true;
         int action=event.getActionMasked();
@@ -1494,6 +1591,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         if(x!=lastX||y!=lastY){lastX=x;lastY=y;runner.pointer(x,y);}
     }
     @Override public void onBackPressed() {
+        if(copyingGame){cancelGameCopy=true;return;}
         if(pcSaveBusy)return;
         panelWarmup=null;
         if(moviePlayback!=null){moviePlayback.skip();return;}
@@ -1528,9 +1626,11 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     @Override protected void onPause() {foreground=false;if(gamePanel!=null)gamePanel.uiActive(false);statusActive(false); if(runner!=null) runner.active(false);
         if(moviePlayback!=null)moviePlayback.interrupted();super.onPause();}
     @Override protected void onDestroy() {
+        cancelGameCopy=true;
         ui.removeCallbacksAndMessages(null);
         discardPanelPreparation();
         if(preferences!=null)preferences.unregisterOnSharedPreferenceChangeListener(settingsListener);
+        if(userPreferences!=null)userPreferences.unregisterOnSharedPreferenceChangeListener(readingListener);
         for(AlertDialog dialog:new ArrayList<>(openedPanels))dialog.dismiss();
         if(runner!=null){runner.close();runner=null;}super.onDestroy();
     }

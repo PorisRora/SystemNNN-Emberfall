@@ -25,6 +25,20 @@ public final class DialogueLayoutTest {
         return fields;
     }
     public static void main(String[] args)throws Exception{
+        Map<String,String> cursor=new HashMap<>();
+        check(DialogueLayout.cursorName(cursor,0,0,0).equals("mes_cur"),"cursor default asset");
+        put(cursor,"filenameCursor1","base");put(cursor,"filenameCursor2","automatic");
+        put(cursor,"cursorNumberScript",3);put(cursor,"cursorNumberConfig",2);
+        put(cursor,"filenameCursor1_1_1","first");put(cursor,"filenameCursor1_2_2","script2config2");
+        check(DialogueLayout.cursorName(cursor,0,1,1).equals("script2config2"),"cursor script axis precedes config axis");
+        check(DialogueLayout.cursorName(cursor,0,2,1).equals("first"),"missing cursor variant inherits the first cell");
+        check(DialogueLayout.cursorName(cursor,1,2,1).equals("automatic"),"cursor kind keeps its own fallback");
+        put(cursor,"cursorNumberConfig",1);put(cursor,"filenameCursor1_3","script3");
+        check(DialogueLayout.cursorName(cursor,0,2,0).equals("script3"),"script-only cursor uses the script axis");
+        put(cursor,"cursorNumberScript",1);put(cursor,"cursorNumberConfig",2);put(cursor,"filenameCursor1_2","config2");
+        check(DialogueLayout.cursorName(cursor,0,99,1).equals("config2"),"config-only cursor ignores the script axis");
+        put(cursor,"cursorNumberConfig",1);
+        check(DialogueLayout.cursorName(cursor,0,99,99).equals("base"),"single cursor ignores variant keys");
         for(int s:new int[]{1,3})for(int c:new int[]{1,2}){
             DialogueLayout.Counts n=new DialogueLayout.Counts(c,s,2);
             int j=s-1,i=c-1;

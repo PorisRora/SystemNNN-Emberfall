@@ -57,7 +57,33 @@ public final class GameSaveTest {
         public void randomState(int state) { randomSeeds.add(state); }
         public void clock(int date,int milliseconds) { dates.add(date);clockMilliseconds.add(milliseconds); }
     }
+    private static void choiceAppearanceReplay() throws Exception {
+        GameSave history=new GameSave();
+        history.append(0,12,34,false,0);
+        for(int i=0;i<3;i++)history.append(20,12,34,false,0);
+        int[] position={NativeGame.CHOICE,123,5,800,600,20,980};
+        GameSave.Metadata metadata=GameSave.metadata(0,1,SCRIPT,position,"","");
+        GameSave.Loaded loaded=read(write(history,metadata,null));
+        class ChoiceEngine implements GameSave.Replay {
+            boolean entered;
+            int appearing=2,remaining=1000;
+            public void setSkip(boolean skip) {}
+            public byte[][] content(){return GameSaveTest.content();}
+            public void tick(int ms,int x,int y,boolean advance,int choice,int[] state){
+                // The native selection first finishes its appearance, then starts counting down.
+                if(!entered)entered=true;
+                else if(appearing>0)appearing=Math.max(0,appearing-ms/20);
+                else remaining=Math.max(0,remaining-ms);
+                System.arraycopy(position,0,state,0,position.length);
+                state[6]=remaining;
+            }
+        }
+        ChoiceEngine engine=new ChoiceEngine();
+        GameSave.replay(loaded,engine,new int[7]);
+        check(engine.appearing==0&&engine.remaining==980,"choice replay preserves the appearance/countdown boundary");
+    }
     public static void main(String[] ignored) throws Exception {
+        choiceAppearanceReplay();
         GameSave history=new GameSave();
         history.append(0,12,34,false,0);
         history.append(16,12,34,false,0,true); history.append(16,12,34,false,0,true);
