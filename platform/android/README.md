@@ -88,6 +88,6 @@ NS2 附带独立校验的压缩原生快照，保存活动 VM、脚本位置、�
 
 0.6.2 在 API 30 ARM64 转译模拟器上验证《獄淫の尖塔》《劣等》和《死终Ω神盾》简繁版的自动播放时间与对话框透明度滑块，覆盖拖动、即时预览、保存和返回剧情后重新打开设置。更早的模拟器验收覆盖《死终Ω神盾》简体版和《鏖殺ノ乙女》的设置、标题读档与影片鉴赏入口，以及《獄淫の尖塔》和《劣等》的 800×600 设置、剧情与手动存读档。实际覆盖以这些样本和场景为限。
 
-在 Windows 的仓库根目录运行 `python platform/android/build_player.py` 重建 APK。默认文件名取自 Android manifest 的版本号。本地调试签名密钥保存在 `%LOCALAPPDATA%/CodexTools/SystemNNN-M/debug-signing/emberfall-debug.p12`。 [构建依赖与环境变量](../../README.md#构建)
+在 Windows 的仓库根目录运行 `python platform/android/build_player.py` 重建 APK。默认文件名取自 Android manifest 的版本号。本地调试签名密钥保存在 `%LOCALAPPDATA%/CodexTools/SystemNNN-M/debug-signing/emberfall-debug.p12`。 [构建依赖与环境变量](BUILDING.md)
 
 播放器动态链接 FFmpeg 8.1.3，启用 ASF、MPEG 节目流、WMV3、VC-1、WMA、MPEG-1/2 视频和 MP2。APK 内附许可与构建选项。 [FFmpeg 8.1.3 源码](https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/refs/tags/n8.1.3) · [第三方声明](../../THIRD_PARTY_NOTICES.md)

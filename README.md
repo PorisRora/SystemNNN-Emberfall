@@ -4,114 +4,25 @@
 
 # SystemNNN-Emberfall
 
-SystemNNN-Emberfall 是面向 Android 的 SystemNNN 游戏运行器，可独立运行，也可作为 Tyranor-Next 引擎模块启动。C++ 内核负责 SPT 脚本、图层和音频。Android 播放器按游戏配置绘制对话、菜单、存读档和鉴赏界面。
+面向 Android 的 SystemNNN 引擎移植，让手机运行使用 SystemNNN 制作的视觉小说。支持独立 APK，也提供 Tyranor-Next 内置引擎接入包。
 
-## 运行
+**移植作者：[PorisRora](https://github.com/PorisRora)（Rooboko）**
 
-需要 Android 8.0 或以上和 ARM64 设备。安装 APK 后点「选择游戏目录」，选择包含 `spt/sys.spt` 的游戏目录。也可从 Tyranor-Next 的引擎模块管理启用 SystemNNN-Emberfall，再从游戏库启动。游戏脚本、图像、语音和视频从用户提供的安装目录读取。
+- C++ 内核负责剧情脚本、图层、特效和音频。
+- 按游戏自身配置呈现标题、对话、菜单、存读档和鉴赏界面。
+- 支持触屏操作、自动播放、已读快进、历史回看和剧情字号调整。
+- 存档保存在游戏目录的 `sav` 中，支持读取及导出 PC 剧情存档。
 
-各作品启用的脚本指令、界面配置和资源格式不同。样本包括《死终Ω神盾》简繁版、《鏖殺ノ乙女》、《獄淫の尖塔》和《劣等》。各版本的测试范围见 [Android 播放器说明](platform/android/README.md)。
+## 下载与使用
 
-## 0.6.4
+从 [Releases](https://github.com/PorisRora/SystemNNN-Emberfall/releases/latest) 下载 APK。需要 **Android 8.0+、ARM64** 设备。
 
-- 同一套源码支持分离库与单库构建。分离版包含引擎和五个 FFmpeg 库；单库版将相同影片组件静态链接到 `libsystemnnn.so`，保持 JNI 接口一致。
-- 为 TYN 维护者提供两种接入包，包含匹配的 Android 宿主、存档目录入口、合并说明、源码和第三方许可。
-- 手机安装仅发布普通 APK；单库构建用于导出单个 `.so` 接入包，不另行发布单库 APK。
-- 独立版和内置版统一把剧情槽、缩略图、已读、鉴赏及流程图进度放在游戏目录的 `sav/emberfall*` 下。首次打开时复制本应用可访问的旧私有存档，保留旧文件与目标已有存档，不覆盖 PC 存档。
-- 尖角擦除转场保留原版遮罩和时长，改用截图与遮罩分开合成，避免按钮与文字随转场压缩到游戏逻辑分辨率。
-- 在安卓层为存档页提供「导出PC存档」、读档页提供「读取PC存档」按钮。读取 PC 档直接恢复剧情，仍按需手动保存到手机槽位。
-- 清理两个未使用的 Java 导入。本版检查范围为编译、链接、打包与隔离的存档迁移检查，未新增游戏或设备回归。
+安装后选择包含 `spt/sys.spt` 的已解压游戏目录即可。游戏资源需自行提供，兼容程度因游戏版本而异。
 
-## 0.6.3
+TYN 维护者可在同一发布页下载单个 `.so` 或分离 `.so` 接入包。
 
-- 按原版规则显示分页箭头。使用箭头的设置页和存读档页，以及 CG、回想和动画鉴赏列表只显示可用方向，单页隐藏箭头，首尾不循环。
-- 本版 `versionCode` 为 63。按用户要求仅做构建、签名和 APK 校验，未做新的模拟器或手机回归。
+[播放器说明](platform/android/README.md) · [构建说明](platform/android/BUILDING.md) · [TYN 接入说明](platform/android/tyn/README.md)
 
-## 0.6.2
+## 来源
 
-- 按旧版引擎规则显示已声明的自动播放时间和对话框透明度滑块，拖动时更新内核参数和透明度预览。
-- 旧版自动播放时间滑块控制有声和无声台词的停留时间，文字显示速度由单独的滑块控制。
-
-## 0.6.1
-
-- 环境设置按原版配置播放角色按钮语音，滑条松手后按当前角色主题试听。
-- Android 环境设置入口提供「阅读字号」，仅缩放剧情正文和正文行距，默认 100%。
-- 原版按钮蒙版使用非零 alpha 命中，恢复《獄淫の尖塔》菜单的有效点击范围。
-
-## 0.6.0
-
-- 接入 17 个原版可选模式，包括姓名和文字输入、提示和图鉴、角色和对象选择、商店、队伍、状态、流程图等。是否显示及交互方式由游戏配置和脚本决定。
-- 流程图按原版处理节点、章节切换、重访确认及独立节点档。原生存档可保留流程图状态，全局进度按游戏保存，支持读取旧版 NS2 和 NNR4。
-- 视频播放器支持 ASF 和 MPEG 节目流。用《獄淫の尖塔》验证了 MPEG-1 画面和 MP2 音频。
-
-## 0.5.2
-
-- 标题阶段预热菜单资源，按下设置或存读档按钮时准备目标背景首帧。菜单共用一份 48 MiB 贴图缓存，转场时保留旧面板和新面板各自的执行状态。
-- 菜单等待和展开使用配置的帧时钟。设置、存读档和回看退出时交接完整画面，返回剧情时恢复循环环境音。
-- 原版对白字号使用游戏配置。环境设定的示例文字使用与对白相同的阴影。
-
-## 0.5.1
-
-- 设置按钮按原版规则继承图集帧尺寸、动画和点击区域。开关两态分别取用自己的配置。
-- 带剧情截图的脚本菜单等到完整背景首帧后再接管画面，修复《鏖殺ノ乙女》打开 SYSTEM 时的闪紫。
-
-## 0.5.0
-
-- 原版剧情转场、菜单背景与章节选择共用运行内核。剧情结束会保存全局进度，重新进入时使用原版章节解锁条件。
-- 支持回看跳转、Windows 原版剧情存档导入和导出，以及保留旧档兼容的 v8 原生快照。
-- 统一资源查找与旧 DWQ 解码，支持 CP932 文件名和不同资源包中的同名贴图。鉴赏支持按原版列表播放动画 CG。
-
-## 0.4.0
-
-- 设置、存读档和标题按游戏配置衔接入场与退场。原版设置页使用游戏自己的字号和控件。
-- 内核支持限时选择、脚本指定的转场和图层变量绑定。快照会保存限时选择和转场进度。
-
-## 0.3.1
-
-- 游戏内读档复用当前会话和音频输出。同一首循环 BGM 保留播放位置。
-- 静止场景的快照从图层重建画面。存档和缩略图在后台写入，存读档界面使用预载的槽位信息。
-
-## 0.3.0
-
-- 剧情按钮和菜单按钮共用原版图集动画解析与绘制。剧情按钮的位置、透明命中区和点击音继续读取各游戏的配置。
-- 清理了闲置的单槽存档入口、旧 JNI 包装和面板辅助代码。多槽存读档和既有存档格式仍可用。
-- 从回看和系统菜单返回时恢复循环环境音。退出确认沿用菜单背景，选择「不结束」直接回到当前剧情。菜单与设置的入场动画从截帧准备好时开始。
-- 环境设置的文字页提供手机台词字号，标准档使用游戏配置的字号。
-
-## 构建
-
-在 Windows 的仓库根目录构建 Android APK。需要 Python 3.9 或以上、JDK 17、Android SDK Platform 36、Build Tools 36.0.0 和 `curl.exe`。WSL 中需要 CMake、GNU Make 和 Linux 版 Android NDK r28。按安装位置填写以下路径。
-
-```powershell
-$env:JAVA_HOME = 'C:\Java\jdk-17'
-$env:ANDROID_SDK_ROOT = 'C:\Android\Sdk'
-$env:SYSTEMNNN_NDK = '/opt/android-ndk-r28'
-python platform/android/build_player.py
-```
-
-脚本默认使用 Ubuntu WSL 发行版，可通过 `SYSTEMNNN_WSL_DISTRO` 指定其他发行版。首次构建会下载 FFmpeg 源码并交叉编译。默认输出为 `build/tyranor/SystemNNN-Emberfall-0.6.4-arm64.apk`。加上 `--movie-codec-linkage static` 会生成供单个 `.so` 接入包提取使用的本地中间 APK，不作为另一种手机安装包发布。构建脚本使用本地调试密钥，覆盖安装要求新旧 APK 证书一致。
-
-在 Linux 或 WSL 中构建主机工具和测试。
-
-```sh
-cmake -S platform/scene -B build/scene-host-debug -DCMAKE_BUILD_TYPE=Debug
-cmake --build build/scene-host-debug --parallel 4
-(cd build/scene-host-debug && ctest --output-on-failure)
-```
-
-单独构建核心库与探针的命令和公开头文件见 [核心说明](core/README.md)。
-
-## TYN 内置接入包
-
-维护者可按[接入说明](platform/android/tyn/README.md)将宿主与运行库合入 TYN 的 `:engine`，再合并游戏识别、启动和存档入口。接入包保留原 Java 包名与 JNI 约定。更新后的独立 APK 打开原游戏目录时，会将本应用的旧私有存档复制到游戏的 `sav`，供有该目录读写权限的内置版使用；TYN 本身不能直接读取另一个应用的私有目录。
-
-```powershell
-python platform/android/package_tyn.py --layout split
-python platform/android/package_tyn.py --layout single
-```
-
-先构建对应布局的 APK，再执行导出。两种包均包含宿主源码、配置合并片段、引擎构建源码及 FFmpeg 源码。它们是维护者接入材料，尚未完成 TYN 整包集成验收。
-
-## 来源与许可
-
-原版 SystemNNN 由 tinyan 开发。移植使用了原版源码作为行为参考，来源和第三方组件许可见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+原版 [SystemNNN](https://github.com/tinyan/SystemNNN) 由 tinyan 开发。第三方组件与许可信息见 [第三方声明](THIRD_PARTY_NOTICES.md)。
