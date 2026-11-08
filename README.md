@@ -4,7 +4,7 @@
 
 # SystemNNN-Emberfall
 
-面向 Android 的 SystemNNN 引擎移植，让手机运行使用 SystemNNN 制作的视觉小说。支持独立 APK，也提供 Tyranor-Next 内置引擎接入包。
+面向 Android 的 SystemNNN 引擎移植，让手机运行使用 SystemNNN 制作的视觉小说。支持独立 APK，也可作为 Tyranor-Next 的内置引擎。
 
 **移植作者：[PorisRora](https://github.com/PorisRora)（Rooboko）**
 
@@ -18,8 +18,6 @@
 从 [Releases](https://github.com/PorisRora/SystemNNN-Emberfall/releases/latest) 下载 APK。需要 **Android 8.0+、ARM64** 设备。
 
 安装后选择包含 `spt/sys.spt` 的已解压游戏目录即可。游戏资源需自行提供，兼容程度因游戏版本而异。
-
-TYN 维护者可在同一发布页下载单个 `.so` 或分离 `.so` 接入包。
 
 [播放器说明](platform/android/README.md) · [构建说明](platform/android/BUILDING.md) · [TYN 接入说明](platform/android/tyn/README.md)
 

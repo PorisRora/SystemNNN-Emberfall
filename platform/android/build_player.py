@@ -86,12 +86,13 @@ def main():
                              (ANDROID / "app/assets/licenses/VNTranslationTools-MIT.txt", "VNTranslationTools-MIT.txt")):
             shutil.copyfile(source, licenses / name)
         linked = "statically linked into libsystemnnn.so" if linkage == "static" else "dynamically linked"
-        relinking = ("The single-so integration bundle includes the build sources and relinking instructions.\n"
+        relinking = ("Static relinking: https://github.com/PorisRora/SystemNNN-Emberfall/blob/main/platform/android/tyn/README.md\n"
                      if linkage == "static" else "")
         (licenses / "ffmpeg-source.txt").write_text(
             f"FFmpeg {MOVIE_CODEC_VERSION} (LGPL 2.1 or later) is {linked}.\n"
             f"Unmodified source: https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/refs/tags/n{MOVIE_CODEC_VERSION}\n"
             "Build options: platform/android/build_movie_codec.sh (also packaged as ffmpeg-build.sh).\n"
+            "Emberfall build instructions: https://github.com/PorisRora/SystemNNN-Emberfall/blob/main/platform/android/BUILDING.md\n"
             + relinking, encoding="utf-8")
         shutil.copyfile(ANDROID / "build_movie_codec.sh", licenses / "ffmpeg-build.sh")
         for source in ("stb_vorbis.c", "stb_image.h"):

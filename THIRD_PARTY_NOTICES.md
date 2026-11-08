@@ -15,4 +15,4 @@
 | VNTranslationTools 字符隧道 | MIT。 [VNTranslationTools 许可](platform/android/app/assets/licenses/VNTranslationTools-MIT.txt) |
 | FFmpeg 8.1.3 | LGPL 2.1 或更高版本。默认 APK 和分离库接入包动态链接五个 FFmpeg 共享库。单库接入包将 FFmpeg 静态链接到 `libsystemnnn.so`。 [FFmpeg 源码](https://github.com/FFmpeg/FFmpeg/tree/n8.1.3) · [构建选项](platform/android/build_movie_codec.sh) |
 
-发布 APK 时，在同一 GitHub Release 附上对应的 `ffmpeg-8.1.3-source.tar.gz`。构建缓存中的归档可直接作为源文件附件。Release 说明中标明 FFmpeg 许可、源码附件及构建脚本。单库分发还应随附接入包中的 Emberfall 构建源码和重新链接步骤，以便替换 FFmpeg 后重建库。 [FFmpeg 分发清单](https://ffmpeg.org/legal.html)
+APK 内附 FFmpeg 许可、对应源码地址和构建脚本。可从 FFmpeg 官方仓库下载构建所用的未修改源码，按仓库内的构建说明复现。单库接入说明提供使用修改版 FFmpeg 重新链接的步骤。 [FFmpeg n8.1.3 源码下载](https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/refs/tags/n8.1.3) · [Android 构建说明](platform/android/BUILDING.md) · [单库重链接说明](platform/android/tyn/README.md#用修改过的-ffmpeg-重新链接单库) · [FFmpeg 分发清单](https://ffmpeg.org/legal.html)
