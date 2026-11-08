@@ -14,7 +14,7 @@ $env:SYSTEMNNN_NDK = '/opt/android-ndk-r28'
 python platform/android/build_player.py
 ```
 
-脚本默认使用 Ubuntu WSL 发行版，可通过 `SYSTEMNNN_WSL_DISTRO` 指定其他发行版。首次构建会下载 FFmpeg 源码并交叉编译。默认输出为 `build/tyranor/SystemNNN-Emberfall-0.6.5-arm64.apk`。发布页提供此独立安装包。加上 `--movie-codec-linkage static` 可在本地生成供提取单个 `.so` 使用的 `build/tyranor/SystemNNN-Emberfall-0.6.5-single-arm64.apk`。构建脚本使用本地调试密钥，覆盖安装要求新旧 APK 证书一致。
+脚本默认使用 Ubuntu WSL 发行版，可通过 `SYSTEMNNN_WSL_DISTRO` 指定其他发行版。首次构建会下载 FFmpeg 源码并交叉编译。默认输出为 `build/tyranor/SystemNNN-Emberfall-0.6.6-arm64.apk`。加上 `--movie-codec-linkage static` 可在本地生成供提取单个 `.so` 使用的 `build/tyranor/SystemNNN-Emberfall-0.6.6-single-arm64.apk`。构建脚本使用本地调试密钥，覆盖安装要求新旧 APK 证书一致。
 
 在 Linux 或 WSL 中构建主机工具和测试。
 

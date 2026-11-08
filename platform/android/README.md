@@ -1,8 +1,8 @@
 # SystemNNN-Emberfall
 
-当前源码版本为 **0.6.5（versionCode 65）**，要求 Android 8.0 及以上、ARM64。独立安装包的默认构建路径为 `build/tyranor/SystemNNN-Emberfall-0.6.5-arm64.apk`。同一签名的版本可覆盖安装并保留各游戏目录的存档。
+当前源码版本为 **0.6.6（versionCode 66）**，要求 Android 8.0 及以上、ARM64。独立安装包的默认构建路径为 `build/tyranor/SystemNNN-Emberfall-0.6.6-arm64.apk`。同一签名的版本可覆盖安装并保留各游戏目录的存档。
 
-0.6.5 将阅读字号和 PC 存档按钮悬浮在游戏画面上方，修复打开对应面板时画布偏移。剧情正文字号改为四档，默认 85%。当前主干还包含 Tyranor-Next PR #154 审查后的存档、菜单和脚本光标修复。宿主接入和存档目录约定见[内置接入说明](tyn/README.md)。
+阅读字号和 PC 存档入口悬浮在游戏画面上方。剧情正文字号有四档，默认 85%。宿主接入和存档目录约定见[内置接入说明](tyn/README.md)。
 
 直接打开模块后可点「选择游戏目录」，选择含 `spt/sys.spt` 的完整游戏文件夹；也可以从 TYN 游戏库启动。Windows EXE 可以留在目录中，引擎读取同目录里的脚本和资源。
 
