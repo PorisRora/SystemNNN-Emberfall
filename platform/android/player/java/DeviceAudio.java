@@ -32,7 +32,10 @@ final class DeviceAudio {
         manager=context.getSystemService(AudioManager.class);
         focus=new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
             .setAudioAttributes(attributes).setAcceptsDelayedFocusGain(true).setWillPauseWhenDucked(true)
-            .setOnAudioFocusChangeListener(change->focused=change==AudioManager.AUDIOFOCUS_GAIN,owner).build();
+            .setOnAudioFocusChangeListener(change->{
+                focused=change==AudioManager.AUDIOFOCUS_GAIN;
+                if(change==AudioManager.AUDIOFOCUS_LOSS)focusRequested=false;
+            },owner).build();
         thread = new Thread(() -> {
             AudioTrack track = null;
             try {
@@ -100,7 +103,7 @@ final class DeviceAudio {
     }
     void close() {
         running = false;
-        if(focusRequested)try{manager.abandonAudioFocusRequest(focus);}
+        if(manager!=null)try{manager.abandonAudioFocusRequest(focus);}
         catch(RuntimeException e){Log.w("SystemNNN","Could not release audio focus",e);}
         thread.interrupt();
         boolean interrupted = false;

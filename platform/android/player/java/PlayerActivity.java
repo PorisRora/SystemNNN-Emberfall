@@ -268,9 +268,9 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     }
     private void inspectAccess() {
         if (game==null || runner!=null || copyingGame) return;
-        if(Build.VERSION.SDK_INT==29&&selectedGameTree!=null)try{
-            String identity=SystemNnnGameImport.sourceIdentity(selectedGameTree);
-            File copy=SystemNnnGameImport.committedRoot(this,identity);
+        try{
+            String identity=sourceIdentity();
+            File copy=identity==null?null:SystemNnnGameImport.committedRoot(this,identity);
             usingGameCopy=copy!=null;
             if(usingGameCopy)game=copy;
         }catch(IOException e){chooseHome(gameCopyFailure(e));return;}
@@ -284,6 +284,19 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
             } catch (IOException ignored) { /* Show the appropriate storage action below. */ }
         }
         if(!requestGameAccess(false))chooseHome("在所选目录里没有找到可读取的 spt/sys.spt。");
+    }
+    private String sourceIdentity() throws IOException {
+        if(selectedGameTree!=null)return SystemNnnGameImport.sourceIdentity(selectedGameTree);
+        if(!fromTyn)return null;
+        // The external-module launch protocol supplies an absolute path instead of a tree URI.
+        java.nio.file.Path source=game.toPath();
+        java.nio.file.Path primary=Environment.getExternalStorageDirectory().getCanonicalFile().toPath();
+        if(source.startsWith(primary))return SystemNnnGameImport.normalizeIdentity("primary:"+primary.relativize(source));
+        java.nio.file.Path storage=new File("/storage").toPath();
+        if(!source.startsWith(storage)||source.getNameCount()<2)return null;
+        String volume=source.getName(1).toString();
+        if("emulated".equals(volume)||"self".equals(volume))return null;
+        return SystemNnnGameImport.normalizeIdentity(volume+":"+storage.resolve(volume).relativize(source));
     }
     private boolean requestGameAccess(boolean writing){
         if(Build.VERSION.SDK_INT!=29||selectedGameTree==null||usingGameCopy)return requestStorageAccess(writing);
@@ -354,7 +367,11 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     }
     private void startGame() {
         GameSavePaths saves;
-        try{saves=GameSavePaths.forGame(game);}
+        File legacySource;
+        try{
+            saves=GameSavePaths.forGame(game);
+            legacySource=SystemNnnGameImport.originalGame(this,game);
+        }
         catch(IOException|SecurityException e){message("无法打开游戏存档目录",e.getMessage(),"重试",v->inspectAccess());return;}
         File directory=saves.directory();
         if(!(directory.isDirectory()?directory:game).canWrite() && requestGameAccess(true))return;
@@ -381,17 +398,17 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
             if (event.getActionMasked()==MotionEvent.ACTION_UP) {advance();view.performClick();}
             return true;
         });
-        dialoguePanel=new DialoguePanel(this,v -> advance()); dialoguePanel.settings(settings);
+        dialoguePanel=new DialoguePanel(this,v -> advance());
         stage.addView(dialoguePanel,new FrameLayout.LayoutParams(-1,-1)); dialoguePanel.setVisibility(View.GONE);
         status=label("",12); status.setGravity(Gravity.CENTER); status.setPadding(dp(8),dp(3),dp(8),dp(3));
         status.setBackground(rounded(0xb51a2030,6));
         FrameLayout.LayoutParams statusParams=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.START);
         statusParams.setMargins(dp(8),dp(8),0,0); stage.addView(status,statusParams); status.setVisibility(View.GONE);
-        preferences=PlayerSettings.displayPreferences(this,game);
+        preferences=PlayerSettings.displayPreferences(this,legacySource);
         settings=PlayerSettings.read(preferences,userPreferences);
         dialoguePanel.settings(settings);
         preferences.registerOnSharedPreferenceChangeListener(settingsListener);
-        runner=new GameRunner(getApplicationContext(),game,saves,getFilesDir(),preferences,userPreferences,settings,this);
+        runner=new GameRunner(getApplicationContext(),game,legacySource,saves,getFilesDir(),preferences,userPreferences,settings,this);
         screen.getHolder().addCallback(new SurfaceHolder.Callback() {
             public void surfaceCreated(SurfaceHolder holder) {if(runner!=null)runner.surface(holder.getSurface());}
             public void surfaceChanged(SurfaceHolder holder,int format,int w,int h) {if(runner!=null)runner.surface(holder.getSurface());}

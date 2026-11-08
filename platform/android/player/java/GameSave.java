@@ -246,9 +246,12 @@ final class GameSave {
         AtomicFile atomic=new AtomicFile(file); FileOutputStream raw=atomic.startWrite();
         try {
             writePayload(raw,data);
+            raw.getFD().sync();
             atomic.finishWrite(raw);
+            raw=null;
+            GameSavePaths.verifyCommitted(file);
         }
-        catch (IOException | RuntimeException e) { atomic.failWrite(raw); throw e; }
+        catch (IOException | RuntimeException e) { if(raw!=null)atomic.failWrite(raw); throw e; }
     }
     static void writePayload(OutputStream raw,Loaded data) throws IOException {
         data.save.writeTo(raw,data.metadata,data.content);

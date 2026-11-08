@@ -145,7 +145,7 @@ final class GameRunner {
     }
     private final HandlerThread worker=new HandlerThread("SystemNNN-Game");
     private final Handler tasks;
-    private final File root,readFile,chartDirectory,legacyFiles;
+    private final File root,legacySource,readFile,chartDirectory,legacyFiles;
     private final GameSavePaths savePaths;
     private GameSavePaths.Access saveAccess;
     private final SaveSlots slots;
@@ -226,9 +226,10 @@ final class GameRunner {
         if(uiAssets!=null)uiAssets.runtime=runtime;
     }
 
-    GameRunner(Context context,File folder,GameSavePaths paths,File legacyFiles,SharedPreferences preferences,
+    GameRunner(Context context,File folder,File legacySource,GameSavePaths paths,File legacyFiles,SharedPreferences preferences,
                SharedPreferences userPreferences,PlayerSettings initial,Listener listener) {
         this.context=context;
+        this.legacySource=legacySource;
         root=folder;ui=listener;this.preferences=preferences;this.userPreferences=userPreferences;settings=initial;
         savePaths=paths;this.legacyFiles=legacyFiles;slots=new SaveSlots(paths);
         readFile=paths.file(GameSavePaths.READ);
@@ -248,7 +249,7 @@ final class GameRunner {
         if(previousProgress!=null)try{saveResult(previousProgress);}catch(ProgressWriteFailure failure){recovery=failure;}
         ProgressWriteFailure pending=recovery;
         saveResult(SAVE_FILES.submit(()->{
-            if(saveAccess==null)saveAccess=savePaths.open(legacyFiles);
+            if(saveAccess==null)saveAccess=savePaths.open(legacyFiles,legacySource);
             if(pending==null)readReadLines();else recoverProgress(previousProgress,pending);
             slots.preload();
             return null;
@@ -257,7 +258,7 @@ final class GameRunner {
         initialized=true;
     }
     private void configure(long candidate){
-        NativeGame.setParameters(candidate,RuntimeSettingsAdapter.persistedOverrides(userPreferences,root));
+        NativeGame.setParameters(candidate,RuntimeSettingsAdapter.persistedOverrides(userPreferences,legacySource));
         if(runtime==null&&initialProgress!=null){
             if(initialProgress.read!=null)NativeGame.restoreReadState(candidate,initialProgress.read);
             if(initialProgress.variables!=null)NativeGame.setSystemVariables(candidate,initialProgress.variables);
@@ -268,9 +269,9 @@ final class GameRunner {
             if(initialProgress.chart!=null)NativeGame.restoreChartProgress(candidate,initialProgress.chart);
         }
         java.util.ArrayList<Integer> aux=new java.util.ArrayList<>();
-        for(int i=0;i<34;i++)if(userPreferences.contains(RuntimeSettingsAdapter.ownerKey(root,i))){
+        for(int i=0;i<34;i++)if(userPreferences.contains(RuntimeSettingsAdapter.ownerKey(legacySource,i))){
             aux.add(i);
-            aux.add(userPreferences.getInt(RuntimeSettingsAdapter.ownerKey(root,i),0));
+            aux.add(userPreferences.getInt(RuntimeSettingsAdapter.ownerKey(legacySource,i),0));
         }
         if(!aux.isEmpty()){int[] pairs=new int[aux.size()];for(int i=0;i<pairs.length;i++)pairs[i]=aux.get(i);NativeGame.setAuxiliaryState(candidate,pairs);}
         NativeGame.setSkip(candidate,false);
@@ -285,7 +286,7 @@ final class GameRunner {
         if(requested.length>0){
             NativeGame.setParameters(handle,requested);int[] raw=NativeGame.parameters(handle),accepted=new int[requested.length];
             for(int i=0;i<requested.length;i+=2){accepted[i]=requested[i];for(int j=0;j<raw.length;j+=2)if(raw[j]==accepted[i]){accepted[i+1]=raw[j+1];break;}}
-            RuntimeSettingsAdapter.persistRawOverrides(userPreferences,root,accepted);
+            RuntimeSettingsAdapter.persistRawOverrides(userPreferences,legacySource,accepted);
         }else{
             int index=-1,changed=0;
             if("systemVoiceSelection".equals(key)&&desired instanceof Integer){index=0;changed=(Integer)desired;}
@@ -297,7 +298,7 @@ final class GameRunner {
                 }
             }
             if(index>=0){NativeGame.setAuxiliaryState(handle,new int[]{index,changed});int[] aux=NativeGame.auxiliaryState(handle);
-                userPreferences.edit().putInt(RuntimeSettingsAdapter.ownerKey(root,index),aux[index]).apply();}
+                userPreferences.edit().putInt(RuntimeSettingsAdapter.ownerKey(legacySource,index),aux[index]).apply();}
             else return;
         }
         publishParameters();
@@ -432,7 +433,7 @@ final class GameRunner {
         boolean restoredHere=live&&GameSave.restoreSnapshot(loaded,handle,state,true,false);
         if(loaded!=null&&loaded.nativeSnapshot==null)next.requireReplayable();
         if(restoredHere){
-            NativeGame.setParameters(handle,RuntimeSettingsAdapter.persistedOverrides(userPreferences,root));
+            NativeGame.setParameters(handle,RuntimeSettingsAdapter.persistedOverrides(userPreferences,legacySource));
             NativeGame.setSkip(handle,false);
         }else{
             writeGallery();

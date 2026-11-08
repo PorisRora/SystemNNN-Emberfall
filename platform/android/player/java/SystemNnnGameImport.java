@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.UriPermission;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import java.io.ByteArrayOutputStream;
@@ -104,7 +105,13 @@ public final class SystemNnnGameImport {
         File target=new File(base,key(sourceId));
         if(Files.notExists(target.toPath(),LinkOption.NOFOLLOW_LINKS))return null;
         plainDirectory(target);
-        File id=new File(target,IDENTITY),game=new File(target,GAME);
+        if(!sourceId.equals(readIdentity(target)))throw new Failure(Reason.CORRUPT_COPY);
+        File game=new File(target,GAME);
+        plainDirectory(game);
+        return game;
+    }
+    private static String readIdentity(File entry) throws IOException {
+        File id=new File(entry,IDENTITY);
         if(Files.isSymbolicLink(id.toPath())||!id.isFile()||id.length()>MAX_ID_BYTES)
             throw new Failure(Reason.CORRUPT_COPY);
         ByteArrayOutputStream identity=new ByteArrayOutputStream();
@@ -114,10 +121,21 @@ public final class SystemNnnGameImport {
                 identity.write(value);
             }
         }
-        if(!sourceId.equals(new String(identity.toByteArray(),StandardCharsets.UTF_8)))
-            throw new Failure(Reason.CORRUPT_COPY);
-        plainDirectory(game);
-        return game;
+        return new String(identity.toByteArray(),StandardCharsets.UTF_8);
+    }
+    /** Legacy private saves and raw settings were keyed by the original canonical path. */
+    static File originalGame(Context context,File game) throws IOException {
+        File entry=game.getParentFile();
+        File base=entry==null?null:entry.getParentFile();
+        if(!GAME.equals(game.getName())||base==null||!DIRECTORY.equals(base.getName()))return game;
+        File external=context.getExternalFilesDir(null);
+        if(external==null||!base.equals(new File(external,DIRECTORY).getCanonicalFile()))return game;
+        String identity=normalizeIdentity(readIdentity(entry));
+        if(!entry.getName().equals(key(identity)))throw new Failure(Reason.CORRUPT_COPY);
+        int colon=identity.indexOf(':');
+        String volume=identity.substring(0,colon);
+        File directory="primary".equals(volume)?Environment.getExternalStorageDirectory():new File("/storage",volume);
+        return new File(directory,identity.substring(colon+1)).getCanonicalFile();
     }
     /** Open actual bytes: canRead/stat alone do not establish access on scoped-storage devices. */
     public static boolean readableBootstrap(File root){

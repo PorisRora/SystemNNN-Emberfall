@@ -34,10 +34,21 @@ final class GameSavePaths {
         return new GameSavePaths(game,directory);
     }
 
+    /** AtomicFile.finishWrite logs rename errors instead of reporting them to the caller. */
+    static void verifyCommitted(File file) throws IOException {
+        String path=file.getPath();
+        if(!file.isFile()||new File(path+".new").exists()||new File(path+".bak").exists())
+            throw new IOException("Save commit did not finish: "+file.getName());
+    }
+
     File directory(){return directory;}
     File file(String suffix){return new File(directory,PREFIX+suffix);}
 
     Access open(File legacyFiles) throws IOException {
+        return open(legacyFiles,game);
+    }
+
+    Access open(File legacyFiles,File legacySource) throws IOException {
         Path dir=directory.toPath();
         Files.createDirectories(dir);
         if(!Files.isDirectory(dir,LinkOption.NOFOLLOW_LINKS))throw new IOException("游戏存档目录无效 · "+directory);
@@ -51,7 +62,7 @@ final class GameSavePaths {
             try{lock=channel.tryLock();}
             catch(OverlappingFileLockException e){lock=null;}
             if(lock==null)throw inUse();
-            new LegacySaveMigration(dir).migrate(game,legacyFiles);
+            new LegacySaveMigration(dir).migrate(legacySource,legacyFiles);
             return new Access(lockFile,lock);
         } catch(IOException | RuntimeException e) {
             try{if(channel!=null)channel.close();}catch(IOException closeFailure){e.addSuppressed(closeFailure);}
