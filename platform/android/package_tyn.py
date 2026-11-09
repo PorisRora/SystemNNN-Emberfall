@@ -22,13 +22,13 @@ PUBLIC_ROOTS = (".gitattributes", ".gitignore", "README.md", "THIRD_PARTY_NOTICE
                 "assets", "core", "platform")
 
 
-def verify_apk(apk, version, code, build_tools, java):
+def verify_apk(apk, application_id, version, code, build_tools, java):
     executable_suffix = ".exe" if os.name == "nt" else ""
     run([java, "-jar", build_tools / "lib/apksigner.jar", "verify", "--verbose", apk])
     badging = subprocess.check_output(
         [build_tools / f"aapt2{executable_suffix}", "dump", "badging", apk], encoding="utf-8"
     )
-    package = f"package: name='{PACKAGE}' versionCode='{code}' versionName='{version}'"
+    package = f"package: name='{application_id}' versionCode='{code}' versionName='{version}'"
     if not any(line.startswith(package) for line in badging.splitlines()):
         raise RuntimeError(f"APK manifest does not match the player source: {apk}")
 
@@ -184,7 +184,8 @@ def main():
     sdk = Path(os.getenv("ANDROID_SDK_ROOT") or local / "android-sdk")
     java_home = Path(os.getenv("JAVA_HOME") or Path.home() / ".gradle/jdks/eclipse_adoptium-17-amd64-windows.2")
     suffix = ".exe" if os.name == "nt" else ""
-    verify_apk(apk, version, code, sdk / "build-tools/36.0.0", java_home / "bin" / f"java{suffix}")
+    verify_apk(apk, manifest.attrib["package"], version, code,
+               sdk / "build-tools/36.0.0", java_home / "bin" / f"java{suffix}")
     with tempfile.TemporaryDirectory(prefix="package-tyn-", dir=output) as temp:
         scratch = Path(temp)
         directory = scratch / name

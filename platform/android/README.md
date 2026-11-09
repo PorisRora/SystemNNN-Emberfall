@@ -1,6 +1,8 @@
 # SystemNNN-Emberfall
 
-当前源码版本为 **0.6.14（versionCode 74）**，要求 Android 8.0 及以上、ARM64。独立安装包的默认构建路径为 `build/tyranor/SystemNNN-Emberfall-0.6.14-arm64.apk`。同一签名的版本可覆盖安装并保留各游戏目录的存档。
+当前源码版本为 **0.6.14（versionCode 75）**，要求 Android 8.0 及以上、ARM64。独立安装包的默认构建路径为 `build/tyranor/SystemNNN-Emberfall-0.6.14-arm64.apk`。
+
+正式包沿用 0.6.14 预发布的应用 ID `com.tyranor.runtime.systemnnn.rendertrial`。使用同一签名可覆盖升级预发布版。0.6.8 可与 0.6.14 并存，首次启动 0.6.14 时请重新选择游戏目录。
 
 阅读字号和 PC 存档入口悬浮在游戏画面上方。剧情正文字号有四档，默认 85%。宿主接入和存档目录约定见[内置接入说明](tyn/README.md)。
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="emberfall_icon_background">#160F25</color>
     <style name="SystemNnnPlayerTheme" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
         <item name="android:windowBackground">@android:color/black</item>
     </style>
