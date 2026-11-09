@@ -1523,6 +1523,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         if(isDestroyed()||isFinishing()||owner==null)return;
         new AlertDialog.Builder(this).setTitle("全局进度损坏")
             .setMessage("隔离后会使用仍可读取的全局进度，找不到有效进度时将重新建立。剧情存档和隔离的原文件会留在存档目录。")
+            .setCancelable(false)
             .setNegativeButton("返回",dialogClick((d,w)->finish()))
             .setPositiveButton("隔离并重试",dialogClick((d,w)->{if(owner==runner)owner.recoverCorruptProgress();}))
             .show();
