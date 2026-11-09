@@ -1,5 +1,6 @@
 #include "emberfall/game_session.hpp"
 #include "frame_pixels.hpp"
+#include "nnn/image.hpp"
 #include "nnn/reference_selection.hpp"
 #include "resource_names_jni.hpp"
 #include <android/native_window_jni.h>
@@ -123,7 +124,8 @@ ChartLayerTarget chart_target(const LockedBitmap& image) {
 bool usable_chart_texture(const Texture* texture) {
     if (!texture) return false;
     const auto w=texture->canvas_width,h=texture->canvas_height;
-    if (w<=0 || h<=0 || w>4096 || h>4096) return false;
+    constexpr auto dimension_limit=static_cast<int>(nnn::image::max_dimension);
+    if (w<=0 || h<=0 || w>dimension_limit || h>dimension_limit) return false;
     const auto& crop=texture->content;
     const auto& pixels=texture->pixels;
     return crop.x>=0 && crop.y>=0 && crop.width>0 && crop.height>0 &&
@@ -140,7 +142,7 @@ jintArray chart_texture_pixels(JNIEnv* env,const Texture& texture,bool transpare
     constexpr int pixel_limit=4*1024*1024;
     const int width=texture.canvas_width,height=texture.canvas_height;
     const int area=width*height;
-    const bool include_pixels=area<=budget && area<=pixel_limit;
+    const bool include_pixels=width<=4096 && height<=4096 && area<=budget && area<=pixel_limit;
     auto result=env->NewIntArray(include_pixels ? 2+area : 2);
     if (!result) return nullptr;
     const jint dimensions[]{width,height};
