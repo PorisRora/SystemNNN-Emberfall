@@ -102,7 +102,7 @@ def main():
         shutil.copytree(PLAYER / "java", stage / "java")
         shutil.copyfile(ANDROID / "app/java/com/tyranor/runtime/systemnnn/SjisTunnelDecoder.java", stage / "java/SjisTunnelDecoder.java")
         run([bt / "aapt2.exe", "compile", "--dir", "res", "-o", "resources.zip"], stage)
-        run([bt / "aapt2.exe", "link", "-I", jar, "--manifest", "AndroidManifest.xml", "-R", "resources.zip",
+        run([bt / "aapt2.exe", "link", "-I", jar, "--manifest", "AndroidManifest.xml", "--auto-add-overlay", "-R", "resources.zip",
              "-A", "assets", "-o", "resources.apk"], stage)
         classes = stage / "classes"
         classes.mkdir()

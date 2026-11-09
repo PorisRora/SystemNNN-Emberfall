@@ -6,11 +6,26 @@
 #include <android/log.h>
 #include <jni.h>
 #include <algorithm>
+#include <chrono>
+#include <condition_variable>
 #include <cstring>
+#include <mutex>
 #include <stdexcept>
+#include <utility>
 
 namespace {
 using emberfall::scene::GameSession;
+struct StoryScreenLayer {
+    StoryScreenLayer(std::shared_ptr<emberfall::render::ScreenLayerFrame> source,std::array<jint,3> stamp)
+        :frame(std::move(source)),state(stamp) {}
+    std::shared_ptr<emberfall::render::ScreenLayerFrame> frame;
+    std::array<jint,3> state;
+    std::mutex mutex;
+    std::condition_variable ready;
+    emberfall::render::Surface sample;
+    bool committed=false;
+};
+using PublishedScreenLayer=std::shared_ptr<StoryScreenLayer>;
 struct Player {
     std::unique_ptr<GameSession> game;
     ANativeWindow* window=nullptr;
@@ -18,6 +33,10 @@ struct Player {
     bool repaint=true;
     std::uint64_t remainder=0;
     bool title=false,loop_title=false;
+    std::shared_ptr<emberfall::render::ScreenLayerFrame> screen_layer;
+    PublishedScreenLayer published_screen_layer;
+    std::array<jint,3> screen_layer_state{};
+    std::uint64_t screen_layer_revision=0;
     std::string back_script;
     emberfall::render::Surface static_title;
     ~Player() { if (window) ANativeWindow_release(window); }
@@ -26,7 +45,7 @@ Player& player(jlong handle) { return *reinterpret_cast<Player*>(handle); }
 void fail(JNIEnv* env,const char* message) {
     if (!env->ExceptionCheck()) env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),message);
 }
-jbyteArray bytes(JNIEnv* env,const std::string& value) {
+jbyteArray bytes(JNIEnv* env,std::string_view value) {
     auto size=static_cast<jsize>(value.size());
     auto out=env->NewByteArray(size);
     if (out && size) env->SetByteArrayRegion(out,0,size,reinterpret_cast<const jbyte*>(value.data()));
@@ -73,12 +92,37 @@ std::string dialogue_body(const std::string& text,const std::string& speaker) {
 std::string resource_name(JNIEnv* env,jbyteArray raw) {
     if (!raw) return {};
     const auto n=env->GetArrayLength(raw);
-    if (n>255) throw std::runtime_error("Title resource name too long");
+    if (n>255) throw std::runtime_error("UI resource name too long");
     std::string value(static_cast<std::size_t>(n),'\0');
     if (n) env->GetByteArrayRegion(raw,0,n,reinterpret_cast<jbyte*>(value.data()));
     return value;
 }
+bool draws_story_ui(const Player& p) {
+    return !p.title && p.game->story_draws_screen_layer();
+}
+std::array<jint,3> story_stamp(const Player& p) {
+    const auto& state=p.game->state();
+    return {static_cast<jint>(state.wait),static_cast<jint>(state.word),
+        static_cast<jint>(state.dialogue.sequence)};
+}
+void flush_screen_capture(Player& p) {
+    const auto& screen=p.published_screen_layer;
+    if (!screen || !screen->frame->captures_screen() || !draws_story_ui(p) ||
+        screen->state!=story_stamp(p) || p.screen_layer_revision!=p.game->screen_layer_revision()) return;
+    std::unique_lock lock(screen->mutex);
+    // A script may consume GET on the next tick. The UI only writes this
+    // detached frame, so it can finish the draw while the game thread waits.
+    if (p.window && !screen->committed)
+        screen->ready.wait_for(lock,std::chrono::milliseconds(45),[&] { return !screen->sample.rgb.empty(); });
+    if (screen->sample.rgb.empty() && screen->committed) return;
+    auto sample=std::exchange(screen->sample,{});
+    screen->committed=true;
+    lock.unlock();
+    if (sample.rgb.empty()) sample=screen->frame->capture_without_ui();
+    p.game->commit_screen_capture(std::move(sample));
+}
 void present(Player& p) {
+    p.game->capture_screen_layer(p.window && draws_story_ui(p));
     if (!p.window || (!p.repaint && !p.game->needs_redraw())) return;
     const auto& src=p.static_title.rgb.empty() ? p.game->surface() : p.static_title;
     ANativeWindow_Buffer dst{};
@@ -106,12 +150,17 @@ void frame_meta(JNIEnv* env,Player& p,jintArray meta) {
         const jint cursor=f.script_cursor;
         env->SetIntArrayRegion(meta,9,1,&cursor);
     }
+    if (env->GetArrayLength(meta)>=11) {
+        const jint message=static_cast<jint>(p.game->draw_message());
+        env->SetIntArrayRegion(meta,10,1,&message);
+    }
 }
-void step_title(Player& p) {
+emberfall::scene::Wait step_title(Player& p) {
     emberfall::scene::InputState input;
     input.mouse_x=input.mouse_y=-1;
     const auto& state=p.game->step_ui_background(input,p.loop_title);
     if(state.wait==emberfall::scene::Wait::Error)throw std::runtime_error(state.error);
+    return state.wait;
 }
 }
 #define API extern "C" JNIEXPORT
@@ -206,33 +255,50 @@ API void JNICALL FN(surface)(JNIEnv* env,jclass,jlong handle,jobject surface) {
     if (p.window) {
         ANativeWindow_setBuffersGeometry(p.window,static_cast<int>(p.width),static_cast<int>(p.height),WINDOW_FORMAT_RGBA_8888);
         present(p);
-    }
+    } else p.game->capture_screen_layer(false);
 }
-API void JNICALL FN(configureTitle)(JNIEnv* env,jclass,jlong handle,jbyteArray script,jbyteArray background,
-                                    jboolean repeat,jint bgm,jint plays,jint volume,jint fade) {
+API jboolean JNICALL FN(configureMenuBackground)(JNIEnv* env,jclass,jlong handle,jint mode,jbyteArray script,
+                                                jbyteArray background,jboolean repeat) {
     try {
         auto& p=player(handle);
         p.title=true; p.loop_title=repeat; p.back_script=resource_name(env,script);
+        p.static_title={};
+        p.repaint=true;
         if (!p.back_script.empty()) {
-            try { p.game->start_ui_background(p.back_script,4);step_title(p); }
-            catch (const std::exception& e) { p.back_script.clear(); __android_log_print(ANDROID_LOG_WARN,"SystemNNN","title script: %s",e.what()); }
+            try { p.game->start_ui_background(p.back_script,mode);step_title(p); }
+            catch (const std::exception& e) { p.back_script.clear(); __android_log_print(ANDROID_LOG_WARN,"SystemNNN","menu script: %s",e.what()); }
         }
+        if (p.back_script.empty()) p.game->start_ui_background({},mode);
         const auto image=resource_name(env,background);
         if (p.back_script.empty() && !image.empty()) {
             try {
                 auto texture=p.game->ui_texture(image);
-                p.static_title=p.game->surface();
+                p.static_title={p.width,p.height,std::vector<emberfall::render::Byte>(std::size_t{p.width}*p.height*3)};
                 emberfall::render::blit(texture->pixels,p.static_title,
                     {0,0,texture->content.width,texture->content.height},{texture->content.x,texture->content.y},
                     emberfall::render::BlendProfile::Source64Cpp);
-            } catch (const std::exception& e) { __android_log_print(ANDROID_LOG_WARN,"SystemNNN","title image: %s",e.what()); }
+            } catch (const std::exception& e) { __android_log_print(ANDROID_LOG_WARN,"SystemNNN","menu image: %s",e.what()); }
         }
-        if (bgm>0) {
-            nnn::SystemEvent cue; cue.opcode=nnn::audio::music; cue.parameters={bgm,plays,volume,fade,0};
-            const auto error=p.game->audio().submit(cue,"title");
-            if (!error.empty()) __android_log_print(ANDROID_LOG_WARN,"SystemNNN","title BGM: %s",error.c_str());
+        return !p.back_script.empty() || !p.static_title.rgb.empty();
+    } catch (const std::exception& e) { fail(env,e.what()); return JNI_FALSE; }
+}
+API jint JNICALL FN(advanceOpening)(JNIEnv* env,jclass,jlong handle,jint frames) {
+    try {
+        auto& p=player(handle);
+        const auto period=p.game->frame_ms();
+        if (p.back_script.empty()) return static_cast<jint>(period);
+        bool ended=false;
+        for (int i=0;i<std::clamp(frames,1,64);++i) {
+            using emberfall::scene::Wait;
+            const auto wait=step_title(p);
+            if (wait==Wait::Ended) { ended=true; break; }
+            if (wait!=Wait::Running && wait!=Wait::Draw && wait!=Wait::Overlap)
+                throw std::runtime_error("Opening background waits for unsupported input");
+            if (p.game->frame_ms()!=period) break;
         }
-    } catch (const std::exception& e) { fail(env,e.what()); }
+        present(p);
+        return ended?0:static_cast<jint>(p.game->frame_ms());
+    } catch (const std::exception& e) { fail(env,e.what()); return 0; }
 }
 API void JNICALL FN(restartTitle)(JNIEnv* env,jclass,jlong handle) {
     try {
@@ -295,7 +361,8 @@ API void JNICALL FN(tick)(JNIEnv* env,jclass,jlong handle,jint ms,jint x,jint y,
             if (ms>0 && !p.back_script.empty()) {
                 try {
                     const int frames=std::clamp(ms/static_cast<int>(p.game->frame_ms()),1,64);
-                    for (int i=0;i<frames;++i) step_title(p);
+                    for (int i=0;i<frames;++i)
+                        if (step_title(p)==emberfall::scene::Wait::Ended && !p.loop_title) break;
                 }
                 catch(const std::exception& e) {
                     __android_log_print(ANDROID_LOG_WARN,"SystemNNN","title background: %s",e.what());
@@ -306,7 +373,12 @@ API void JNICALL FN(tick)(JNIEnv* env,jclass,jlong handle,jint ms,jint x,jint y,
             const jint info[]={6,0,0,static_cast<jint>(p.width),static_cast<jint>(p.height),static_cast<jint>(p.game->frame_ms()),0};
             env->SetIntArrayRegion(meta,0,7,info);
             if (with_clock) {const jint empty[]={0,0};env->SetIntArrayRegion(meta,7,2,empty);}
-            if (env->GetArrayLength(meta)>=10) {const jint cursor=0;env->SetIntArrayRegion(meta,9,1,&cursor);}
+            if (length>=10) {const jint cursor=0;env->SetIntArrayRegion(meta,9,1,&cursor);}
+            if (length>=12) {
+                const jint ended=!p.loop_title && !p.back_script.empty() &&
+                    p.game->state().wait==emberfall::scene::Wait::Ended;
+                env->SetIntArrayRegion(meta,11,1,&ended);
+            }
             return;
         }
         if (replay) {
@@ -322,6 +394,7 @@ API void JNICALL FN(tick)(JNIEnv* env,jclass,jlong handle,jint ms,jint x,jint y,
         input.recorded_clock=replay==JNI_TRUE && clock[0]!=0;
         if (input.recorded_clock && clock[0]>0)
             input.clock_sample=emberfall::scene::ScriptClockSample{clock[0],clock[1]};
+        if (!replay) flush_screen_capture(p);
         const auto& f=p.game->step_frame(static_cast<unsigned>(ms),input);
         if (f.wait==emberfall::scene::Wait::Error) throw std::runtime_error(f.script+" @"+std::to_string(f.word)+" "+f.error);
         const auto sampled=p.game->script_clock_sample();
@@ -530,7 +603,9 @@ API jboolean JNICALL FN(storyExited)(JNIEnv*,jclass,jlong handle) {
 }
 API jbyteArray JNICALL FN(snapshot)(JNIEnv* env,jclass,jlong handle) {
     try {
-        const auto data=player(handle).game->snapshot();
+        auto& p=player(handle);
+        flush_screen_capture(p);
+        const auto data=p.game->snapshot();
         auto out=env->NewByteArray(static_cast<jsize>(data.size()));
         if (out) env->SetByteArrayRegion(out,0,static_cast<jsize>(data.size()),reinterpret_cast<const jbyte*>(data.data()));
         return out;
@@ -548,6 +623,7 @@ API void JNICALL FN(restorePcSave)(JNIEnv* env,jclass,jlong handle,jbyteArray ra
         if (env->ExceptionCheck()) return;
         auto& p=player(handle);
         p.game->restore_pc_save(data);
+        p.published_screen_layer.reset();
         frame_meta(env,p,meta);
         p.repaint=true;
         present(p);
@@ -555,7 +631,9 @@ API void JNICALL FN(restorePcSave)(JNIEnv* env,jclass,jlong handle,jbyteArray ra
 }
 API jbyteArray JNICALL FN(exportPcSave)(JNIEnv* env,jclass,jlong handle) {
     try {
-        const auto data=player(handle).game->export_pc_save();
+        auto& p=player(handle);
+        flush_screen_capture(p);
+        const auto data=p.game->export_pc_save();
         const auto size=static_cast<jsize>(data.size());
         auto result=env->NewByteArray(size);
         if (result) env->SetByteArrayRegion(result,0,size,reinterpret_cast<const jbyte*>(data.data()));
@@ -593,6 +671,7 @@ API jboolean JNICALL FN(restoreSnapshot)(JNIEnv* env,jclass,jlong handle,jbyteAr
             const auto& options=f.selection->options;
             return options.size()==expected.size()-2 && std::equal(options.begin(),options.end(),expected.begin()+2);
         },keep_music_position==JNI_TRUE,migrate_legacy==JNI_TRUE);
+        p.published_screen_layer.reset();
         p.repaint=true;
         frame_meta(env,p,meta);
         present(p);
@@ -669,6 +748,7 @@ API jboolean JNICALL FN(restoreBacklogJump)(JNIEnv* env,jclass,jlong handle,jlon
     auto& p=player(handle);
     try {
         if (!p.game->restore_backlog_jump(static_cast<std::uint64_t>(id),static_cast<unsigned>(cursor))) return JNI_FALSE;
+        p.published_screen_layer.reset();
     } catch (const std::exception& e) {
         __android_log_print(ANDROID_LOG_WARN,"SystemNNN","Backlog jump rejected: %s",e.what());
         return JNI_FALSE;
@@ -749,24 +829,38 @@ API jboolean JNICALL FN(restoreRuntimeText)(JNIEnv* env,jclass,jlong handle,jobj
 API jintArray JNICALL FN(optionalProgress)(JNIEnv* env,jclass,jlong handle) {
     try {
         const auto state=player(handle).game->runtime()->optional_progress_view();
-        std::vector<jint> words(state->terms.size()+state->voice_words.size());
+        const auto role_offset=state->terms.size()+state->voice_words.size();
+        std::vector<jint> words(role_offset+state->voice_role_words.size());
         std::memcpy(words.data(),state->terms.data(),sizeof(state->terms));
         std::memcpy(words.data()+state->terms.size(),state->voice_words.data(),sizeof(state->voice_words));
+        std::memcpy(words.data()+role_offset,state->voice_role_words.data(),sizeof(state->voice_role_words));
         return int_array(env,words);
     } catch (const std::exception& e) { fail(env,e.what()); return nullptr; }
 }
 API void JNICALL FN(restoreOptionalProgress)(JNIEnv* env,jclass,jlong handle,jintArray words) {
     try {
         nnn::RuntimeOptionalProgress state;
-        const auto count=static_cast<jsize>(state.terms.size()+state.voice_words.size());
-        if (!words || env->GetArrayLength(words)!=count) throw std::invalid_argument("Invalid optional progress count");
+        const auto role_offset=state.terms.size()+state.voice_words.size();
+        const auto legacy_count=static_cast<jsize>(role_offset);
+        const auto count=words ? env->GetArrayLength(words) : 0;
+        if (count!=legacy_count && count!=static_cast<jsize>(role_offset+state.voice_role_words.size()))
+            throw std::invalid_argument("Invalid optional progress count");
         std::vector<jint> raw(static_cast<std::size_t>(count));
         env->GetIntArrayRegion(words,0,count,raw.data());
         if (env->ExceptionCheck()) return;
         std::memcpy(state.terms.data(),raw.data(),sizeof(state.terms));
         std::memcpy(state.voice_words.data(),raw.data()+state.terms.size(),sizeof(state.voice_words));
-        player(handle).game->runtime()->restore_optional_progress(state);
+        const auto runtime=player(handle).game->runtime();
+        state.voice_role_words=runtime->optional_progress_view()->voice_role_words;
+        if (count!=legacy_count)
+            for (std::size_t i=0;i<state.voice_role_words.size();++i)
+                state.voice_role_words[i]|=static_cast<nnn::Word>(raw[role_offset+i]);
+        runtime->restore_optional_progress(state);
     } catch (const std::exception& e) { fail(env,e.what()); }
+}
+API jboolean JNICALL FN(voiceRoleHeard)(JNIEnv* env,jclass,jlong handle,jint character) {
+    try { return player(handle).game->runtime()->voice_role_heard(character) ? JNI_TRUE : JNI_FALSE; }
+    catch (const std::exception& e) { fail(env,e.what()); return JNI_FALSE; }
 }
 API jbyteArray JNICALL FN(chartProgress)(JNIEnv* env,jclass,jlong handle) {
     try {
@@ -853,6 +947,60 @@ API jintArray JNICALL FN(saveThumbnail)(JNIEnv* env,jclass,jlong handle,jint wid
         return emberfall::android::frame_pixels(env,source,width,height);
     } catch (const std::exception& e) { fail(env,e.what()); return nullptr; }
 }
+API jint JNICALL FN(saveSlotArt)(JNIEnv* env,jclass,jlong handle) {
+    try { return player(handle).game->save_slot_art(); }
+    catch (const std::exception& e) { fail(env,e.what()); return 0; }
+}
+API jlong JNICALL FN(takeScreenLayer)(JNIEnv* env,jclass,jlong handle) {
+    try {
+        auto& p=player(handle);
+        if (!p.window || !draws_story_ui(p) || !p.game->screen_layer_active()) {
+            const bool clear=static_cast<bool>(p.screen_layer);
+            p.screen_layer.reset();
+            p.published_screen_layer.reset();
+            return clear ? -1 : 0;
+        }
+        p.game->capture_screen_layer(true);
+        auto frame=p.game->take_screen_layer();
+        const auto revision=p.game->screen_layer_revision();
+        if (!frame && p.screen_layer && (!p.published_screen_layer || p.screen_layer_revision!=revision)) {
+            p.screen_layer.reset();
+            p.published_screen_layer.reset();
+            return -1;
+        }
+        const auto stamp=story_stamp(p);
+        if (!frame && (!p.screen_layer || p.screen_layer_state==stamp)) return 0;
+        if (frame) p.screen_layer=std::move(frame);
+        p.screen_layer_revision=revision;
+        p.screen_layer_state=stamp;
+        p.published_screen_layer=std::make_shared<StoryScreenLayer>(p.screen_layer,stamp);
+        auto result=std::make_unique<PublishedScreenLayer>(p.published_screen_layer);
+        return reinterpret_cast<jlong>(result.release());
+    } catch (const std::exception& e) { fail(env,e.what()); return 0; }
+}
+API jboolean JNICALL FN(compositeScreenLayer)(JNIEnv* env,jclass,jlong handle,jobject bitmap,jint wait,jint word,jint line,
+                                             jboolean show_backdrop,jboolean record) {
+    try {
+        if (!handle) return false;
+        const auto& screen=*reinterpret_cast<const PublishedScreenLayer*>(handle);
+        if (screen->state!=std::array<jint,3>{wait,word,line}) return false;
+        emberfall::android::LockedBitmap image(env,bitmap);
+        if (image.info.width!=screen->frame->width() || image.info.height!=screen->frame->height()) return false;
+        screen->frame->composite(image.row(0),image.info.stride,show_backdrop);
+        if (record && screen->frame->captures_screen()) {
+            auto sample=screen->frame->composed();
+            {
+                std::lock_guard lock(screen->mutex);
+                screen->sample=std::move(sample);
+            }
+            screen->ready.notify_one();
+        }
+        return true;
+    } catch (const std::exception& e) { fail(env,e.what()); return false; }
+}
+API void JNICALL FN(releaseScreenLayer)(JNIEnv*,jclass,jlong handle) {
+    delete reinterpret_cast<PublishedScreenLayer*>(handle);
+}
 API void JNICALL FN(setVolumes)(JNIEnv* env,jclass,jlong handle,jint music,jint sound,jint voice,jint effect_voice) {
     try {
         auto& game=*player(handle).game;
@@ -873,11 +1021,12 @@ API void JNICALL FN(setVolumes)(JNIEnv* env,jclass,jlong handle,jint music,jint 
 }
 API jintArray JNICALL FN(dialogueProperties)(JNIEnv* env,jclass,jlong handle) {
     try {
-        const auto& line=player(handle).game->state().dialogue;
+        const auto& game=*player(handle).game;
+        const auto& line=game.state().dialogue;
         const auto id=line.message_id;
-        const std::array<jint,7> values{{id<=static_cast<nnn::Word>(INT32_MAX) ? static_cast<jint>(id) : -1-static_cast<jint>(~id),
-            line.window_type,line.font_type,line.window_visible ? 1 : 0,player(handle).game->options_enabled() ? 1 : 0,
-            static_cast<jint>(line.command),static_cast<jint>(line.layout_command)}};
+        const std::array<jint,8> values{{id<=static_cast<nnn::Word>(INT32_MAX) ? static_cast<jint>(id) : -1-static_cast<jint>(~id),
+            line.window_type,line.font_type,line.window_visible ? 1 : 0,game.options_enabled() ? 1 : 0,
+            static_cast<jint>(line.command),static_cast<jint>(line.layout_command),static_cast<jint>(game.draw_message())}};
         auto result=env->NewIntArray(static_cast<jsize>(values.size()));
         if (result) env->SetIntArrayRegion(result,0,static_cast<jsize>(values.size()),values.data());
         return result;
@@ -971,10 +1120,14 @@ API void JNICALL FN(setAuxiliaryState)(JNIEnv* env,jclass,jlong handle,jintArray
         game.apply_runtime_parameters();
     } catch (const std::exception& e) { fail(env,e.what()); }
 }
-API void JNICALL FN(setTextLength)(JNIEnv* env,jclass,jlong handle,jint length) {
+API jbyteArray JNICALL FN(appendPrefix)(JNIEnv* env,jclass,jlong handle) {
+    return bytes(env,player(handle).game->append_prefix());
+}
+API void JNICALL FN(setTextLength)(JNIEnv* env,jclass,jlong handle,jint length,jint visible) {
     try {
         if (length<0) throw std::invalid_argument("Invalid logical text length");
-        player(handle).game->set_text_length(static_cast<std::uint32_t>(length));
+        const auto prefix=visible<0 ? std::nullopt : std::optional{static_cast<std::uint32_t>(visible)};
+        player(handle).game->set_text_length(static_cast<std::uint32_t>(length),prefix);
     } catch (const std::exception& e) { fail(env,e.what()); }
 }
 API jintArray JNICALL FN(textState)(JNIEnv* env,jclass,jlong handle) {
@@ -1172,6 +1325,10 @@ API jint JNICALL FN(galleryVariable)(JNIEnv* env,jclass,jlong handle,jbyteArray 
 API jint JNICALL FN(menuVariable)(JNIEnv* env,jclass,jlong handle,jbyteArray name) {
     try {auto& p=player(handle);return p.game->named_variable(resource_name(env,name),p.title);}
     catch (const std::exception& e) {fail(env,e.what());return 0;}
+}
+API jint JNICALL FN(openingVariable)(JNIEnv* env,jclass,jlong handle,jbyteArray name) {
+    try {return player(handle).game->named_variable(resource_name(env,name),false,-1);}
+    catch (const std::exception& e) {fail(env,e.what());return -1;}
 }
 API void JNICALL FN(menuMusic)(JNIEnv* env,jclass,jlong handle,jint number,jint plays,jint volume,jint fade,jboolean restart) {
     try {

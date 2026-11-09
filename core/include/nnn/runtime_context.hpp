@@ -268,6 +268,7 @@ public:
     bool term_unlocked(Value index) const { return optional_progress_view()->term_unlocked(index); }
     bool term_read(Value index) const { return optional_progress_view()->term_read(index); }
     bool voice_played(Value index) const { return optional_progress_view()->voice_played(index); }
+    bool voice_role_heard(Value character) const { return optional_progress_view()->voice_role_heard(character); }
     bool set_term_unlocked(Value index,bool enabled=true) {
         return set_optional_bit(&RuntimeOptionalProgress::terms,static_cast<std::size_t>(index),runtime_term_unlocked,enabled);
     }
@@ -277,6 +278,10 @@ public:
     bool set_voice_played(Value index,bool enabled=true) {
         const auto id=static_cast<std::size_t>(index);
         return set_optional_bit(&RuntimeOptionalProgress::voice_words,id/32U,Word{1}<<(id%32U),enabled);
+    }
+    bool mark_voice_role_heard(Value character) {
+        const auto id=static_cast<std::size_t>(character);
+        return id>0 && set_optional_bit(&RuntimeOptionalProgress::voice_role_words,id/32U,Word{1}<<(id%32U),true);
     }
     std::string system_replacement(std::size_t index) const {
         std::lock_guard<std::mutex> lock(mutex_);

@@ -7,6 +7,7 @@
 #include <array>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <sstream>
 
 namespace nnn {
@@ -57,10 +58,10 @@ public:
     // has_voice is the source's sticky message-have-voice flag, not IsPlaying.
     // voice_length_ms is the recorded full clip duration. script_speed is the
     // message-effect override:0 uses settings,1..5 select a source speed row.
-    void begin_line(bool has_voice,std::uint32_t voice_length_ms,int script_speed=0) noexcept {
+    void begin_line(bool has_voice,std::uint32_t voice_length_ms,int script_speed=0,bool append=false) noexcept {
         has_voice_=has_voice; script_speed_=std::clamp(script_speed,0,5);
-        text_remainder_=0;
-        length_known_=false; visible_=0; text_length_=0; auto_frame_eligible_=false;
+        if (!append) { text_remainder_=0; visible_=0; text_length_=0; }
+        length_known_=false; auto_frame_eligible_=false;
         const auto selected=script_speed_ ? static_cast<std::size_t>(script_speed_-1)
                                          : index(use_auto_wait_ ? NNNPARAM_AUTOSPEEDSLIDER : NNNPARAM_MESSAGESPEED);
         const auto& waits=has_voice_ ? (use_auto_wait_ ? auto_voice_wait_ : voice_wait_)
@@ -84,8 +85,8 @@ public:
         return delta;
     }
     // Frontends provide decoded/layout character count, not reveal decisions.
-    void set_text_length(std::uint32_t length) noexcept {
-        text_length_=length; visible_=std::min(visible_,length); length_known_=true;
+    void set_text_length(std::uint32_t length,std::optional<std::uint32_t> visible={}) noexcept {
+        text_length_=length; visible_=std::min(visible.value_or(visible_),length); length_known_=true;
         auto_frame_eligible_=text_complete();
     }
     std::uint32_t visible_text() const noexcept { return visible_; }

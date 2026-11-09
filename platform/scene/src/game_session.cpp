@@ -35,12 +35,14 @@ constexpr nnn::Word load=0x33330015U, rect=0x33330016U, preload=0x3333001fU;
 constexpr nnn::Word end=0x55560005U, next=0x55560006U, exit_script=0x5556000bU;
 constexpr nnn::Word end_film=0x5556000cU, set_cg=0x33330018U, set_film=0x3333001aU, set_cg_by_var=0x33330061U;
 constexpr nnn::Word set_demo_flag=0x3333001eU, frame_control=0x33330028U, default_frame=0x33330029U;
+constexpr nnn::Word start_message=0x3333001bU, start_koma=0x3333001cU;
 constexpr nnn::Word film_name=0x33330050U, story_name=0x33330051U, film_type_time=0x33330052U;
 constexpr nnn::Word config_mask=0x33330053U, var_control_layer=0x33330063U;
 constexpr nnn::Word set_term=0x3333006dU;
 constexpr unsigned variable_count=32768;
 constexpr unsigned first_system_variable=200;
-constexpr std::uint32_t snapshot_magic=0x31534e4eU, snapshot_version=11;
+constexpr std::uint32_t snapshot_magic=0x31534e4eU, snapshot_version=13;
+constexpr int default_next_message_type=3;
 constexpr int heroine_limit=12,object_limit=1024;
 constexpr std::size_t backlog_capacity=100;
 constexpr std::size_t backlog_jump_budget=24U*1024U*1024U;
@@ -330,9 +332,15 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
     std::optional<std::array<int,2>> ui_click;
     std::string ui_script;
     int window_type=0, font_type=0, next_window=-1, next_message_speed=0,option_off=0;
+    int next_message_type=default_next_message_type;
+    std::size_t append_prefix_bytes=0;
+    bool draw_window_with_message=false;
+    bool overlap_message_window=true;
+    int long_background_mode=0;
+    std::string overlap_window_config,long_background_config;
     int auto_message=0,cannot_click=0,cannot_skip=0;
     bool auto_message_kill_shift=false,cannot_skip_kill_shift=false,effect_gate=false;
-    bool background_unlocks=false, skip_cg=true, skip_film=true, skip_music=true, ignore_hidden_cg=false;
+    bool background_unlocks=false, skip_cg=true, skip_film=true, skip_music=true, skip_voice_roles=true, ignore_hidden_cg=false;
     bool message_has_voice=false;
     std::uint32_t message_voice_ms=0;
     std::uint32_t speaking_ms=0;
@@ -359,6 +367,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
     std::vector<std::string> choice_separator;
     int choice_heading_color=0,choice_color=0,choice_dot_color=0,choice_timeup_color=0;
     unsigned choice_appear_frames=0,choice_appear_remaining=0;
+    bool choice_draws_scene=false;
     std::mutex parameter_output_mutex;
     std::uint64_t applied_parameter_revision=0;
     nnn::Value applied_system_voice=0;
@@ -392,6 +401,8 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
     bool standalone_script=false;
     std::optional<std::uint32_t> replacement_extension;
     std::string pc_save_header="SAVEDATA";
+    unsigned save_slot_art_var=variable_count;
+    nnn::Value pc_save_slot_art=30;
     bool pc_export_layout=false,pc_save_log=true;
     bool clear_auto_after_load=false;
     int pc_log_voices=1;
@@ -526,6 +537,15 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         });
         apply_parameters();
         auto init=nnn::game_config::read(root,"init","game.xtx");
+        if (!decorative_preview) {
+            auto print_config=nnn::game_config::read(root,"init","printmessage.xtx");
+            draw_window_with_message=config_int(print_config,"drawWindowWithMessageFlag",0)!=0;
+            overlap_message_window=config_int(init,"noMessageWindowFlag",0)==0;
+            if (overlap_message_window)
+                overlap_window_config=nnn::game_config::read(root,"init","messageWindow.xtx");
+            long_background_mode=std::max(0,config_int(print_config,"LPrintBGMode",0));
+            if (long_background_mode) long_background_config=std::move(print_config);
+        }
         const int seed=config_int(nnn::game_config::read(root,"init","mainControl.xtx"),"initRandomSeed",-1);
         legacy_random_state=options.random_seed.value_or(seed>0 ? static_cast<std::uint32_t>(seed) : 1U);
         seed_from_clock=!options.random_seed && seed==-1;
@@ -572,6 +592,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         animation_off=config_int(config,"expRadioNumber",0)>0 && config_int(config,"initAnimeSwitch",-1)>0;
         script_notices=config_int(init,"noticeFlag",0)!=0;
         const auto select_config=nnn::game_config::read(root,"init","selectmessage.xtx");
+        choice_draws_scene=config_int(select_config,"backPrintMode",0)==2;
         choice_heading=config_text(select_config,"backlogMessage","[SELECT]");
         choice_heading_color=config_rgb(select_config,"backlogMessageColor",64,192,255);
         choice_color=config_rgb(select_config,"backlogSelectColor",192,232,255);
@@ -590,6 +611,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         skip_cg=config_int(init,"mustSetCGFlag",1)!=0;
         skip_film=config_int(init,"mustSetFilmFlag",1)!=0;
         skip_music=config_int(init,"mustSetMusicFlag",1)!=0;
+        skip_voice_roles=config_int(init,"mustSetVoiceFlag",1)!=0;
         ignore_hidden_cg=config_int(init,"offLayerDontSetCG",0)!=0;
         auto setup=file_text(assets.config("exesetup.xtx"));
         const int width=options.width ? options.width : config_int(setup,"mainScreenWindowSizeX1",1280);
@@ -607,6 +629,10 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         configure_menu_extensions(init);
         compare_result_var=variable_id(config_text(init,"compareResultVarName",""));
         get_result_var=variable_id(config_text(init,"getResultVarName",""));
+        if (config_int(init,"specialNumberForSaveSetFlag",0)) {
+            constexpr auto default_slot_art_var="\x8e\x63\x82\xe8\x93\xfa\x90\x94"; // 残り日数 (CP932)
+            save_slot_art_var=variable_id(config_text(init,"specialNumberForSaveVarName",default_slot_art_var));
+        }
         load_variable_defaults(vars,&legacy_system_seed);
         for (const auto& group:{std::make_pair("expmode",nnn::NNNPARAM_EXPMODE),std::make_pair("expcheck",nnn::NNNPARAM_EXPCHECK)})
             for (nnn::Word i=0;i<5;++i) {
@@ -796,9 +822,9 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         }
         applied_parameter_revision=revision;
     }
-    void begin_line(bool has_voice,std::uint32_t voice_ms,int speed) {
+    void begin_line(bool has_voice,std::uint32_t voice_ms,int speed,bool append_text=false) {
         shared_runtime->with_parameters([&](nnn::RuntimeParameters&) {
-            behavior->begin_line(has_voice,voice_ms,speed);
+            behavior->begin_line(has_voice,voice_ms,speed,append_text);
         });
     }
     void set_mode(nnn::RuntimeMode mode) {
@@ -839,6 +865,88 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         if (name.empty()) { warn("Empty graphic name"); return {}; }
         try { return assets.image(name); }
         catch (const std::exception& e) { warn("Graphic "+name+": "+e.what()); return {}; }
+    }
+    std::shared_ptr<const render::Texture> message_art(const std::string& name) {
+        return texture(name.find_first_of("/\\")==std::string::npos ? "sys/"+name : name);
+    }
+    void paint_overlap_window(render::Surface& out) {
+        const auto& config=overlap_window_config;
+        const int configs=std::clamp(config_int(config,"windowNumberConfig",1),1,16);
+        const int scripts=std::clamp(config_int(config,"windowNumberScript",1),1,16);
+        const int fonts=std::clamp(config_int(config,"windowNumberFontSizeType",1),1,256/(configs*scripts));
+        const int variant=std::clamp(shared_runtime->message_window(),0,configs-1)+1;
+        const int script=std::clamp(window_type,0,scripts-1)+1;
+        const int font=std::clamp(font_type,0,fonts-1);
+        std::string key="filenameWindow";
+        if (scripts>1 && configs>1) key+=std::to_string(script)+"_"+std::to_string(variant);
+        else key+=std::to_string(scripts>1?script:variant);
+        if (font) key+="_Font"+std::to_string(font);
+        const auto art=message_art(config_text(config,key,config_text(config,"filenameWindow","ta_meswin")));
+        if (!art) return;
+        const render::Point origin{std::clamp(config_int(config,"printX",0),-1000000,1000000),
+            std::clamp(config_int(config,"printY",300),-1000000,1000000)};
+        const int width=std::clamp(config_int(config,"sizeX",640),0,static_cast<int>(render::max_dimension));
+        const int height=std::clamp(config_int(config,"sizeY",180),0,static_cast<int>(render::max_dimension));
+        const int layers=config_int(config,"notTransWindowUse",0);
+        const int opacity=100-std::clamp(shared_runtime->get_system_parameter(nnn::NNNPARAM_WINDOWPERCENT),0,100);
+        if (layers&2) render::paint_texture(out,*art,{0,height*((layers&1)?2:1),width,height},origin);
+        render::paint_texture(out,*art,{0,0,width,height},origin,opacity);
+        if (layers&1) render::paint_texture(out,*art,{0,height,width,height},origin);
+    }
+    void paint_long_background(render::Surface& out) {
+        const auto& config=long_background_config;
+        const auto parameter=[&](const std::string& key,int fallback) { return config_int(config,"lprintBG"+key,fallback); };
+        if (long_background_mode&2) {
+            const int width=static_cast<int>(out.width),height=static_cast<int>(out.height);
+            const render::Rect clip{parameter("ClipX",0),parameter("ClipY",0),
+                parameter("ClipSizeX",width),parameter("ClipSizeY",height)};
+            const auto apply=[&](const std::string& type,auto edit) {
+                const int x=parameter(type+"ClipX",clip.x),y=parameter(type+"ClipY",clip.y);
+                const int w=parameter(type+"ClipSizeX",clip.width),h=parameter(type+"ClipSizeY",clip.height);
+                const int right=static_cast<int>(std::clamp<std::int64_t>(std::int64_t{x}+w,0,width));
+                const int bottom=static_cast<int>(std::clamp<std::int64_t>(std::int64_t{y}+h,0,height));
+                for (int row=std::max(0,y);row<bottom;++row)
+                    for (int col=std::max(0,x);col<right;++col)
+                        edit(out.rgb.data()+(static_cast<std::size_t>(row)*out.width+static_cast<unsigned>(col))*3);
+            };
+            if (parameter("ScreenEffectNega",0))
+                apply("Nega",[](render::Byte* rgb) { for (unsigned c=0;c<3;++c) rgb[c]=255-rgb[c]; });
+            if (parameter("ScreenEffectGrey",0))
+                apply("Grey",[](render::Byte* rgb) {
+                    const auto grey=static_cast<render::Byte>((76*rgb[0]+150*rgb[1]+29*rgb[2])>>8);
+                    std::fill_n(rgb,3,grey);
+                });
+            const auto channels=[&](const std::string& tag,int fallback,int inherit) {
+                const int r=parameter(tag+"R",fallback),g=parameter(tag+"G",r),b=parameter(tag+"B",g);
+                const int green=g==inherit ? r : g;
+                return std::array<int,3>{r,green,b==inherit ? green : b};
+            };
+            const auto multi=channels("Multi",100,-1);
+            if (multi!=std::array<int,3>{100,100,100})
+                apply("Multi",[&](render::Byte* rgb) {
+                    for (unsigned c=0;c<3;++c)
+                        rgb[c]=static_cast<render::Byte>((rgb[c]*(std::clamp(multi[c],0,100)*256/100))>>8);
+                });
+            const auto add=channels("Delta",0,-9999);
+            if (add!=std::array<int,3>{})
+                apply("AddSub",[&](render::Byte* rgb) {
+                    for (unsigned c=0;c<3;++c)
+                        rgb[c]=static_cast<render::Byte>(std::clamp(rgb[c]+std::clamp(add[c],-255,255),0,255));
+                });
+        }
+        if (long_background_mode&1) {
+            const auto art=message_art(config_text(config,"lprintBGFileName","ta_fullMessageWindow"));
+            if (art) render::paint_texture(out,*art,{0,0,art->canvas_width,art->canvas_height},
+                {std::clamp(parameter("PrintX",0),-1000000,1000000),std::clamp(parameter("PrintY",0),-1000000,1000000)});
+        }
+    }
+    render::Layers::OverlapDecoration overlap_decoration() {
+        if (ui_mode) return {};
+        if (next_message_type==0 && overlap_message_window && frame.dialogue.window_visible)
+            return [this](render::Surface& out) { paint_overlap_window(out); };
+        if ((next_message_type==1 || next_message_type==2) && long_background_mode)
+            return [this](render::Surface& out) { paint_long_background(out); };
+        return {};
     }
     std::unique_ptr<render::Layers> make_renderer(int width,int height) {
         auto layers=std::make_unique<render::Layers>(width,height);
@@ -2662,6 +2770,11 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         set_mode(mode);
     }
 
+    void apply_next_window() {
+        if (next_window==0 || next_window==1) frame.dialogue.window_visible=next_window==1;
+        next_window=-1;
+    }
+
     bool ReceiveSystemEvent(const nnn::SystemEvent& e) override {
         const auto& a=e.parameters;
         if (e.opcode==set_term || e.opcode==nnn::audio::set_voice_flag) {
@@ -2685,12 +2798,13 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
                 sync_skip();
             }
             d.raw_bytes=e.text.value_or("");
+            append_prefix_bytes=e.opcode==append && d.layout_command==print ? d.display_bytes.size() : 0;
             if (e.opcode==append) d.display_bytes+=replace_dialogue(d.raw_bytes);
             else d.display_bytes=replace_dialogue(d.raw_bytes);
             d.speaker=speaker(d.display_bytes);
             d.window_type=window_type; d.font_type=font_type;
-            d.window_visible=next_window<0 ? (appending ? d.window_visible : d.layout_command==print) : next_window!=0;
-            next_window=-1;
+            d.window_visible=d.layout_command==print;
+            apply_next_window();
             jump_pending=false;
             if (!ui_mode && !d.display_bytes.empty() && d.display_bytes.size()<=16384U) {
                 const bool joined=e.opcode==append && !backlog.empty() && backlog.back().color<0;
@@ -2705,16 +2819,19 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
                 jump_pending=jump_enabled && replay_films.empty() && (e.opcode!=append || append_jump);
             }
             backlog_voices={};
-            if (e.opcode!=append) {
-                begin_line(message_has_voice,message_voice_ms,next_message_speed);
-                next_message_speed=0;
-            }
+            begin_line(message_has_voice,message_voice_ms,next_message_speed,appending);
+            next_message_speed=0;
             return true;
         }
         if (nnn::audio::is_audio_command(e.opcode)) {
             if (decorative_preview) return true;
             location();
             const auto flags=GetSkipFlags();
+            if (e.opcode==nnn::audio::voice && !a.empty() && a[0]>=0 && e.text &&
+                (skip_voice_roles || (!flags.skip_next_command && !shared_runtime->skip_active()))) {
+                const int character=playback.voice_character_number(*e.text);
+                if (shared_runtime->mark_voice_role_heard(character) && replay_films.empty()) system_save_requested=true;
+            }
             if (!ui_mode && e.opcode==nnn::audio::voice && a.size()>=2 && a[0]>=0 && a[1]>=0 && a[1]<4 &&
                 (a.size()<4 || a[3]==0) && e.text && e.text->size()<=255U)
                 backlog_voices[static_cast<unsigned>(a[1])]=*e.text;
@@ -2790,8 +2907,9 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
                 shared_runtime->set_skip_active(false);
             sync_skip(); return true;
         }
-        case 0x3333001bU:
-            next_window=a.size()>1 && (a[1]==1 || a[1]==2) ? a[1]-1 : -1;
+        case start_message:
+            if (a.size()==1) next_window=-1;
+            if (a.size()>1 && a[1]>=0 && a[1]<=2) next_window=a[1]-1;
             message_has_voice=false; message_voice_ms=0;
             backlog_voices={};
             if (!ui_mode && !a.empty() && a[0]!=-1) {
@@ -2799,7 +2917,14 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
                 sync_skip();
             }
             return true;
-        case 0x3333001cU:
+        case start_koma:
+            if (!a.empty()) {
+                next_message_type=a.size()>1 ? a[1] : default_next_message_type;
+                // STARTKOMA sets the current flag now and supplies the raw
+                // pending mode, which STARTMESSAGE can replace before DRAW.
+                next_window=a.size()>2 ? a[2] : -1;
+                frame.dialogue.window_visible=next_window==2 || (next_window!=1 && next_message_type==0);
+            }
             if (!ui_mode && !a.empty() && a[0]!=-1) {
                 const auto flags=GetSkipFlags();
                 if (flags.skip_next_command && flags.skip_effect_command &&
@@ -2833,16 +2958,21 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         case clear: if (!a.empty() && slot(a[0])) renderer->clear(static_cast<unsigned>(a[0])); return true;
         case prepare: renderer->prepare_overlap(); return true;
         case overlap: {
+            if (frame.dialogue.layout_command) frame.dialogue.layout_command=print;
             location();
             const int type=a.empty()?0:a[0];
-            if (!renderer->start_overlap(static_cast<unsigned>(a.size()>1?std::max(0,a[1]):0),type))
+            if (!renderer->start_overlap(static_cast<unsigned>(a.size()>1?std::max(0,a[1]):0),type,overlap_decoration()))
                 warn("Unsupported wipe "+std::to_string(type)+" uses crossfade");
             ++counters.overlaps; return true;
         }
         case draw:
+            if (frame.dialogue.layout_command) frame.dialogue.layout_command=print;
+            apply_next_window();
             location(); draw_remaining=static_cast<unsigned>(a.empty() ? 0 : std::max(0,a[0]));
             ++counters.draws; return true;
-        case select: location(); return true;
+        case select:
+            frame.dialogue.window_visible=false;
+            location(); return true;
         case set_cg: cg(a); return true;
         case set_film: film(a); return true;
         case set_cg_by_var:
@@ -3120,6 +3250,9 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         }
         return positions;
     }
+    nnn::Value save_slot_art() const {
+        return save_slot_art_var<variable_count ? variable_value(static_cast<nnn::Word>(save_slot_art_var)) : pc_save_slot_art;
+    }
     void capture_pc_status(pc::Status& status,nnn::RuntimeMode mode) const {
         status.saved_at=current_pc_time();
         status.game_mode=static_cast<int>(mode);
@@ -3224,6 +3357,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
             frame.movie=0;frame.demo_mode=0;
             frame.film_name.clear();frame.story_name.clear();
             option_off=next_message_speed=0;next_window=-1;
+            next_message_type=default_next_message_type;
             backlog.clear();backlog_voices={};clear_jumps();
         }
         frame.selection.reset();
@@ -3306,6 +3440,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         if (saved.vars.size()!=(extended ? 2224U : 1024U)) throw std::runtime_error("PC save variable layout differs from this game");
         std::copy_n(saved.vars.begin(),first_system_variable,vars.begin());
         std::copy(saved.vars.begin()+system_variable_end,saved.vars.begin()+local_end,vars.begin()+system_variable_end);
+        pc_save_slot_art=status.remaining;
         last_heroine=status.last_heroine>=0 && status.last_heroine<heroine_limit ? status.last_heroine : 0;
         renderer->hide_layers(status.layer_off);
         for (unsigned i=0;i<pc_layers;++i) {
@@ -3404,6 +3539,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         saved.header.name=pc_save_header;saved.info.version=static_cast<int>(game_version);
         auto& status=saved.status;
         capture_pc_status(status,frame.wait==Wait::Dialogue ? nnn::RuntimeMode::PrintMessage : nnn::RuntimeMode::SelectMessage);
+        status.remaining=save_slot_art();
         status.adjust_version=1;
         for (std::size_t i=0;i<=static_cast<std::size_t>(status.run_mode);++i) {
             auto& slot=saved.status.vm[i];
@@ -3531,10 +3667,14 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         const bool pending_modal=!save_place && modal_savable();
         if (ui_mode || !replay_films.empty() || (wait>Wait::Choice && wait!=Wait::Place && !pending_modal))
             nnn::snapshot::invalid("Cannot snapshot this game mode");
-        const bool cursor_format=frame.script_cursor!=0;
+        const bool decorated_overlap=renderer->has_overlap_decoration();
+        const bool draw_message_format=decorated_overlap || next_message_type!=default_next_message_type;
+        const bool cursor_format=frame.script_cursor!=0 || draw_message_format;
         const bool chart_format=chart_available || cursor_format;
-        out(snapshot_magic,cursor_format ? snapshot_version : chart_format ? 10U : 9U,static_cast<std::uint8_t>(last_heroine));
+        out(snapshot_magic,decorated_overlap ? snapshot_version : draw_message_format ? 12U : cursor_format ? 11U : chart_format ? 10U : 9U,
+            static_cast<std::uint8_t>(last_heroine));
         if (cursor_format) out(frame.script_cursor);
+        if (draw_message_format) out(next_message_type);
         out(default_period,
             static_cast<std::uint8_t>(wait),frame.script,frame.word,frame.remaining_frames);
         if (pending_modal) {
@@ -3572,7 +3712,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         }
         behavior->save_snapshot(out);
         vm->save_snapshot(out,chart_format,!save_place);
-        renderer->save_snapshot(out);
+        renderer->save_snapshot(out,decorated_overlap);
         playback.save_snapshot(out);
     }
 
@@ -3584,6 +3724,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
             FrameState frame;
             std::array<nnn::Value,variable_count> vars{};
             int window_type=0,font_type=0,next_window=-1,next_message_speed=0,option_off=0;
+            int next_message_type=default_next_message_type;
             int auto_message=0,cannot_click=0,cannot_skip=0;
             bool effect_gate=false,message_has_voice=false;
             std::uint32_t message_voice_ms=0,speaking_ms=0,random_state=1;
@@ -3614,6 +3755,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
             if (next.last_heroine>=heroine_limit) invalid("Invalid last heroine in snapshot");
         }
         if (version>=11) in(next.frame.script_cursor);
+        if (version>=12) in(next.next_message_type);
         in(frame_period,waiting,next.frame.script,next.frame.word,next.frame.remaining_frames);
         const bool pending_modal=version>=9 && waiting==static_cast<std::uint8_t>(Wait::Modal);
         if (frame_period!=default_period ||
@@ -3806,7 +3948,9 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         }
         auto next_renderer=make_renderer(static_cast<int>(renderer->width()),static_cast<int>(renderer->height()));
         next_renderer->load_snapshot(in,[&](const std::string& name){return assets.image(name);},
-            version>=2,version>=3,version>=5,version>=6,version>=7);
+            version>=2,version>=3,version>=5,version>=6,version>=7,version>=13);
+        if (version>=13 && position.wait!=Wait::Overlap && position.wait!=Wait::Running)
+            invalid("Decorated transition outside its frame wait");
         next_renderer->set_speaking(next.speaking_ms!=0);
         if (position.wait==Wait::Overlap && next_renderer->overlap_remaining()!=position.remaining_frames)
             invalid("Invalid snapshot transition");
@@ -3825,6 +3969,11 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         else playback.load_snapshot(in,keep_music_position);
         if (next.frame.modal) next.frame.modal->request=new_modal_request();
         frame=std::move(next.frame);vars=next.vars;
+        append_prefix_bytes=0;
+        if (frame.dialogue.layout_command &&
+            (frame.wait==Wait::Draw || frame.wait==Wait::Overlap ||
+             (frame.wait==Wait::Running && mode==static_cast<nnn::Value>(nnn::RuntimeMode::PrintOverlap))))
+            frame.dialogue.layout_command=print;
         // Older native snapshots carried a copy of the system segment.
         // Its canonical state now lives in RuntimeContext across all restores.
         const auto system_begin=vars.begin()+first_system_variable,system_end=vars.begin()+system_variable_end;
@@ -3836,6 +3985,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         }
         std::fill(system_begin,system_end,0);
         window_type=next.window_type;font_type=next.font_type;next_window=next.next_window;
+        next_message_type=next.next_message_type;
         next_message_speed=next.next_message_speed;option_off=next.option_off;
         auto_message=next.auto_message;cannot_click=next.cannot_click;cannot_skip=next.cannot_skip;
         effect_gate=next.effect_gate;message_has_voice=next.message_has_voice;message_voice_ms=next.message_voice_ms;
@@ -3878,6 +4028,7 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         frame.choice_timed_out=false;
         apply_parameters();
         if (frame.wait==Wait::Ended || frame.wait==Wait::Error || frame.wait==Wait::Modal) return frame;
+        if (frame.wait!=Wait::Overlap) renderer->resume_overlap_scene();
         if (initial_calendar) {
             initial_calendar=false;
             if (!in.legacy_calculations) {
@@ -4132,6 +4283,7 @@ void GameSession::restore_pc_save(const std::vector<nnn::Byte>& bytes) {
     data_.swap(candidate);
 }
 std::vector<nnn::Byte> GameSession::export_pc_save() { return pc::write_save(data_->make_pc_save()); }
+nnn::Value GameSession::save_slot_art() const { return data_->save_slot_art(); }
 void GameSession::restore_snapshot(const nnn::snapshot::Bytes& bytes,const std::function<bool(const FrameState&)>& verify,
                                    bool keep_music_position,bool migrate_legacy_system_variables) {
     nnn::snapshot::Reader in(bytes);
@@ -4148,6 +4300,25 @@ void GameSession::trim_replayed_backlog(unsigned keep) {
     data_->trim_backlog(keep);
 }
 const render::Surface& GameSession::surface() { return data_->renderer->surface(); }
+bool GameSession::screen_layer_active() const { return data_->renderer->screen_layer_active(); }
+bool GameSession::story_draws_screen_layer() const {
+    const auto wait=data_->frame.wait;
+    return wait==Wait::Dialogue || wait==Wait::Draw || (wait==Wait::Choice && data_->choice_draws_scene);
+}
+std::uint64_t GameSession::screen_layer_revision() const { return data_->renderer->composition_revision(); }
+void GameSession::capture_screen_layer(bool enable) {
+    render::Layers::OverlapDecoration backdrop;
+    if (enable && draw_message()==DrawMessage::LongBackground && data_->long_background_mode)
+        backdrop=[impl=data_.get()](render::Surface& out) { impl->paint_long_background(out); };
+    data_->renderer->capture_screen_layer(enable,std::move(backdrop));
+}
+std::unique_ptr<render::ScreenLayerFrame> GameSession::take_screen_layer() {
+    data_->renderer->surface();
+    return data_->renderer->take_screen_layer();
+}
+void GameSession::commit_screen_capture(render::Surface frame) {
+    data_->renderer->commit_screen_capture(std::move(frame));
+}
 render::Layers& GameSession::chart_preview_layers() {
     if (!data_->decorative_preview || data_->ui_mode!=static_cast<nnn::Value>(nnn::RuntimeMode::SelectChart))
         throw std::logic_error("Chart layers require a SELECTCHART preview");
@@ -4171,9 +4342,9 @@ void GameSession::set_ui_place_preview(unsigned place) {
         if (!tag.empty()) data_->renderer->bind(i,data_->texture(tag+std::to_string(place)),true);
     }
 }
-nnn::Value GameSession::named_variable(const std::string& name,bool prefer_story) const {
+nnn::Value GameSession::named_variable(const std::string& name,bool prefer_story,nnn::Value fallback) const {
     const auto i=data_->ids.find(fold_cp932(name));
-    if (i==data_->ids.end()) return 0;
+    if (i==data_->ids.end()) return fallback;
     const auto story=prefer_story ? data_->shared_runtime->preview_story() : nullptr;
     return data_->calculated_variable(i->second,false,story.get());
 }
@@ -4204,12 +4375,14 @@ bool GameSession::claim_ui_background(std::shared_ptr<nnn::RuntimeContext> runti
     return true;
 }
 void GameSession::start_ui_background(const std::string& name,int mode,bool fresh) {
-    const auto entry="spt/"+stem(name)+".spt";
-    const bool restarting=!fresh && data_->ui_mode.has_value() && data_->ui_script==entry;
-    if (!data_->vm->RestartRoot(entry)) {
+    const auto entry=name.empty()?std::string{}:"spt/"+stem(name)+".spt";
+    const bool restarting=!entry.empty() && !fresh && data_->ui_mode.has_value() && data_->ui_script==entry;
+    if (!entry.empty() && !data_->vm->RestartRoot(entry)) {
         const auto status=data_->vm->LoadFile(entry);
         if (!status) throw std::runtime_error(entry+": "+status.detail);
     }
+    if ((mode==static_cast<int>(nnn::RuntimeMode::Opening) || mode==static_cast<int>(nnn::RuntimeMode::Title)) &&
+        (data_->ui_mode!=mode || fresh)) data_->set_period(data_->default_period);
     data_->ui_mode=mode;
     if (!restarting) data_->ui_click.reset();
     data_->ui_script=entry;
@@ -4285,8 +4458,13 @@ std::uint32_t GameSession::text_characters(std::uint32_t elapsed) {
 int GameSession::text_delay_ms() const {
     return data_->shared_runtime->with_parameters([&](const nnn::RuntimeParameters&) { return data_->behavior->text_delay_ms(); });
 }
-void GameSession::set_text_length(std::uint32_t length) {
-    data_->shared_runtime->with_parameters([&](nnn::RuntimeParameters&) { data_->behavior->set_text_length(length); });
+std::string_view GameSession::append_prefix() const noexcept {
+    return std::string_view(data_->frame.dialogue.display_bytes).substr(0,data_->append_prefix_bytes);
+}
+void GameSession::set_text_length(std::uint32_t length,std::optional<std::uint32_t> visible) {
+    if (!data_->append_prefix_bytes) visible.reset();
+    data_->shared_runtime->with_parameters([&](nnn::RuntimeParameters&) { data_->behavior->set_text_length(length,visible); });
+    data_->append_prefix_bytes=0;
 }
 std::uint32_t GameSession::visible_text() const {
     return data_->shared_runtime->with_parameters([&](const nnn::RuntimeParameters&) { return data_->behavior->visible_text(); });
@@ -4338,4 +4516,12 @@ bool GameSession::skip_active() const { return !data_->ui_mode && data_->shared_
 bool GameSession::skip_effective() const { return skip_active() && !data_->skip_blocked(); }
 ScriptRestrictions GameSession::script_restrictions() const { return {data_->auto_message,data_->cannot_click,data_->cannot_skip,data_->option_off}; }
 bool GameSession::options_enabled() const { return data_->option_off==0 && data_->auto_message<=0; }
+DrawMessage GameSession::draw_message() const {
+    if (data_->frame.wait!=Wait::Draw || data_->ui_mode) return DrawMessage::None;
+    const int type=data_->next_message_type;
+    if (type==1 || type==2) return DrawMessage::LongBackground;
+    if ((type==0 || type==3) && data_->frame.dialogue.window_visible)
+        return data_->draw_window_with_message ? DrawMessage::RetainedMessage : DrawMessage::Window;
+    return DrawMessage::None;
+}
 } // namespace emberfall::scene

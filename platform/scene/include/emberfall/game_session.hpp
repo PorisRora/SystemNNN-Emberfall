@@ -11,11 +11,13 @@
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <string_view>
 
 namespace emberfall::scene {
 
 enum class Wait { Running, Draw, Overlap, Dialogue, Choice, Ended, Error, Movie, Place, Modal };
 enum class EndReason { None, End, Next, Exit, ReplayComplete };
+enum class DrawMessage { None, Window, RetainedMessage, LongBackground };
 struct ScriptClockSample {
     int date=0; // Local YYYYMMDD.
     int milliseconds=0; // Since local midnight.
@@ -39,7 +41,7 @@ struct DialogueState {
     std::uint32_t layout_command=0;
     std::uint64_t sequence=0;
     int window_type=0, font_type=0;
-    bool window_visible=true;
+    bool window_visible=false;
 };
 struct BacklogEntry {
     std::string speaker, text;
@@ -148,6 +150,12 @@ public:
     bool restore_backlog_jump(std::uint64_t id,unsigned journal_cursor);
     void trim_replayed_backlog(unsigned keep);
     const render::Surface& surface();
+    bool screen_layer_active() const;
+    bool story_draws_screen_layer() const;
+    std::uint64_t screen_layer_revision() const;
+    void capture_screen_layer(bool enable);
+    std::unique_ptr<render::ScreenLayerFrame> take_screen_layer();
+    void commit_screen_capture(render::Surface frame);
     // Worker-only access to SELECTCHART's split preview composition.
     render::Layers& chart_preview_layers();
     bool needs_redraw() const;
@@ -161,7 +169,7 @@ public:
     void set_ui_saved_screen(render::Surface frame,bool background=true);
     void set_ui_variable(const std::string& name,nnn::Value value);
     void set_ui_place_preview(unsigned place);
-    nnn::Value named_variable(const std::string& name,bool prefer_story=false) const;
+    nnn::Value named_variable(const std::string& name,bool prefer_story=false,nnn::Value fallback=0) const;
     const std::vector<std::string>& warnings() const;
     std::vector<AudioEvent> take_audio_events();
     bool take_system_save_request();
@@ -187,7 +195,8 @@ public:
     std::uint32_t text_characters(std::uint32_t elapsed_ms);
     int text_delay_ms() const;
     std::uint32_t settings_text_rate(int index,bool automatic) const noexcept;
-    void set_text_length(std::uint32_t length);
+    std::string_view append_prefix() const noexcept;
+    void set_text_length(std::uint32_t length,std::optional<std::uint32_t> visible={});
     std::uint32_t visible_text() const;
     std::uint32_t text_length() const;
     bool text_complete() const;
@@ -203,10 +212,12 @@ public:
     bool skip_effective() const;
     ScriptRestrictions script_restrictions() const;
     bool options_enabled() const;
+    DrawMessage draw_message() const;
     nnn::snapshot::Bytes snapshot() const;
     // Import uses a staged owner and commits only a fully validated PC slot.
     void restore_pc_save(const std::vector<nnn::Byte>& bytes);
     std::vector<nnn::Byte> export_pc_save();
+    nnn::Value save_slot_art() const;
     void restore_snapshot(const nnn::snapshot::Bytes& bytes,const std::function<bool(const FrameState&)>& verify={},
                           bool keep_music_position=false,bool migrate_legacy_system_variables=false);
 private:

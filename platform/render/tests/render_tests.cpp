@@ -788,6 +788,51 @@ void shard_tests() {
     bulk.advance(2);single.advance(1);single.advance(1);
     require(bulk.surface().rgb==single.surface().rgb);
 }
+void screen_layer_over_messages() {
+    Layers layers(4,1);
+    layers.capture_screen_layer(true);
+    require(layers.effect(31,100,{20,1,0,25,25,1}));
+    const auto native_scene=layers.surface().rgb;
+    auto screen=layers.take_screen_layer();
+    require(screen && screen->width()==4 && screen->height()==1);
+
+    // A premultiplied red message pixel at column 1 moves to column 2.
+    const std::array<Byte,16> message{0,0,0,0, 128,0,0,128, 0,0,0,0, 0,0,0,0};
+    auto painted=message;
+    screen->composite(painted.data(),painted.size());
+    require(painted==std::array<Byte,16>{0,0,0,255, 0,0,0,255, 128,0,0,255, 0,0,0,255});
+    require(layers.surface().rgb==native_scene);
+
+    require(layers.effect(31,54,{0,0,255,0}));
+    layers.surface();
+    auto cover=layers.take_screen_layer();
+    require(static_cast<bool>(cover));
+    painted=message;
+    cover->composite(painted.data(),painted.size());
+    require(painted==std::array<Byte,16>{0,255,0,255, 0,255,0,255, 0,255,0,255, 0,255,0,255});
+
+    layers.clear(31);
+    layers.surface();
+    require(!layers.screen_layer_active() && !layers.take_screen_layer());
+    painted=message;
+    screen->composite(painted.data(),painted.size());
+    require(painted[8]==128 && painted[4]==0); // Detached from the live renderer.
+
+    require(layers.effect(31,73,{}));
+    layers.surface();
+    auto capture=layers.take_screen_layer();
+    require(capture && capture->captures_screen());
+    painted=message;
+    capture->composite(painted.data(),painted.size());
+    require(capture->capture_without_ui().rgb==native_scene);
+    layers.commit_screen_capture(capture->composed());
+    layers.clear(31);
+    require(layers.effect(0,2,{0,0,0,0,1}));
+    require(layers.surface().rgb==std::vector<Byte>{0,0,0,128,0,0,0,0,0,0,0,0});
+    layers.commit_screen_capture(capture->capture_without_ui());
+    require(layers.needs_redraw() && layers.surface().rgb==native_scene);
+}
+
 void screen_effects() {
     const auto t=pattern(4,4);
     const auto initial=rgb(*t);
@@ -1256,7 +1301,7 @@ int main() {
         layers.advance(1);require(!layers.needs_redraw());
     }
     screen_effects();character_colors();movement_effects();composition_effects();blur_effects();easing_tests();mask_presence_tests();rain4_tests();rain2_tests();suna_tests();firefly_tests();chara_noise_tests();rain_tests();old_firefly_tests();chara_ghost_tests();zoom_tests();mask_appear_tests();zantetsu_tests();water_tests();kagerou_tests();raster_tests();old_film_tests();old_lamp_tests();mask_wipe_tests();perspective_tests();shard_tests();
-    wipe_tests();
+    screen_layer_over_messages();wipe_tests();
     geometry_effects();animation_effects();condensation_effect();
     std::printf("PASS compositor: %u assertions\n", checks);
 }

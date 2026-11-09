@@ -88,6 +88,8 @@ public:
     void set_character_volume(unsigned index,int steps,bool enabled);
     unsigned character_volume_count() const noexcept;
     unsigned character_slider_index(unsigned role) const;
+    // VOICEFLAG uses one-based character IDs, with zero for an unknown prefix.
+    int voice_character_number(const std::string& name) const;
     unsigned system_voice_selection_count() const noexcept;
     void set_voice_off(const std::array<Word,32>& flags);
     // GetSystemParam's effective snapshot (including configuration aliases).

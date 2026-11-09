@@ -320,19 +320,21 @@ struct GameAudio::Impl {
         if (!result.status) throw AudioError(result.status.detail);
         return result.adjustment;
     }
-    int character_index(const std::string& name) const {
-        if (name.empty()) return -1;
+    int character_number(const std::string& name) const {
+        if (name.empty()) return 0;
         auto byte=[](const std::string& value,std::size_t i) {
             return (i<value.size() ? static_cast<unsigned char>(value[i]) : 0U)|0x20U;
         };
         for (std::size_t i=2;i<characters.names.size();i+=2) {
             const auto& prefix=characters.names[i];
-            if (!prefix.empty() && byte(name,0)==byte(prefix,0) && byte(name,1)==byte(prefix,1)) {
-                const auto index=i/2-1;
-                return index<character_enabled.size() ? static_cast<int>(index) : -1;
-            }
+            if (!prefix.empty() && byte(name,0)==byte(prefix,0) && byte(name,1)==byte(prefix,1))
+                return static_cast<int>(i/2);
         }
-        return -1;
+        return 0;
+    }
+    int character_index(const std::string& name) const {
+        const auto index=character_number(name)-1;
+        return index>=0 && static_cast<std::size_t>(index)<character_enabled.size() ? index : -1;
     }
     int character_steps(std::size_t index) const {
         const auto bits=(characters.packed_sliders[index/6]>>(static_cast<unsigned>(index%6)*5U))&31U;
@@ -954,6 +956,7 @@ unsigned GameAudio::character_slider_index(unsigned role) const {
     return static_cast<unsigned>(impl_->slider_index(role));
 }
 unsigned GameAudio::system_voice_selection_count() const noexcept { return impl_->files.system_voice_selection_count(); }
+int GameAudio::voice_character_number(const std::string& name) const { return impl_->character_number(name); }
 void GameAudio::set_voice_off(const std::array<Word,32>& flags) {
     std::lock_guard<std::mutex> lock(impl_->commands);
     for (std::size_t role=0;role<impl_->character_enabled.size();++role) {

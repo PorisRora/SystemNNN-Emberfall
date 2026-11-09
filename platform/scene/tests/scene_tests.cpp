@@ -429,6 +429,27 @@ int main(){
         require(fallback && fallback->mode==nnn::RuntimeMode::SelectZukan,
             "no valid child groups must resume the story, without a second empty panel");
     });
+    suite.test("ordinary VOICE marks one-based roles separately from voice clips",[]{
+        Model model;model.message=true;
+        model.code.voice();model.code.print(1);model.code.end();
+        TempGame temp(model);
+        temp.text("spt/charaname.xtx","0,header\naa,Character\n");
+        temp.write("cdvaw/aa/aa_voice.vaw",pcm_vaw(1,44100,8,{188,198,208,218}));
+        temp.text("init/game.xtx","mustSetVoiceFlag 0\n");
+        auto options=test_options();
+        scene::GameSession heard(temp.root,options);
+        require(heard.step_frame(0).wait==scene::Wait::Dialogue && heard.runtime()->voice_role_heard(1) &&
+            !heard.runtime()->voice_played(1) && heard.take_system_save_request(),"ordinary voice role progress");
+        scene::GameSession skipped(temp.root,options);
+        skipped.set_skip_active(true);
+        require(skipped.step_frame(0).wait==scene::Wait::Dialogue && !skipped.runtime()->voice_role_heard(1),
+            "skip suppresses role progress when mustSetVoiceFlag is off");
+        temp.text("init/game.xtx","mustSetVoiceFlag 1\n");
+        scene::GameSession required(temp.root,options);
+        required.set_skip_active(true);
+        require(required.step_frame(0).wait==scene::Wait::Dialogue && required.runtime()->voice_role_heard(1),
+            "mustSetVoiceFlag marks roles even while skipping");
+    });
     suite.test("term and voice menus use global flags, filter unavailable data and keep source return destinations",[]{
         Model model;model.message=true;
         model.code.number(0x3333006dU,{0});
@@ -1372,6 +1393,118 @@ int main(){
         require(game.step_frame(0).wait==scene::Wait::Draw,"draw not reached");const auto log=game.audio().stats().log;
         require(log.size()==2&&log[0].action==(sentinel?"music.skipped":"music.stop")&&log[1].action=="voice.skipped","effect or voice gate");
         require(game.skip_active(),"STARTKOMA stopped skip");
+    });
+    suite.test("DRAW presentation follows PC message type and window overrides",[]{
+        using DrawMessage=scene::DrawMessage;
+        const struct Case {
+            std::vector<Word> koma,message;
+            bool retain;
+            DrawMessage expected;
+        } cases[]{
+            {{2,0},{},false,DrawMessage::Window},
+            {{2,0,0},{},true,DrawMessage::None},
+            {{2,0,0},{2},true,DrawMessage::RetainedMessage},
+            {{2,0,1},{},false,DrawMessage::Window},
+            {{2,0,2},{2,1},true,DrawMessage::None},
+            {{2,1,2},{},true,DrawMessage::LongBackground},
+            {{2,2},{2,2},false,DrawMessage::LongBackground},
+            {{2,3},{},false,DrawMessage::None},
+            {{2,3},{2,2},true,DrawMessage::RetainedMessage},
+        };
+        for (const auto& scenario:cases) {
+            Model m;m.message=true;m.message_text="Retained text";
+            m.code.print(1);
+            m.code.number(0x3333001cU,scenario.koma);
+            if (!scenario.message.empty()) m.code.number(0x3333001bU,scenario.message);
+            m.code.number(0x33330058U,{1});
+            m.code.present(2);
+            m.code.print(2);m.code.end();
+            TempGame temp(m);
+            if (scenario.retain) temp.text("init/printmessage.xtx","drawWindowWithMessageFlag 1\n");
+            auto options=test_options();options.frame_ms=20;
+            scene::GameSession game(temp.root,options);
+            require(game.step_frame(0).wait==scene::Wait::Dialogue && game.draw_message()==DrawMessage::None,
+                    "ordinary dialogue does not use the DRAW presentation");
+            scene::InputState click;click.advance=true;
+            const auto& waiting=game.step_frame(0,click);
+            require(waiting.wait==scene::Wait::Draw && waiting.remaining_frames==2 &&
+                    waiting.dialogue.display_bytes==m.message_text && game.draw_message()==scenario.expected,
+                    "wrong DRAW presentation or lost preceding message");
+            require(!game.request_advance(),"DRAW presentation did not inherit the click restriction");
+            const auto snapshot=game.snapshot();
+            require(snapshot[4]==(scenario.koma[1]==3?9:12),"DRAW message type snapshot format");
+            scene::GameSession restored(temp.root,options);
+            restored.restore_snapshot(snapshot);
+            require(restored.state().wait==scene::Wait::Draw && restored.draw_message()==scenario.expected,
+                    "restored DRAW changed its presentation");
+            const auto& pending=restored.step_frame(39);
+            require(pending.wait==scene::Wait::Draw && pending.remaining_frames==1,"DRAW wait ended early");
+            const auto& next=restored.step_frame(1);
+            require(next.wait==scene::Wait::Dialogue && next.dialogue.message_id==2 && next.dialogue.window_visible,
+                    "DRAW did not finish on time or leaked its one-shot window mode");
+        }
+    });
+    suite.test("DRAW applies the long window before the last screen layer",[]{
+        Model m;
+        m.code.number(effect,{0,54,0,100,100,100});
+        m.code.number(0x3333001cU,{2,1,2});
+        m.code.present(2);
+        m.code.end();
+        TempGame temp(m);
+        temp.text("init/printmessage.xtx","LPrintBGMode 2\nlprintBGMultiR 33\nlprintBGMultiG -1\nlprintBGMultiB -1\n"
+            "lprintBGDeltaR 5\nlprintBGDeltaG -9999\nlprintBGDeltaB -9999\n");
+        scene::GameSession game(temp.root,test_options());
+        require(game.step_frame(0).wait==scene::Wait::Draw,"long DRAW not reached");
+        game.capture_screen_layer(true);
+        auto frame=game.take_screen_layer();
+        require(frame && !frame->captures_screen(),"ordinary DRAW needs a message background plane");
+        std::vector<Byte> rgba(std::size_t{frame->width()}*frame->height()*4);
+        frame->composite(rgba.data(),std::size_t{frame->width()}*4);
+        require(rgba[0]==37 && rgba[1]==37 && rgba[2]==37,"wrong original fixed-point long-window colors");
+        std::fill(rgba.begin(),rgba.end(),0);
+        frame->composite(rgba.data(),std::size_t{frame->width()}*4,false);
+        require(rgba[0]==100 && rgba[1]==100 && rgba[2]==100,"hidden window must leave the scene alone");
+        require(game.surface().rgb[0]==100,"window decoration changed the native scene cache");
+    });
+    for (const Word transition:{draw,0x22220005U}) suite.test(transition==draw?"DRAW then APPEND":"OVERRAP then APPEND",[transition]{
+        Model m;m.message=true;m.message_text="Old";
+        m.code.add({6,command,0x22220002U,0,1,0});
+        if (transition==draw) m.code.present(2);
+        else m.code.number(transition,{0,2});
+        m.code.add({6,command,0x22220003U,0,2,0});
+        m.code.end();
+        TempGame temp(m);
+        scene::GameSession game(temp.root,test_options());
+        require(game.step_frame(0).dialogue.layout_command==0x22220002U,"initial LPRINT mode");
+        scene::InputState click;click.advance=true;
+        const auto wait=transition==draw?scene::Wait::Draw:scene::Wait::Overlap;
+        require(game.step_frame(0,click).wait==wait,"did not reach transition");
+        const auto snap=game.snapshot();
+        scene::GameSession restored(temp.root,test_options());
+        restored.restore_snapshot(snap);
+        if (transition!=draw) require(restored.step_frame(0,click).wait==scene::Wait::Running,"overlap endpoint");
+        const auto& next=restored.step_frame(0,click);
+        require(next.wait==scene::Wait::Dialogue && next.dialogue.layout_command==0x22220001U &&
+                next.dialogue.window_visible && next.dialogue.display_bytes=="OldOld","APPEND must use the compact window after a transition");
+        require(restored.append_prefix()=="Old","old text prefix must be available for the new layout");
+        restored.set_text_length(6,3);
+        require(restored.visible_text()==3 && restored.append_prefix().empty(),"initial visible text must use the projected prefix once");
+    });
+    suite.test("LPRINT and its APPEND keep option permission separate from the compact window",[]{
+        Model m;m.message=true;
+        m.code.add({6,command,0x22220002U,0,1,0});
+        m.code.add({6,command,0x22220003U,0,2,0});
+        m.code.number(0x3333005aU,{1});
+        m.code.add({6,command,0x22220002U,0,3,0});
+        m.code.end();TempGame temp(m);scene::GameSession game(temp.root,test_options());
+        const auto& first=game.step_frame(0);
+        require(first.wait==scene::Wait::Dialogue && first.dialogue.layout_command==0x22220002U &&
+                !first.dialogue.window_visible && game.options_enabled(),"LPRINT wrongly tied options to the compact window");
+        scene::InputState click;click.advance=true;
+        const auto& appended=game.step_frame(0,click);
+        require(appended.wait==scene::Wait::Dialogue && appended.dialogue.layout_command==0x22220002U &&
+                !appended.dialogue.window_visible && game.options_enabled(),"APPEND did not keep LPRINT presentation");
+        require(game.step_frame(0,click).wait==scene::Wait::Dialogue && !game.options_enabled(),"LPRINT ignored OPTIONOFF");
     });
     suite.test("themed configuration samples share the system sound buffer cursor",[]{
         Model model;model.code.end();

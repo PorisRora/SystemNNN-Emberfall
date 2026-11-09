@@ -26,6 +26,8 @@ struct Texture {
     std::string asset_id;
 };
 
+void paint_texture(Surface& out,const Texture& texture,Rect source,Point origin,int opacity=100);
+
 struct Layer {
     std::shared_ptr<const Texture> texture;
     Rect source{}, from{}, to{};
@@ -54,9 +56,29 @@ struct ChartLayerScratch {
     Surface black,white,black_saved,white_saved;
 };
 
+// A detached frame for a host that draws its message UI between the scene and
+// the last script layer. The host supplies a premultiplied RGBA message plane.
+class ScreenLayerFrame {
+public:
+    unsigned width() const noexcept { return scene_.width; }
+    unsigned height() const noexcept { return scene_.height; }
+    bool captures_screen() const noexcept;
+    const Surface& composed() const noexcept { return output_; }
+    Surface capture_without_ui() const;
+    void composite(Byte* pixels,std::size_t stride,bool show_backdrop=true);
+
+private:
+    friend class Layers;
+    Surface scene_,decorated_scene_,saved_,output_;
+    std::array<Layer,32> slots_;
+    std::vector<std::pair<std::string,std::shared_ptr<const Texture>>> animation_;
+    bool animation_off_=false,speaking_=false,draw_last_=true;
+};
+
 class Layers {
 public:
     using TextureReader=std::function<std::shared_ptr<const Texture>(const std::string&)>;
+    using OverlapDecoration=std::function<void(Surface&)>;
     Layers(int width, int height);
     void clear_all();
     void clear(unsigned slot);
@@ -67,14 +89,20 @@ public:
     bool restore_layer(unsigned slot,Layer layer,const FragmentMesh* mesh=nullptr);
     void advance(std::uint32_t frames,Point cursor={-1,-1});
     void prepare_overlap();
-    bool start_overlap(std::uint32_t frames,int type=0);
+    bool start_overlap(std::uint32_t frames,int type=0,const OverlapDecoration& decorate={});
     void finish_overlap();
+    void resume_overlap_scene();
+    bool has_overlap_decoration() const noexcept { return !overlap_display_.rgb.empty(); }
     bool overlapping() const noexcept;
     std::uint32_t overlap_remaining() const noexcept { return overlap_time_-overlap_count_; }
     int overlap_type() const noexcept { return overlap_type_; }
     unsigned width() const noexcept { return output_.width; }
     unsigned height() const noexcept { return output_.height; }
     const Surface& surface();
+    bool screen_layer_active() const noexcept;
+    void capture_screen_layer(bool enable,OverlapDecoration backdrop={});
+    std::unique_ptr<ScreenLayerFrame> take_screen_layer() noexcept { return std::move(screen_layer_); }
+    void commit_screen_capture(Surface frame);
     // SELECTCHART interleaves three script layer groups with its own art.
     // Active targets are full logical-size, premultiplied RGBA8. Empty
     // groups leave their target untouched and are omitted from the mask.
@@ -95,15 +123,15 @@ public:
     std::uint32_t hidden_layers() const noexcept { return hidden_; }
     const std::array<Layer,32>& slots() const noexcept { return slots_; }
     unsigned duration(unsigned slot) const;
-    void save_snapshot(nnn::snapshot::Writer& out) const;
+    void save_snapshot(nnn::snapshot::Writer& out,bool decorated_overlap=false) const;
     void load_snapshot(nnn::snapshot::Reader& in,const std::function<std::shared_ptr<const Texture>(const std::string&)>& texture,
                        bool compact_output=true,bool typed_overlap=true,bool opacity_field=true,bool once_state=true,
-                       bool particle_state=true);
+                       bool particle_state=true,bool decorated_overlap=false);
 
 private:
     std::array<Layer,32> slots_;
     TextureReader animation_textures_;
-    Surface output_, previous_, target_, saved_;
+    Surface output_, previous_, target_, saved_, overlap_display_;
     std::uint32_t overlap_time_ = 0, overlap_count_ = 0;
     int overlap_type_=0;
     std::uint32_t hidden_ = 0;
@@ -111,10 +139,13 @@ private:
     bool dirty_ = true;
     bool saved_background_ = false;
     bool animation_off_ = false, speaking_ = false;
+    bool capture_screen_layer_ = false;
+    OverlapDecoration screen_backdrop_;
+    std::unique_ptr<ScreenLayerFrame> screen_layer_;
     // A completed overlap already owns its endpoint pixels, but the platform
     // must still present them even when no layer needs to be recomposed.
     bool output_changed_ = false;
     void invalidate() noexcept { dirty_=true; ++revision_; }
-    void compose(Surface& out);
+    void compose(Surface& out,const OverlapDecoration& decorate={});
 };
 } // namespace emberfall::render

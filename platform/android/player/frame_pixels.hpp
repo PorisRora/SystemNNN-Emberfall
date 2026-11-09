@@ -1,11 +1,34 @@
 #pragma once
 
 #include "emberfall/render.hpp"
+#include <android/bitmap.h>
 #include <jni.h>
 #include <stdexcept>
 #include <vector>
 
 namespace emberfall::android {
+struct LockedBitmap {
+    JNIEnv* env;
+    jobject bitmap;
+    AndroidBitmapInfo info{};
+    void* data=nullptr;
+    LockedBitmap(JNIEnv* env,jobject bitmap):env(env),bitmap(bitmap) {
+        if (!bitmap || AndroidBitmap_getInfo(env,bitmap,&info)!=ANDROID_BITMAP_RESULT_SUCCESS ||
+            info.format!=ANDROID_BITMAP_FORMAT_RGBA_8888 || !info.width || !info.height ||
+            info.stride<static_cast<std::uint64_t>(info.width)*4 ||
+            AndroidBitmap_lockPixels(env,bitmap,&data)!=ANDROID_BITMAP_RESULT_SUCCESS)
+            throw std::runtime_error("Cannot access RGBA bitmap");
+        if (!data) {
+            AndroidBitmap_unlockPixels(env,bitmap);
+            throw std::runtime_error("RGBA bitmap has no pixel buffer");
+        }
+    }
+    ~LockedBitmap(){AndroidBitmap_unlockPixels(env,bitmap);}
+    LockedBitmap(const LockedBitmap&)=delete;
+    LockedBitmap& operator=(const LockedBitmap&)=delete;
+    std::uint8_t* row(unsigned y) const {return static_cast<std::uint8_t*>(data)+static_cast<std::size_t>(y)*info.stride;}
+};
+
 inline jintArray frame_pixels(JNIEnv* env,const render::Surface& source,jint width,jint height) {
     if (width<1 || height<1 || width>4096 || height>4096 ||
         static_cast<std::int64_t>(width)*height>2*1024*1024)

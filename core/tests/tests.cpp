@@ -362,7 +362,11 @@ int main() {
         std::copy(stored_surname.begin(),stored_surname.end(),archive.begin()+system+224);
         add_record(32,5,"");
         add_record(544,6,"SYSTEMVAR      ");
-        for (Word code=7;code<=12;++code) add_record(32,code,"");
+        for (Word code=7;code<=9;++code) add_record(32,code,"");
+        const auto role=add_record(1056,10,"VOICEFLAG      ");
+        archive[role+32+4*6]=1;
+        add_record(32,11,"");
+        add_record(32,12,"");
         const auto okikae=add_record(6432,13,"OKIKAE         ");
         const std::string tunneled="\x81\x01#F";
         std::copy(tunneled.begin(),tunneled.end(),archive.begin()+okikae+32+7*64);
@@ -382,6 +386,8 @@ int main() {
             text.system_replacements[7]==tunneled,"SYSTEMDATA offsets or OKIKAE raw bytes");
         require(runtime.optional_progress_view()->terms.back()==0x80000003U && runtime.term_unlocked(1023) &&
             runtime.term_read(1023) && runtime.voice_played(524287),"TERM and CHARAVOICEFLAG SYS offsets");
+        require(runtime.voice_role_heard(6) && !runtime.voice_role_heard(5) && !runtime.voice_played(6),
+            "VOICEFLAG role data stays separate from CHARAVOICEFLAG");
         require(!runtime.set_system_name("Rejected",std::string(16,'x')) &&
             !runtime.set_system_replacement(7,std::string("bad\0",4)) && runtime.runtime_text()==text,
             "invalid text changed live system state");
@@ -452,12 +458,14 @@ int main() {
         require(fork->preview_story()==story && fork->preview_state()==runtime.preview_state(),
             "fork did not keep decorative story seed");
         fork->set_preview_story({});
-        require(fork->set_term_unlocked(0) && fork->set_voice_played(32) &&
+        require(fork->set_term_unlocked(0) && fork->set_voice_played(32) && fork->mark_voice_role_heard(31) &&
             !fork->set_voice_played(524288) && !fork->set_term_read(-1) &&
-            !runtime.term_unlocked(0) && !runtime.voice_played(32) &&
+             !fork->mark_voice_role_heard(0) && !fork->mark_voice_role_heard(256) &&
+             !runtime.term_unlocked(0) && !runtime.voice_played(32) && !runtime.voice_role_heard(31) &&
             !(fork->preview_state()==runtime.preview_state()) && runtime.preview_story()==story,"global progress fork isolation");
         runtime.restore_optional_progress(fork->optional_progress());
-        require(runtime.term_unlocked(0) && runtime.voice_played(32) && !runtime.voice_played(31),"raw progress restore");
+        require(runtime.term_unlocked(0) && runtime.voice_played(32) && runtime.voice_role_heard(31) &&
+             !runtime.voice_played(31) && !runtime.voice_role_heard(32),"raw progress restore");
 
         const nnn::TermCatalog terms(root);
         const auto rows=terms.entries(0,runtime);

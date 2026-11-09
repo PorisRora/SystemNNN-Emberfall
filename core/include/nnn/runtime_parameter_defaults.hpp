@@ -207,6 +207,10 @@ inline void decode(const std::vector<Byte>& bytes, InitialRuntimeParameters& ini
             const auto count=length==544U ? 100U : candidate.system_variables.size();
             for (std::size_t i=0;i<count;++i)
                 candidate.system_variables[i]=signed_word(bytes,offset+32U+i*4U);
+        } else if (code==10U && length==32U+runtime_voice_role_count*4U && signature(bytes,offset,"VOICEFLAG      ")) {
+            for (std::size_t i=1;i<runtime_voice_role_count;++i)
+                if (word(bytes,offset+32U+i*4U)!=0)
+                    candidate.optional_progress->voice_role_words[i/32U]|=Word{1}<<(i%32U);
         } else if (code==13U && length==6432U && signature(bytes,offset,"OKIKAE         ")) {
             auto& system=candidate.runtime_text.system_replacements;
             for (std::size_t i=0;i<system.size();++i)
