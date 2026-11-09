@@ -5,7 +5,7 @@
 ## Android APK
 
 
-在 Windows 的仓库根目录构建 Android APK。需要 Python 3.9 或以上、JDK 17、Android SDK Platform 36、Build Tools 36.0.0 和 `curl.exe`。WSL 中需要 CMake、GNU Make 和 Linux 版 Android NDK r28。按安装位置填写以下路径。
+在 Windows 的仓库根目录构建 Android APK。需要 Python 3.9 或以上、JDK 17、Android SDK Platform 36、Build Tools 36.0.0 和 `curl.exe`。WSL 中需要 CMake、GNU Make、`flock`（util-linux）和 Linux 版 Android NDK r28。按安装位置填写以下路径。
 
 ```powershell
 $env:JAVA_HOME = 'C:\Java\jdk-17'
@@ -14,7 +14,9 @@ $env:SYSTEMNNN_NDK = '/opt/android-ndk-r28'
 python platform/android/build_player.py
 ```
 
-脚本默认使用 Ubuntu WSL 发行版，可通过 `SYSTEMNNN_WSL_DISTRO` 指定其他发行版。首次构建会下载 FFmpeg 源码并交叉编译。默认输出为 `build/tyranor/SystemNNN-Emberfall-0.6.6-arm64.apk`。加上 `--movie-codec-linkage static` 可在本地生成供提取单个 `.so` 使用的 `build/tyranor/SystemNNN-Emberfall-0.6.6-single-arm64.apk`。构建脚本使用本地调试密钥，覆盖安装要求新旧 APK 证书一致。
+脚本默认使用 Ubuntu WSL 发行版，可通过 `SYSTEMNNN_WSL_DISTRO` 指定其他发行版。首次构建会下载 FFmpeg 源码并交叉编译。默认输出为 `build/tyranor/SystemNNN-Emberfall-0.6.7-arm64.apk`。加上 `--movie-codec-linkage static` 可在本地生成供提取单个 `.so` 使用的 `build/tyranor/SystemNNN-Emberfall-0.6.7-single-arm64.apk`。构建脚本使用本地调试密钥，覆盖安装要求新旧 APK 证书一致。
+
+FFmpeg 解压完成后才会发布可复用的源码目录。升级旧构建缓存时，未标记为完整的源码树会移入同级的 `source-previous.*` 目录。
 
 在 Linux 或 WSL 中构建主机工具和测试。
 

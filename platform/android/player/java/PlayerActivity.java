@@ -1518,6 +1518,15 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     @Override public void notice(String text) { runOnUiThread(() -> {
         if(!isDestroyed()) Toast.makeText(this,text,Toast.LENGTH_SHORT).show();
     }); }
+    @Override public void progressCorrupt(){runOnUiThread(()->{
+        GameRunner owner=runner;
+        if(isDestroyed()||isFinishing()||owner==null)return;
+        new AlertDialog.Builder(this).setTitle("全局进度损坏")
+            .setMessage("隔离后会使用仍可读取的全局进度，找不到有效进度时将重新建立。剧情存档和隔离的原文件会留在存档目录。")
+            .setNegativeButton("返回",dialogClick((d,w)->finish()))
+            .setPositiveButton("隔离并重试",dialogClick((d,w)->{if(owner==runner)owner.recoverCorruptProgress();}))
+            .show();
+    });}
     @Override public void error(String text) { runOnUiThread(() -> {
         if (isDestroyed() || isFinishing()) return;
         if(returningToTitle){returningToTitle=false;titlePrevious=null;closeOriginalPanel(false);}
@@ -1528,10 +1537,13 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
                     startActivity(new Intent(this,PlayerActivity.class).setAction(Intent.ACTION_MAIN)); finish();
                 })).show(); return;
         }
-        new AlertDialog.Builder(this).setTitle("游戏运行中断").setMessage(text)
+        GameRunner owner=runner;
+        boolean startOver=owner!=null&&owner.initialized();
+        String message=startOver?text+"\n\n从头开始会替换现有自动存档（如有）。":text;
+        new AlertDialog.Builder(this).setTitle("游戏运行中断").setMessage(message)
             .setNegativeButton("返回 TYN",dialogClick((d,w) -> finish()))
-            .setPositiveButton(runner!=null&&!runner.initialized()?"重试读取":"从头开始",
-                dialogClick((d,w) -> {if(runner!=null)runner.restart();})).show();
+            .setPositiveButton(startOver?"从头开始":"重试读取",
+                dialogClick((d,w) -> {if(owner!=null&&owner==runner)owner.restart(startOver);})).show();
     }); }
     private int dp(int n) {return Math.round(n*getResources().getDisplayMetrics().density);}
     private TextView label(String s,int size) {
