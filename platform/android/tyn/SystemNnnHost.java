@@ -4,6 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.util.Map;
+import java.util.Set;
 
 /** Host entry point for the built-in Tyranor-Next engine. */
 public final class SystemNnnHost {
@@ -11,6 +16,33 @@ public final class SystemNnnHost {
     private static final String EXTRA = "com.tyranor.runtime.extra.";
 
     private SystemNnnHost() {}
+
+    /** Checks the staged snapshot without promoting any legacy backup files. */
+    public static boolean canReplaceSaveSnapshot(Map<String,File> incoming,Set<String> existing) throws IOException {
+        boolean hasStory=false;
+        for(Map.Entry<String,File> entry:incoming.entrySet()){
+            String name=entry.getKey();
+            Integer slot=storySaveSlot(name);
+            // AtomicFile reads the legacy backup first when both files exist.
+            if(slot==null||incoming.containsKey(name+".bak"))continue;
+            File file=entry.getValue();
+            try(InputStream in=Files.newInputStream(file.toPath(),LinkOption.NOFOLLOW_LINKS)){
+                if(GameSave.readFrom(in,file.lastModified(),slot,false).metadata.slot!=slot)return false;
+            }
+            hasStory=true;
+        }
+        String progress=GameSavePaths.PREFIX+GameSavePaths.READ;
+        File base=incoming.getOrDefault(progress+".bak",incoming.get(progress));
+        if(base!=null&&!GameProgress.hasReadableBase(base.toPath()))return false;
+        if(hasStory)return true;
+        String chart=GameSavePaths.PREFIX+GameSavePaths.CHART+"/";
+        return base!=null&&existing.stream().noneMatch(name->storySaveSlot(name)!=null||name.startsWith(chart));
+    }
+
+    private static Integer storySaveSlot(String name){
+        String prefix=GameSavePaths.PREFIX;
+        return name.startsWith(prefix)?SaveSlots.committedSlot(name.substring(prefix.length())):null;
+    }
 
     /** Checks for a readable spt/sys.spt marker. The player validates the script when opened. */
     public static boolean canOpen(File root) {
