@@ -172,6 +172,7 @@ final class GameRunner {
     private static final ConcurrentHashMap<File,CompletableFuture<Void>> PROGRESS_HANDOFFS=new ConcurrentHashMap<>();
     private static final class ProgressWriteFailure extends IOException {
         final GameProgress.State state;
+        volatile boolean recovered;
         ProgressWriteFailure(GameProgress.State state,Exception cause){super(cause.getMessage(),cause);this.state=state;}
     }
     private Future<?> autoWrite;
@@ -829,7 +830,9 @@ final class GameRunner {
     private static void forwardProgress(CompletableFuture<Void> source,CompletableFuture<Void> handoff){
         if(source==null){handoff.complete(null);return;}
         source.whenComplete((done,error)->{
-            if(error==null)handoff.complete(null);else handoff.completeExceptionally(error);
+            if(error==null||error instanceof ProgressWriteFailure&&((ProgressWriteFailure)error).recovered)
+                handoff.complete(null);
+            else handoff.completeExceptionally(error);
         });
     }
     void menu(boolean open){tasks.post(() -> {
@@ -1874,15 +1877,14 @@ final class GameRunner {
         readLines.addAll(state.legacy);
         systemStateEstablished=state.variables!=null;
     }
-    private void recoverProgress(CompletableFuture<Void> predecessor,ProgressWriteFailure failure){
-        setInitialProgress(failure.state);
-        try{
+    private void recoverProgress(CompletableFuture<Void> predecessor,ProgressWriteFailure failure) throws IOException {
+        if(failure.recovered)readReadLines();
+        else{
             progressStore.write(failure.state);
-            PROGRESS_HANDOFFS.remove(readFile,predecessor);
-        }catch(IOException|RuntimeException e){
-            Log.w("SystemNNN","Recovered global progress still cannot be written",e);
-            if(!closing)ui.notice("已恢复上次的全局进度，写入仍失败 · "+e.getMessage());
+            failure.recovered=true;
+            setInitialProgress(failure.state);
         }
+        PROGRESS_HANDOFFS.remove(readFile,predecessor);
     }
     private CompletableFuture<Void> writeReadLines(){
         if(handle==0||replaying)return null;

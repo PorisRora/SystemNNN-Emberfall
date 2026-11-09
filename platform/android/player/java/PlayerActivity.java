@@ -1872,6 +1872,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         boolean startOver=owner!=null&&owner.initialized();
         String message=startOver?text+"\n\n从头开始会替换现有自动存档（如有）。":text;
         new AlertDialog.Builder(this).setTitle("游戏运行中断").setMessage(message)
+            .setCancelable(startOver)
             .setNegativeButton("返回 TYN",dialogClick((d,w) -> finish()))
             .setPositiveButton(startOver?"从头开始":"重试读取",
                 dialogClick((d,w) -> {if(owner!=null&&owner==runner)owner.restart(startOver);})).show();
