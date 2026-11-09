@@ -121,10 +121,9 @@ ChartLayerTarget chart_target(const LockedBitmap& image) {
     return {image.row(0),image.info.stride,std::size_t{image.info.stride}*image.info.height};
 }
 bool usable_chart_texture(const Texture* texture) {
-    constexpr std::int64_t pixel_limit=4*1024*1024;
     if (!texture) return false;
     const auto w=texture->canvas_width,h=texture->canvas_height;
-    if (w<=0 || h<=0 || w>4096 || h>4096 || std::int64_t{w}*h>pixel_limit) return false;
+    if (w<=0 || h<=0 || w>4096 || h>4096) return false;
     const auto& crop=texture->content;
     const auto& pixels=texture->pixels;
     return crop.x>=0 && crop.y>=0 && crop.width>0 && crop.height>0 &&
@@ -137,12 +136,16 @@ std::uint32_t texture_rgb(const std::uint8_t* src) noexcept {
 }
 // Return the logical image, restoring the cropped DWQ margins. Tiles use the
 // opaque Put path. The repeated center uses Blt's mask or top-left color key.
-jintArray chart_texture_pixels(JNIEnv* env,const Texture& texture,bool transparent) {
+jintArray chart_texture_pixels(JNIEnv* env,const Texture& texture,bool transparent,jint budget) {
+    constexpr int pixel_limit=4*1024*1024;
     const int width=texture.canvas_width,height=texture.canvas_height;
-    auto result=env->NewIntArray(2+width*height);
+    const int area=width*height;
+    const bool include_pixels=area<=budget && area<=pixel_limit;
+    auto result=env->NewIntArray(include_pixels ? 2+area : 2);
     if (!result) return nullptr;
     const jint dimensions[]{width,height};
     env->SetIntArrayRegion(result,0,2,dimensions);
+    if (!include_pixels || env->ExceptionCheck()) return result;
     constexpr int batch=16384;
     std::array<jint,batch> pixels;
     const auto& crop=texture.content;
@@ -420,12 +423,12 @@ API jlongArray JNICALL FN(chartTextureIds)(JNIEnv* env,jclass,jlong handle,jint 
         return result;
     }catch(const std::exception& e){fail(env,e.what());return nullptr;}
 }
-API jintArray JNICALL FN(chartTexture)(JNIEnv* env,jclass,jlong handle,jint slot,jboolean transparent){
+API jintArray JNICALL FN(chartTextureWithinBudget)(JNIEnv* env,jclass,jlong handle,jint slot,jboolean transparent,jint budget){
     try{
         const auto& layers=prepared_preview(handle).game->chart_preview_layers();
         const auto& texture=layers.slots()[chart_slot(slot)].texture;
         if (!usable_chart_texture(texture.get())) return nullptr;
-        return chart_texture_pixels(env,*texture,transparent==JNI_TRUE);
+        return chart_texture_pixels(env,*texture,transparent==JNI_TRUE,budget);
     }catch(const std::exception& e){fail(env,e.what());return nullptr;}
 }
 API void JNICALL FN(tick)(JNIEnv* env,jclass,jlong handle,jint x,jint y,jboolean clicked,jboolean held,jint frames){

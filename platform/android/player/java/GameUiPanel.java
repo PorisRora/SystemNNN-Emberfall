@@ -156,11 +156,17 @@ class GameUiPanel extends FrameLayout {
     }
     void chartBackground(GameUiAssets.Config cfg,int mode,int page,int centerLayer,int scriptTiles,Consumer<ChartBackdrop.Frame> display){
         printMode=mode;
+        boolean supported=ChartBackdrop.supportsCanvas(canvasWidth,canvasHeight);
         UiPreviewPool.Request request=UiPreviewPool.Request.read(cfg,mode,page);
-        if(backdrop!=null&&backdrop.splitChart()&&request!=null&&request.sameScript(backdropRequest)){
+        if(supported&&backdrop!=null&&backdrop.splitChart()&&request!=null&&request.sameScript(backdropRequest)){
             backdrop.page(page,scriptTiles);return;
         }
         if(backdrop!=null){removeView(backdrop);backdrop.close();backdrop=null;backdropRequest=null;}
+        if(!supported){
+            scriptedBackground=false;
+            display.accept(null);
+            return;
+        }
         UiPreviewPool pool=request==null||assets.runtime==null?null:assets.runtime.previews();
         if(pool==null)return;
         backdropRequest=request;backdropHeld=true;

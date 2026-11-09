@@ -824,10 +824,10 @@ final class GameChartPanel extends GameUiPanel {
         private void tiles(Canvas c,ChartBackdrop.Frame backdrop){
             if(scriptTiles&&backdrop!=null){
                 int y=chart.limit<=0?0:-(int)(scrollDistance()/chart.limit);
-                for(Bitmap tile:backdrop.tiles){
+                for(ChartBackdrop.Tile tile:backdrop.tiles){
                     if(tile==null)continue;
-                    image(c,tile,0,y);
-                    y+=tile.getHeight();
+                    image(c,tile.image,0,y);
+                    y+=tile.height;
                 }
             }else for(ChartView.Tile tile:chart.tiles){
                 Bitmap opaque=modal.assets.opaqueImages.get(GameUiAssets.systemImageKey(tile.asset));

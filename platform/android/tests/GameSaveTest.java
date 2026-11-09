@@ -23,9 +23,13 @@ public final class GameSaveTest {
         return GameSave.readFrom(new ByteArrayInputStream(bytes),99,0,true);
     }
     private static byte[] write(GameSave save,GameSave.Metadata metadata,byte[] snapshot) throws IOException {
-        ByteArrayOutputStream output=new ByteArrayOutputStream();
-        GameSave.writePayload(output,new GameSave.Loaded(save,metadata,content(),snapshot));
-        return output.toByteArray();
+        Path output=Files.createTempFile("systemnnn-save-codec-", ".sav");
+        try {
+            try(FileOutputStream file=new FileOutputStream(output.toFile())){
+                GameSave.writePayload(file,new GameSave.Loaded(save,metadata,content(),snapshot));
+            }
+            return Files.readAllBytes(output);
+        }finally{Files.deleteIfExists(output);}
     }
     private static byte[] legacy(int repeats,int ms,int booleanByte,int choice) throws IOException {
         return legacy(repeats,ms,booleanByte,choice,SCRIPT);
@@ -326,6 +330,10 @@ public final class GameSaveTest {
         GameSave.Loaded compactSlot=read(compact);
         check(compact.length<1024&&Arrays.equals(compactSlot.nativeSnapshot,snapshot)&&compactSlot.save.requiresSnapshot()&&
             compactSlot.save.lastInput().x==641&&compactSlot.save.lastInput().y==361,"long run saves its native snapshot and pointer");
+        byte[] multiBlockSnapshot=new byte[32768];
+        new java.util.Random(7).nextBytes(multiBlockSnapshot);
+        check(Arrays.equals(read(write(longRun,metadata,multiBlockSnapshot)).nativeSnapshot,multiBlockSnapshot),
+            "reads a snapshot across compressed buffer boundaries");
         invalid(()->write(longRun,metadata,null),"snapshot-only slot without a native snapshot");
         compact[compact.length-1]^=1;
         GameSave.Loaded damagedCompact=read(compact);
