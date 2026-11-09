@@ -121,6 +121,7 @@ public final class GameSaveTest {
         SaveSlots slots=new SaveSlots(paths);
         int high=118;
         Path highFile=slots.file(high).toPath(),pointer=paths.file(SaveSlots.LAST_SELECTION).toPath();
+        Path pointerBackup=paths.file(SaveSlots.LAST_SELECTION+".bak").toPath();
         Path slotUi=paths.file(SaveSlots.SLOT_UI).toPath();
         try {
             GameSave history=new GameSave();
@@ -168,7 +169,21 @@ public final class GameSaveTest {
             reopened.saved(GameSave.metadata(high,4,SCRIPT,POSITION,"",""),null);
             check(!reopened.entry(high).lastSaved&&reopened.entry(high).artwork==null,
                 "stale presentation cannot attach to an overwritten slot");
+            Files.copy(pointer,pointerBackup);
+            slots.remember(SaveSlots.QUICK);
+            reopened.preload(4);
+            reopened.saved(quick,null);
+            reopened.saved(metadata,null);
+            check(reopened.lastSelectedSlot()==SaveSlots.QUICK,"valid primary selection takes precedence over backup");
+            Files.delete(pointer);
+            reopened.preload(4);
+            reopened.saved(metadata,null);
+            check(reopened.lastSelectedSlot()==high,"backup selection survives a missing primary");
             Files.write(pointer,new byte[]{0,0,0,0});
+            reopened.preload(4);
+            reopened.saved(metadata,null);
+            check(reopened.lastSelectedSlot()==high,"backup selection survives an invalid primary");
+            Files.write(pointerBackup,new byte[]{0,0,0,0});
             Files.write(slotUi,new byte[]{0,0,0,0});
             reopened.preload(4);
             reopened.saved(metadata,null);
@@ -178,6 +193,7 @@ public final class GameSaveTest {
         }finally{
             Files.deleteIfExists(highFile);
             Files.deleteIfExists(pointer);
+            Files.deleteIfExists(pointerBackup);
             Files.deleteIfExists(paths.file(SaveSlots.LAST_SELECTION+".new").toPath());
             Files.deleteIfExists(slotUi);
             Files.deleteIfExists(paths.file(SaveSlots.SLOT_UI+".new").toPath());
