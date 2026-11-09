@@ -1,6 +1,7 @@
 #include "emberfall/game_session.hpp"
 #include "frame_pixels.hpp"
 #include "resource_names_jni.hpp"
+#include "surface_binding.hpp"
 #include "nnn/runtime_context.hpp"
 #include <android/native_window_jni.h>
 #include <android/log.h>
@@ -15,6 +16,8 @@
 
 namespace {
 using emberfall::scene::GameSession;
+using emberfall::android::SurfaceBinding;
+using SurfaceRef=std::shared_ptr<SurfaceBinding>;
 struct StoryScreenLayer {
     StoryScreenLayer(std::shared_ptr<emberfall::render::ScreenLayerFrame> source,std::array<jint,3> stamp)
         :frame(std::move(source)),state(stamp) {}
@@ -28,9 +31,9 @@ struct StoryScreenLayer {
 using PublishedScreenLayer=std::shared_ptr<StoryScreenLayer>;
 struct Player {
     std::unique_ptr<GameSession> game;
-    ANativeWindow* window=nullptr;
+    SurfaceRef surface;
     unsigned width=0,height=0;
-    bool repaint=true;
+    bool repaint=true,window_geometry_pending=true;
     std::uint64_t remainder=0;
     bool title=false,loop_title=false;
     std::shared_ptr<emberfall::render::ScreenLayerFrame> screen_layer;
@@ -39,9 +42,9 @@ struct Player {
     std::uint64_t screen_layer_revision=0;
     std::string back_script;
     emberfall::render::Surface static_title;
-    ~Player() { if (window) ANativeWindow_release(window); }
 };
 Player& player(jlong handle) { return *reinterpret_cast<Player*>(handle); }
+bool has_surface(const Player& p) { return p.surface && p.surface->available(); }
 void fail(JNIEnv* env,const char* message) {
     if (!env->ExceptionCheck()) env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),message);
 }
@@ -112,7 +115,7 @@ void flush_screen_capture(Player& p) {
     std::unique_lock lock(screen->mutex);
     // A script may consume GET on the next tick. The UI only writes this
     // detached frame, so it can finish the draw while the game thread waits.
-    if (p.window && !screen->committed)
+    if (has_surface(p) && !screen->committed)
         screen->ready.wait_for(lock,std::chrono::milliseconds(45),[&] { return !screen->sample.rgb.empty(); });
     if (screen->sample.rgb.empty() && screen->committed) return;
     auto sample=std::exchange(screen->sample,{});
@@ -122,23 +125,31 @@ void flush_screen_capture(Player& p) {
     p.game->commit_screen_capture(std::move(sample));
 }
 void present(Player& p) {
-    p.game->capture_screen_layer(p.window && draws_story_ui(p));
-    if (!p.window || (!p.repaint && !p.game->needs_redraw())) return;
+    const bool visible=has_surface(p);
+    p.game->capture_screen_layer(visible && draws_story_ui(p));
+    if (!visible || (!p.repaint && !p.game->needs_redraw())) return;
     const auto& src=p.static_title.rgb.empty() ? p.game->surface() : p.static_title;
-    ANativeWindow_Buffer dst{};
-    if (ANativeWindow_lock(p.window,&dst,nullptr)!=0) { p.repaint=true; return; }
-    if (dst.width==static_cast<int>(src.width) && dst.height==static_cast<int>(src.height) && dst.format==WINDOW_FORMAT_RGBA_8888) {
-        auto* row=static_cast<std::uint8_t*>(dst.bits);
-        const auto* rgb=src.rgb.data();
-        for (unsigned y=0;y<src.height;++y,row+=static_cast<std::size_t>(dst.stride)*4) {
-            auto* pixel=row;
-            for (unsigned x=0;x<src.width;++x,pixel+=4,rgb+=3) {
-                pixel[0]=rgb[0]; pixel[1]=rgb[1]; pixel[2]=rgb[2]; pixel[3]=255;
-            }
+    p.surface->submit([&](ANativeWindow* window) {
+        if (p.window_geometry_pending) {
+            if (ANativeWindow_setBuffersGeometry(window,static_cast<int>(p.width),static_cast<int>(p.height),WINDOW_FORMAT_RGBA_8888)!=0)
+                return;
+            p.window_geometry_pending=false;
         }
-        p.repaint=false;
-    } else p.repaint=true;
-    if (ANativeWindow_unlockAndPost(p.window)!=0) p.repaint=true;
+        ANativeWindow_Buffer dst{};
+        if (ANativeWindow_lock(window,&dst,nullptr)!=0) { p.repaint=true; return; }
+        if (dst.width==static_cast<int>(src.width) && dst.height==static_cast<int>(src.height) && dst.format==WINDOW_FORMAT_RGBA_8888) {
+            auto* row=static_cast<std::uint8_t*>(dst.bits);
+            const auto* rgb=src.rgb.data();
+            for (unsigned y=0;y<src.height;++y,row+=static_cast<std::size_t>(dst.stride)*4) {
+                auto* pixel=row;
+                for (unsigned x=0;x<src.width;++x,pixel+=4,rgb+=3) {
+                    pixel[0]=rgb[0]; pixel[1]=rgb[1]; pixel[2]=rgb[2]; pixel[3]=255;
+                }
+            }
+            p.repaint=false;
+        } else p.repaint=true;
+        if (ANativeWindow_unlockAndPost(window)!=0) p.repaint=true;
+    });
 }
 void frame_meta(JNIEnv* env,Player& p,jintArray meta) {
     const auto& f=p.game->state();
@@ -247,15 +258,29 @@ API void JNICALL FN(close)(JNIEnv*,jclass,jlong handle) {
         scene.decodes,static_cast<unsigned long long>(audio.events),static_cast<unsigned long long>(audio.decoded),
         static_cast<unsigned long long>(audio.missing),static_cast<unsigned long long>(audio.errors));
 }
-API void JNICALL FN(surface)(JNIEnv* env,jclass,jlong handle,jobject surface) {
+API jlong JNICALL FN(createSurface)(JNIEnv* env,jclass,jobject surface) {
+    try {
+        std::unique_ptr<ANativeWindow,decltype(&ANativeWindow_release)>
+            window(ANativeWindow_fromSurface(env,surface),ANativeWindow_release);
+        if (!window) return 0;
+        auto binding=std::make_shared<SurfaceBinding>(window.get(),ANativeWindow_release);
+        window.release();
+        return reinterpret_cast<jlong>(new SurfaceRef(std::move(binding)));
+    } catch (const std::exception& e) { fail(env,e.what()); return 0; }
+}
+API void JNICALL FN(releaseSurface)(JNIEnv*,jclass,jlong token) {
+    std::unique_ptr<SurfaceRef> binding(reinterpret_cast<SurfaceRef*>(token));
+    if (binding) (*binding)->invalidate();
+}
+API void JNICALL FN(bindSurface)(JNIEnv*,jclass,jlong handle,jlong token) {
     auto& p=player(handle);
-    if (p.window) ANativeWindow_release(p.window);
-    p.window=surface ? ANativeWindow_fromSurface(env,surface) : nullptr;
+    p.surface=token ? *reinterpret_cast<const SurfaceRef*>(token) : SurfaceRef{};
     p.repaint=true;
-    if (p.window) {
-        ANativeWindow_setBuffersGeometry(p.window,static_cast<int>(p.width),static_cast<int>(p.height),WINDOW_FORMAT_RGBA_8888);
-        present(p);
-    } else p.game->capture_screen_layer(false);
+    p.window_geometry_pending=true;
+}
+API void JNICALL FN(presentSurface)(JNIEnv* env,jclass,jlong handle) {
+    try { present(player(handle)); }
+    catch (const std::exception& e) { fail(env,e.what()); }
 }
 API jboolean JNICALL FN(configureMenuBackground)(JNIEnv* env,jclass,jlong handle,jint mode,jbyteArray script,
                                                 jbyteArray background,jboolean repeat) {
@@ -954,7 +979,7 @@ API jint JNICALL FN(saveSlotArt)(JNIEnv* env,jclass,jlong handle) {
 API jlong JNICALL FN(takeScreenLayer)(JNIEnv* env,jclass,jlong handle) {
     try {
         auto& p=player(handle);
-        if (!p.window || !draws_story_ui(p) || !p.game->screen_layer_active()) {
+        if (!has_surface(p) || !draws_story_ui(p) || !p.game->screen_layer_active()) {
             const bool clear=static_cast<bool>(p.screen_layer);
             p.screen_layer.reset();
             p.published_screen_layer.reset();

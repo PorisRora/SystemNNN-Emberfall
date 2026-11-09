@@ -13,6 +13,7 @@ extern "C" {
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 namespace {
 constexpr int audio_rate = 48000;
@@ -84,7 +85,22 @@ struct Decoder {
         codec.ptr->max_pixels = max_pixels;
         codec.ptr->thread_count = type == AVMEDIA_TYPE_VIDEO ? 2 : 1;
         check(avcodec_open2(codec.ptr, decoder, nullptr), "Movie codec");
+        if (type == AVMEDIA_TYPE_VIDEO &&
+            (codec.ptr->width < 1 || codec.ptr->height < 1 ||
+             static_cast<std::int64_t>(codec.ptr->width) * codec.ptr->height > max_pixels))
+            throw std::runtime_error("Movie dimensions exceed the limit");
         if (format.ptr->start_time != AV_NOPTS_VALUE) start_us = format.ptr->start_time;
+        return true;
+    }
+
+    bool set_surface(JNIEnv* env, jobject surface) {
+        Window next;
+        if (surface) {
+            next.ptr = ANativeWindow_fromSurface(env, surface);
+            if (!next.ptr || ANativeWindow_setBuffersGeometry(next.ptr, codec.ptr->width,
+                    codec.ptr->height, WINDOW_FORMAT_RGBA_8888) != 0) return false;
+        }
+        std::swap(window.ptr, next.ptr);
         return true;
     }
 
@@ -156,6 +172,18 @@ struct Decoder {
 };
 
 Decoder& decoder(jlong token) { return *reinterpret_cast<Decoder*>(token); }
+std::unique_ptr<Decoder> open_decoder(JNIEnv* env, jbyteArray path, AVMediaType type) {
+    const auto length = env->GetArrayLength(path);
+    if (length < 1 || length > 4096) throw std::runtime_error("Invalid movie path");
+    std::string name(static_cast<std::size_t>(length), '\0');
+    env->GetByteArrayRegion(path, 0, length, reinterpret_cast<jbyte*>(name.data()));
+    if (env->ExceptionCheck()) return nullptr;
+    if (name.front() != '/' || name.find('\0') != std::string::npos)
+        throw std::runtime_error("Invalid movie path");
+    auto value = std::make_unique<Decoder>();
+    if (!value->open(name, type)) return nullptr;
+    return value;
+}
 void failure(JNIEnv* env, const std::exception& error) {
     if (!env->ExceptionCheck()) env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), error.what());
 }
@@ -165,24 +193,20 @@ void failure(JNIEnv* env, const std::exception& error) {
 
 extern "C" JNIEXPORT jlong JNICALL MOVIE(open)(JNIEnv* env, jclass, jbyteArray path, jobject surface) {
     try {
-        const auto length = env->GetArrayLength(path);
-        if (length < 1 || length > 4096) throw std::runtime_error("Invalid movie path");
-        std::string name(static_cast<std::size_t>(length), '\0');
-        env->GetByteArrayRegion(path, 0, length, reinterpret_cast<jbyte*>(name.data()));
-        if (env->ExceptionCheck()) return 0;
-        if (name.front() != '/' || name.find('\0') != std::string::npos) throw std::runtime_error("Invalid movie path");
-        auto value = std::make_unique<Decoder>();
-        if (!value->open(name, surface ? AVMEDIA_TYPE_VIDEO : AVMEDIA_TYPE_AUDIO)) return 0;
-        if (surface) {
-            const int w = value->codec.ptr->width, h = value->codec.ptr->height;
-            if (w < 1 || h < 1 || static_cast<std::int64_t>(w) * h > max_pixels)
-                throw std::runtime_error("Movie dimensions exceed the limit");
-            value->window.ptr = ANativeWindow_fromSurface(env, surface);
-            if (!value->window.ptr || ANativeWindow_setBuffersGeometry(value->window.ptr, w, h, WINDOW_FORMAT_RGBA_8888) != 0)
-                throw std::runtime_error("Movie surface unavailable");
-        }
+        auto value = open_decoder(env, path, surface ? AVMEDIA_TYPE_VIDEO : AVMEDIA_TYPE_AUDIO);
+        if (value && surface && !value->set_surface(env, surface))
+            throw std::runtime_error("Movie surface unavailable");
         return reinterpret_cast<jlong>(value.release());
     } catch (const std::exception& error) { failure(env, error); return 0; }
+}
+
+extern "C" JNIEXPORT jlong JNICALL MOVIE(openVideo)(JNIEnv* env, jclass, jbyteArray path) {
+    try { return reinterpret_cast<jlong>(open_decoder(env, path, AVMEDIA_TYPE_VIDEO).release()); }
+    catch (const std::exception& error) { failure(env, error); return 0; }
+}
+
+extern "C" JNIEXPORT jboolean JNICALL MOVIE(setSurface)(JNIEnv* env, jclass, jlong token, jobject surface) {
+    return decoder(token).set_surface(env, surface);
 }
 
 extern "C" JNIEXPORT jintArray JNICALL MOVIE(size)(JNIEnv* env, jclass, jlong token) {

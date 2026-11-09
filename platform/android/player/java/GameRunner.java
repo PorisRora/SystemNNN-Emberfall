@@ -177,6 +177,7 @@ final class GameRunner {
     }
     private Future<?> autoWrite;
     private volatile boolean closing;
+    private volatile boolean audioForeground;
     private final GalleryStore galleryStore;
     private final GameProgress progressStore;
     private final CompletableFuture<Void> previousProgress;
@@ -196,7 +197,8 @@ final class GameRunner {
     private PlayerSettings settings;
     private int shownWait=-1,shownWord=-1,shownLine=-1,x,y;
     private long handle,deadline,lastTickAt;
-    private Surface surface;
+    private final Object surfaceOwner=new Object();
+    private volatile long surfaceBinding;
     private boolean active,menuOpen,failed,onTitle,autoMode,skipMode,textDone;
     private int visibleText=-1;
     private DeviceAudio audio;
@@ -417,7 +419,7 @@ final class GameRunner {
         replaying=false; galleryPage=null; currentTitle=title; galleryWritten=unsaved?-1:stored;
         galleryCue=title==null?-1:title.musicNumber();
         gallerySong=-1; galleryMusicPlaying=galleryMusicPaused=false; queueGalleryWrite();
-        System.arraycopy(state,0,meta,0,meta.length);NativeGame.surface(handle,surface);
+        System.arraycopy(state,0,meta,0,meta.length);bindSurface(true);
         ui.style(dialogueStyle);ui.panels(uiAssets);publishQuickSlot();publishParameters();
         if(launching){
             titleBackgroundHeld=true;
@@ -445,7 +447,7 @@ final class GameRunner {
             Log.w("SystemNNN","Unsupported title restartNextMode: "+restart);
         Capture initial=captureEntranceFrame(currentTitle.config);
         startupTitleFramePending=afterStartup&&initial!=null;
-        if(afterStartup&&!startupTitleFramePending)NativeGame.surface(handle,surface);
+        if(afterStartup&&!startupTitleFramePending)bindSurface(true);
         ui.title(currentTitle,meta[3],meta[4],initial,previous);
         Log.i("SystemNNN","Title "+root.getName()+" buttons="+currentTitle.items.size());
         UiPreviewPool.Request settings=UiPreviewPool.Request.read(uiAssets.config,12,1);
@@ -477,7 +479,7 @@ final class GameRunner {
     void titleShown(){tasks.post(()->{
         if(!startupTitleFramePending||closing)return;
         startupTitleFramePending=false;
-        NativeGame.surface(handle,surface);
+        bindSurface(true);
     });}
     void titleInteraction(TitleMenu title,boolean busy){
         if(busy)titleInteraction=title;
@@ -734,7 +736,7 @@ final class GameRunner {
             if(handle!=0)NativeGame.close(handle);
             offerScreenLayer(-1);
             handle=candidate;commitRuntime(candidate);
-            NativeGame.surface(handle,surface);
+            bindSurface(true);
             galleryWritten=unsaved?-1:stored;
         }
         startupStage=null;startupConfig=null;titleBackgroundHeld=false;startupTitleFramePending=false;
@@ -790,16 +792,48 @@ final class GameRunner {
             finally{done.run();}
         });
     }
-    void surface(Surface value){tasks.post(() -> {
-        surface=value;
-        if(handle!=0&&(!startupTitleFramePending||value==null))NativeGame.surface(handle,value);
-        schedule();
-    });}
+    void surface(Surface value){
+        if(closing)return;
+        long binding;
+        try{binding=value==null?0:NativeGame.createSurface(value);}
+        catch(RuntimeException|LinkageError e){
+            replaceSurface(0);
+            tasks.post(()->{if(!closing)broken(e);});
+            return;
+        }
+        replaceSurface(binding);
+        // Read the latest binding on the worker, even when this callback was queued
+        // before another Surface was created or destroyed.
+        tasks.post(()->{
+            if(closing)return;
+            try{bindSurface(!startupTitleFramePending);schedule();}
+            catch(RuntimeException|LinkageError e){broken(e);}
+        });
+    }
+    private void replaceSurface(long binding){
+        long old;
+        synchronized(surfaceOwner){
+            if(closing&&binding!=0)old=binding;
+            else{old=surfaceBinding;surfaceBinding=binding;}
+        }
+        if(old!=0)NativeGame.releaseSurface(old);
+    }
+    private void bindSurface(boolean allowAttach){
+        if(handle==0)return;
+        synchronized(surfaceOwner){
+            if(!allowAttach&&surfaceBinding!=0)return;
+            // Only copy ownership under this monitor. Drawing can block on buffers.
+            NativeGame.bindSurface(handle,surfaceBinding);
+        }
+        NativeGame.presentSurface(handle);
+    }
     void windowFocused(){tasks.post(()->{if(playing()&&audio!=null)audio.requestFocus();});}
     void active(boolean value){
+        audioForeground=value;
         if(value){
             tasks.post(()->{
                 active=true;
+                if(playing()&&audio!=null)audio.requestFocus();
                 if(titleRestartReady)restartTitleSequence();
                 else if(startupStage==StartupStage.LOGO&&startupLogoFinished)advanceStartup(null);
                 else schedule();
@@ -1179,22 +1213,27 @@ final class GameRunner {
     private void startMovie(GalleryCatalog.Movie movie){
         moviePlaying=true;
         tasks.removeCallbacks(ticker);stopSound();
-        if(movie==null||movie.file==null){tasks.post(()->completeMovie("动画文件缺失"));return;}
+        if(movie==null||movie.file==null){
+            tasks.post(()->completeMovie(MoviePlayback.Outcome.FAILED,"动画文件缺失"));
+            return;
+        }
         Log.i("SystemNNN","Movie requested "+movie.file.getName()+" gallery="+onTitle);
         ui.movie(movie.file,NativeGame.movieVolume(handle),movieList.print.number("noSkipFlag",0)==0,false);
     }
-    void finishMovie(String failure){tasks.post(()->completeMovie(failure));}
-    private void completeMovie(String failure){
+    void finishMovie(MoviePlayback.Outcome outcome,String failure){tasks.post(()->completeMovie(outcome,failure));}
+    private void completeMovie(MoviePlayback.Outcome outcome,String failure){
         if(!moviePlaying||closing)return;
         moviePlaying=false;
+        if(outcome==MoviePlayback.Outcome.FAILED){
+            Log.w("SystemNNN","Movie playback failed: "+failure);
+            ui.notice("动画播放 · "+failure);
+        }else Log.i("SystemNNN","Movie playback "+outcome);
         if(startupStage==StartupStage.MOVIE){
-            if(failure!=null)Log.w("SystemNNN","Startup movie playback: "+failure);
             Capture exit=movieExitScreen();
             long wait=DialogueLayout.clamp(startupConfig.number("lastWait",5),0,1000)*(long)Math.max(1,meta[5]);
             tasks.postDelayed(()->advanceStartup(exit),wait);
             return;
         }
-        if(failure!=null){Log.w("SystemNNN","Movie playback: "+failure);ui.notice("动画播放 · "+failure);}
         if(onTitle){
             if(galleryPage!=null)enterGalleryScreen(galleryPage);
         }else try{
@@ -1300,7 +1339,7 @@ final class GameRunner {
             handle=candidate; galleryWritten=stored; onTitle=false; replaying=true; menuOpen=false; history=null;
             current=null; shownWait=-1; x=y=0;
             System.arraycopy(state,0,meta,0,meta.length);
-            NativeGame.surface(handle,surface);
+            bindSurface(true);
             ui.galleryReplayStarted(); queueGalleryWrite();
             if (meta[0]==NativeGame.END) finishReplay();
             else { updateUi(); schedule(); }
@@ -1538,14 +1577,15 @@ final class GameRunner {
     // The original switches out of the story mode while a modal is active.
     // Keep the audio consumer running, but do not step or journal story time.
     private boolean playing(){
-        return active&&surface!=null&&!failed&&!moviePlaying&&startupStage!=StartupStage.MOVIE&&handle!=0&&meta[0]!=NativeGame.END;
+        return active&&surfaceBinding!=0&&!failed&&!moviePlaying&&startupStage!=StartupStage.MOVIE&&handle!=0&&meta[0]!=NativeGame.END;
     }
     private void schedule(){
         tasks.removeCallbacks(ticker);
         if(!playing()){stopSound();return;}
-        if(audio==null)audio=new DeviceAudio(context,tasks,handle,rate,(source,error)->tasks.post(()->{
-            if(audio==source&&!closing)broken(new IOException(error));
-        }));
+        if(audio==null)audio=new DeviceAudio(context,tasks,handle,rate,()->audioForeground&&!closing,
+            ()->ui.notice("系统暂未授予音频焦点。返回游戏或操作时会重试。"),(source,error)->tasks.post(()->{
+                if(audio==source&&!closing)broken(new IOException(error));
+            }));
         deadline=lastTickAt=SystemClock.uptimeMillis();tasks.post(ticker);
     }
     private final Runnable ticker=new Runnable(){public void run(){
@@ -1921,6 +1961,8 @@ final class GameRunner {
     void close(){
         if(closing)return;
         closing=true;
+        audioForeground=false;
+        replaceSurface(0);
         postProgressFlush(() -> {
             try{
                 active=false;tasks.removeCallbacks(ticker);stopSound();writeGallery();
