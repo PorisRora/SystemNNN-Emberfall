@@ -17,6 +17,7 @@ public:
     ~SurfaceBinding() { if (window_) release_(window_); }
 
     bool available() const { return live_.load(std::memory_order_acquire); }
+    void deactivate() noexcept { live_.store(false,std::memory_order_release); }
 
     template<class Draw>
     void submit(Draw&& draw) {
@@ -25,7 +26,7 @@ public:
     }
 
     void invalidate() {
-        live_.store(false,std::memory_order_release);
+        deactivate();
         ANativeWindow* old;
         {
             std::lock_guard lock(mutex_);

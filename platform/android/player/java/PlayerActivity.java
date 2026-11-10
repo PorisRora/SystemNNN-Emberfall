@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.SurfaceTexture;
 
 import android.Manifest;
 import android.app.Activity;
@@ -45,7 +46,8 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     private File game;
     private GameRunner runner;
     private FrameLayout root,stage;
-    private SurfaceView screen;
+    private TextureView screen;
+    private Surface storySurface;
     private Button panelActionButton,otherSavesButton;
     private TextView status;
     private View longPrintBackdrop;
@@ -424,7 +426,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         root.addView(otherSavesButton,otherPosition);
         root.getViewTreeObserver().addOnPreDrawListener(()->{updatePanelActionEnabled();return true;});
         root.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> layoutStage());
-        screen=new SurfaceView(this); screen.setContentDescription("游戏画面");screen.setSoundEffectsEnabled(false);
+        screen=new TextureView(this); screen.setContentDescription("游戏画面");screen.setSoundEffectsEnabled(false);
         stage.addView(screen,new FrameLayout.LayoutParams(-1,-1));
         screen.setOnTouchListener((view,event) -> {
             if (event.getActionMasked()==MotionEvent.ACTION_UP) {advance();view.performClick();}
@@ -458,10 +460,30 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         preferences.registerOnSharedPreferenceChangeListener(settingsListener);
         runner=new GameRunner(getApplicationContext(),game,legacySource,saves,getFilesDir(),preferences,userPreferences,settings,this);
         GameRunner surfaceOwner=runner;
-        screen.getHolder().addCallback(new SurfaceHolder.Callback() {
-            public void surfaceCreated(SurfaceHolder holder) {surfaceOwner.surface(holder.getSurface());}
-            public void surfaceChanged(SurfaceHolder holder,int format,int w,int h) {surfaceOwner.surface(holder.getSurface());}
-            public void surfaceDestroyed(SurfaceHolder holder) {surfaceOwner.surface(null);}
+        screen.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+            private Surface attached;
+            @Override public void onSurfaceTextureAvailable(SurfaceTexture texture,int width,int height){
+                attached=new Surface(texture);
+                storySurface=attached;
+                surfaceOwner.surface(attached);
+            }
+            @Override public void onSurfaceTextureSizeChanged(SurfaceTexture texture,int width,int height){
+                if(attached!=null)surfaceOwner.surface(attached);
+            }
+            @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture){
+                Surface old=attached;
+                attached=null;
+                if(storySurface==old)storySurface=null;
+                surfaceOwner.surface(null);
+                // Abandon the consumer after TextureView detaches it. A blocked producer wakes
+                // without making the UI thread wait for the current native buffer submission.
+                new Handler(Looper.getMainLooper()).post(()->{
+                    try{texture.release();}
+                    finally{if(old!=null)old.release();}
+                });
+                return false;
+            }
+            @Override public void onSurfaceTextureUpdated(SurfaceTexture texture){}
         });
         if (foreground) runner.active(true);
         layoutStage();
@@ -1110,13 +1132,14 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
     private boolean copyTitleForPanel(GameUiPanel panel,Runnable back,GameRunner owner){
         TitlePanel title=titlePanel;
         int w=title.getWidth(),h=title.getHeight();
-        if(w<=0||h<=0||!screen.getHolder().getSurface().isValid())return false;
+        Surface source=storySurface;
+        if(w<=0||h<=0||source==null||!source.isValid())return false;
         float scale=UiOpening.snapshotScale(w,h);
         Bitmap before=Bitmap.createBitmap(Math.max(1,Math.round(w*scale)),Math.max(1,Math.round(h*scale)),Bitmap.Config.ARGB_8888);
         before.setHasAlpha(false);
         try{
             // Read the presented title frame without waiting behind its next script step.
-            PixelCopy.request(screen,before,result->{
+            PixelCopy.request(source,before,result->{
                 if(result!=PixelCopy.SUCCESS){
                     before.recycle();
                     if(preparingPanel==panel)captureForPanel(panel,back,null,true,owner);
@@ -1873,7 +1896,7 @@ public final class PlayerActivity extends Activity implements GameRunner.Listene
         boolean startOver=owner!=null&&owner.initialized();
         String message=startOver?text+"\n\n从头开始会替换现有自动存档（如有）。":text;
         new AlertDialog.Builder(this).setTitle("游戏运行中断").setMessage(message)
-            .setCancelable(startOver)
+            .setCancelable(false)
             .setNegativeButton("返回 TYN",dialogClick((d,w) -> finish()))
             .setPositiveButton(startOver?"从头开始":"重试读取",
                 dialogClick((d,w) -> {if(owner!=null&&owner==runner)owner.restart(startOver);})).show();

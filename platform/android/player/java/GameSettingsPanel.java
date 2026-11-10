@@ -165,7 +165,18 @@ final class GameSettingsPanel extends GameUiPanel {
     private void mode(OriginalSettingsModel.Choice c){
         boolean value=preferences.getBoolean(c.key,c.defaultValue);int selected=c.key.equals("skipReadOnly")?(value?0:1):(value?1:0);
         for(int i=0;i<c.buttons.length;i++){final int option=i;
-            drawButton(c.buttons[i],selected==i,c.label+"："+(i+1),()->{writeBoolean(c.key,c.key.equals("skipReadOnly")?option==0:option!=0);showPage(page);});}
+            String label;
+            switch(c.key){
+                case "fullscreen": label=i==0?"窗口":"全屏";break;
+                case "skipReadOnly": label=i==0?"仅已读":"全部文字";break;
+                case "autoEnabled": label=i==0?"手动":"自动";break;
+                default: label=Integer.toString(i+1);
+            }
+            drawButton(c.buttons[i],selected==i,c.label+" · "+label,()->{
+                writeBoolean(c.key,c.key.equals("skipReadOnly")?option==0:option!=0);
+                showPage(page);
+            });
+        }
     }
     private void extended(OriginalSettingsModel.Extended group){
         String key=RuntimeSettingsAdapter.extendedKey(group.parameter());

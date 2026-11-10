@@ -53,7 +53,7 @@ struct ChartLayerSource {
     bool opaque=false;
 };
 struct ChartLayerScratch {
-    Surface black,white,black_saved,white_saved;
+    Surface frame;
 };
 
 // A detached frame for a host that draws its message UI between the scene and
@@ -104,15 +104,17 @@ public:
     std::unique_ptr<ScreenLayerFrame> take_screen_layer() noexcept { return std::move(screen_layer_); }
     void commit_screen_capture(Surface frame);
     // SELECTCHART interleaves three script layer groups with its own art.
-    // Active targets are full logical-size, premultiplied RGBA8. Empty
-    // groups leave their target untouched and are omitted from the mask.
+    // Active targets are premultiplied RGBA8 at the supplied raster size,
+    // or at logical size when omitted. Empty groups leave targets untouched.
     unsigned chart_layer_mask(unsigned center) const noexcept;
-    unsigned draw_chart_layers(unsigned center,const std::array<ChartLayerTarget,3>& targets,ChartLayerScratch& scratch);
+    unsigned draw_chart_layers(unsigned center,const std::array<ChartLayerTarget,3>& targets,ChartLayerScratch& scratch,
+                               unsigned raster_width=0,unsigned raster_height=0);
     bool chart_needs_composite(unsigned center) const noexcept;
     // Read opaque tiles, then insert the two premultiplied panes between
     // script ranges. A missing center or content pane is transparent.
     bool draw_chart_composite(unsigned center,ChartLayerSource base,ChartLayerSource center_plane,
-                              ChartLayerSource content,ChartLayerTarget target,ChartLayerScratch& scratch);
+                              ChartLayerSource content,ChartLayerTarget target,ChartLayerScratch& scratch,
+                              unsigned raster_width=0,unsigned raster_height=0);
     std::uint64_t composition_revision() const noexcept { return revision_; }
     void saved_screen(Surface frame,bool background=false);
     bool needs_redraw() const noexcept { return dirty_ || output_changed_; }
@@ -127,8 +129,11 @@ public:
     void load_snapshot(nnn::snapshot::Reader& in,const std::function<std::shared_ptr<const Texture>(const std::string&)>& texture,
                        bool compact_output=true,bool typed_overlap=true,bool opacity_field=true,bool once_state=true,
                        bool particle_state=true,bool decorated_overlap=false);
+    static unsigned inspect_snapshot(nnn::snapshot::Reader& in,bool compact_output,bool typed_overlap,
+                                     bool opacity_field,bool once_state,bool particle_state,bool decorated_overlap);
 
 private:
+    Layers()=default;
     std::array<Layer,32> slots_;
     TextureReader animation_textures_;
     Surface output_, previous_, target_, saved_, overlap_display_;

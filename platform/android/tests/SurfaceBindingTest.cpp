@@ -38,6 +38,10 @@ void waits_for_an_active_submission() {
         });
     });
     check(entered_future.wait_for(5s)==std::future_status::ready,"Render worker did not enter submission");
+    auto deactivate=std::async(std::launch::async,[&] { binding->deactivate(); });
+    check(deactivate.wait_for(5s)==std::future_status::ready,"Deactivation waited for an active submission");
+    deactivate.get();
+    check(!binding->available() && window.releases==0,"Deactivation must stop new draws without releasing the active window");
     auto destroy=std::async(std::launch::async,[&] { binding->invalidate(); });
     auto deadline=std::chrono::steady_clock::now()+5s;
     while (binding->available() && std::chrono::steady_clock::now()<deadline) std::this_thread::yield();

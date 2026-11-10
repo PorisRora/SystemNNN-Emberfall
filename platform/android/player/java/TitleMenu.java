@@ -63,7 +63,7 @@ final class TitleMenu {
             ButtonArt.Setup setup=button.setup;
             boolean enabled=button.enabled&&(action!=Action.EXTRAS||extras);
             Item item=new Item(action,button.x,button.y,setup.width,setup.height,enabled,
-                button.mode,action==Action.MODE?button.label:action.label);
+                button.mode,button.label==null||button.label.isEmpty()?action.label:button.label);
             if(skinned){
                 item.spec=new GameButton.Spec(setup);
                 loadArtwork(handle,item,artwork);

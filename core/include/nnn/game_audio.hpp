@@ -128,7 +128,10 @@ public:
     // playing loop of the same program keeps its current sample position.
     void load_snapshot(snapshot::Reader& in,bool keep_music_position=false,
                        std::optional<unsigned> jump_voice_mask={},bool finish_script_fades=false);
+    static void inspect_snapshot(snapshot::Reader& in);
 private:
+    void read_snapshot(snapshot::Reader& in,bool keep_music_position,
+                       std::optional<unsigned> jump_voice_mask,bool finish_script_fades,bool inspect);
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };

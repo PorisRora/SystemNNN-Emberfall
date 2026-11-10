@@ -430,7 +430,7 @@ final class GameGalleryPanel extends GameUiPanel {
             super(GameGalleryPanel.this.getContext());
             this.cell=cell; this.image=image; this.source=source; this.frame=frame; this.cursor=cursor; this.dark=dark;
             ColorMatrix matrix=new ColorMatrix(); matrix.setSaturation(0); gray=new ColorMatrixColorFilter(matrix);
-            setContentDescription(cell.label+(cell.enabled?"":" · 未解锁"));
+            setContentDescription(cell.label+(cell.missingMovie?" · 动画文件缺失":cell.enabled?"":" · 未解锁"));
             setSoundEffectsEnabled(false);
         }
         boolean startMovieSelection(){

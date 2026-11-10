@@ -55,13 +55,16 @@ private:
 
 class Reader {
 public:
-    explicit Reader(const Bytes& bytes):bytes_(bytes) { if (bytes.size()>max_bytes) invalid("Snapshot exceeds capacity"); }
+    explicit Reader(const Bytes& bytes):Reader(bytes.data(),bytes.size()) {}
+    Reader(const std::uint8_t* data,std::size_t length):data_(data),length_(length) {
+        if (length>max_bytes || (!data && length)) invalid("Invalid snapshot buffer");
+    }
     template<class... T> void operator()(T&... fields) { (value(fields),...); }
     const std::uint8_t* raw(std::size_t length) {
         if (length>remaining()) invalid("Truncated snapshot");
-        const auto* start=bytes_.data()+position_;position_+=length;return start;
+        const auto* start=position_ ? data_+position_ : data_;position_+=length;return start;
     }
-    std::size_t remaining() const { return bytes_.size()-position_; }
+    std::size_t remaining() const { return length_-position_; }
     std::size_t size(std::size_t maximum) {
         std::uint32_t n=0;value(n);
         if (n>maximum || n>remaining()) invalid("Invalid snapshot field length");
@@ -92,7 +95,8 @@ private:
     template<class T> void value(std::vector<T>& v) {
         records(v,65536,[](Reader& in,T& item){in.value(item);});
     }
-    const Bytes& bytes_;
+    const std::uint8_t* data_;
+    std::size_t length_;
     std::size_t position_=0;
 };
 } // namespace nnn::snapshot

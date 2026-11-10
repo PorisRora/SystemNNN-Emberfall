@@ -820,7 +820,10 @@ final class GameRunner {
             if(closing&&binding!=0)old=binding;
             else{old=surfaceBinding;surfaceBinding=binding;}
         }
-        if(old!=0)NativeGame.releaseSurface(old);
+        if(old!=0){
+            NativeGame.deactivateSurface(old);
+            if(!tasks.post(()->NativeGame.releaseSurface(old)))NativeGame.releaseSurface(old);
+        }
     }
     private void bindSurface(boolean allowAttach){
         if(handle==0)return;

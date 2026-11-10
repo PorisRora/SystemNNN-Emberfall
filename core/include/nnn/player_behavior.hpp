@@ -144,8 +144,13 @@ public:
         if (script_speed_<0 || script_speed_>5 || text_remainder_>=1000 || visible_>text_length_ || auto_message_elapsed_<0)
             snapshot::invalid("Invalid snapshot dialogue clock");
     }
+    static void inspect_snapshot(snapshot::Reader& in) {
+        PlayerBehavior state;
+        state.load_snapshot(in);
+    }
 
 private:
+    PlayerBehavior()=default;
     template<class A,class B> static void snapshot_fields(A& a,B& b) {
         a(b.has_voice_,b.script_speed_,b.text_remainder_,b.visible_,b.text_length_,b.length_known_,b.auto_frame_eligible_,
             b.auto_remaining_ms_,b.auto_message_elapsed_,b.auto_message_voice_remaining_);
@@ -166,7 +171,7 @@ private:
     std::size_t index(Word parameter) const noexcept {
         return static_cast<std::size_t>(std::clamp<Value>(parameters_->get(parameter),0,4));
     }
-    RuntimeParameters* parameters_;
+    RuntimeParameters* parameters_=nullptr;
     std::array<std::uint32_t,5> text_rates_{{20,40,60,120,10000}},auto_rates_{};
     std::array<int,5> voice_wait_{},silent_wait_{},auto_voice_wait_{},auto_silent_wait_{};
     bool use_auto_wait_=false,use_auto_slider_for_text_=false,has_voice_=false;

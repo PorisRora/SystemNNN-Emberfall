@@ -62,6 +62,44 @@ bool is_dialogue(const detail::Record& r) {
     return r.identify==detail::identify_systemcommand &&
         (r.code==detail::command_print || r.code==detail::command_lprint || r.code==detail::command_append);
 }
+
+struct SavedScriptSlot {
+    struct Call { Word return_pc=0,id=0; };
+    std::string path;
+    std::uint64_t fingerprint=0;
+    Word pc=0,conditional=no_word,script_call_slot=0,command_call_slot=no_word;
+    bool loaded=false,script_call_valid=false,selected=false;
+    std::vector<Call> calls;
+};
+
+struct SavedScheduler {
+    std::uint8_t active=0;
+    DecodeParameters parameters;
+    std::array<SavedScriptSlot,script_mode_count> slots;
+};
+
+SavedScheduler read_scheduler_snapshot(snapshot::Reader& in,bool has_command_slots) {
+    SavedScheduler saved;
+    in(saved.active,saved.parameters.xor_key,saved.parameters.key_step,saved.parameters.increment_step);
+    if (saved.active>=saved.slots.size()) snapshot::invalid("Invalid active script slot");
+    for (std::size_t i=0;i<saved.slots.size();++i) {
+        auto& slot=saved.slots[i];
+        in(slot.loaded);
+        if (i<=saved.active && !slot.loaded) snapshot::invalid("Missing active script slot");
+        if (!slot.loaded) continue;
+        in(slot.path,slot.fingerprint);
+        if (!valid_pc_path(slot.path)) snapshot::invalid("Invalid script snapshot path");
+        in(slot.pc,slot.conditional,slot.script_call_slot,slot.script_call_valid,slot.selected);
+        if (slot.pc==no_word) snapshot::invalid("Invalid script snapshot position");
+        if (slot.selected && i!=saved.active) snapshot::invalid("Invalid snapshot selection");
+        if (has_command_slots) in(slot.command_call_slot);
+        in.records(slot.calls,max_call_depth,[](auto& reader,auto& call){
+            reader(call.return_pc,call.id);
+            if (call.return_pc==no_word) snapshot::invalid("Invalid snapshot return position");
+        });
+    }
+    return saved;
+}
 } // namespace
 
 ScriptScheduler::ScriptScheduler(CScriptCallBack& callback, Reader reader, const FunctionRegistry* registry)
@@ -105,11 +143,16 @@ void ScriptScheduler::save_snapshot(snapshot::Writer& out,bool include_command_s
     }
 }
 
+ScriptScheduler::SnapshotPosition ScriptScheduler::inspect_snapshot(snapshot::Reader& in,bool has_command_slots) {
+    auto saved=read_scheduler_snapshot(in,has_command_slots);
+    auto& active=saved.slots[saved.active];
+    return {std::move(active.path),active.pc,active.selected};
+}
+
 void ScriptScheduler::load_snapshot(snapshot::Reader& in,const ScriptScheduler* cached,bool has_command_slots) {
     if (busy_ || !reader_) snapshot::invalid("Scheduler cannot load a snapshot now");
-    std::uint8_t active=0;DecodeParameters parameters;
-    in(active,parameters.xor_key,parameters.key_step,parameters.increment_step);
-    if (active>=slots_.size()) snapshot::invalid("Invalid active script slot");
+    const auto saved=read_scheduler_snapshot(in,has_command_slots);
+    const auto& parameters=saved.parameters;
     const bool reuse=cached && cached->parameters_.xor_key==parameters.xor_key &&
         cached->parameters_.key_step==parameters.key_step && cached->parameters_.increment_step==parameters.increment_step &&
         cached->has_registry_==has_registry_ && cached->registry_.Size()==registry_.Size() &&
@@ -118,12 +161,10 @@ void ScriptScheduler::load_snapshot(snapshot::Reader& in,const ScriptScheduler* 
     const auto* registry=has_registry_?&registry_:nullptr;
     for (std::size_t i=0;i<fresh.size();++i) {
         auto vm=make_vm(static_cast<ScriptMode>(i));
-        bool loaded=false;in(loaded);
-        if (i<=active && !loaded) snapshot::invalid("Missing active script slot");
-        if (loaded) {
-            std::string path;std::uint64_t fingerprint=0;
-            in(path,fingerprint);
-            if (!valid_pc_path(path)) snapshot::invalid("Invalid script snapshot path");
+        const auto& slot=saved.slots[i];
+        if (slot.loaded) {
+            const auto& path=slot.path;
+            const auto fingerprint=slot.fingerprint;
             if (reuse) for (const auto& previous:cached->slots_) {
                 if (previous->program_ && previous->identity_==path && previous->program_->fingerprint==fingerprint) {
                     vm->program_=previous->program_;vm->identity_=path;break;
@@ -134,26 +175,27 @@ void ScriptScheduler::load_snapshot(snapshot::Reader& in,const ScriptScheduler* 
                 if (!status || vm->program_->fingerprint!=fingerprint) snapshot::invalid("Snapshot script has changed");
             }
             const auto& program=*vm->program_;
-            bool selected=false;
-            in(vm->pc_,vm->conditional_entry_,vm->script_call_slot_,vm->script_call_slot_valid_,selected);
-            if (has_command_slots) {
-                in(vm->command_call_slot_);
-                if (vm->command_call_slot_!=no_word && !command_adjustment(program,vm->command_call_slot_))
-                    snapshot::invalid("Invalid snapshot user command adjustment");
-            }
+            vm->pc_=slot.pc;
+            vm->conditional_entry_=slot.conditional;
+            vm->script_call_slot_=slot.script_call_slot;
+            vm->script_call_slot_valid_=slot.script_call_valid;
+            vm->command_call_slot_=slot.command_call_slot;
+            if (vm->command_call_slot_!=no_word && !command_adjustment(program,vm->command_call_slot_))
+                snapshot::invalid("Invalid snapshot user command adjustment");
             if (!instruction_boundary(program,vm->pc_) ||
                 (vm->conditional_entry_!=no_word && !instruction_boundary(program,vm->conditional_entry_)))
                 snapshot::invalid("Invalid script snapshot position");
-            vm->call_depth_=in.size(max_call_depth);
+            vm->call_depth_=slot.calls.size();
             for (std::size_t j=0;j<vm->call_depth_;++j) {
-                auto& call=vm->call_frames_[j];in(call.return_pc,call.id);
+                const auto& call=slot.calls[j];
                 if (!instruction_boundary(program,call.return_pc)) snapshot::invalid("Invalid snapshot return position");
+                vm->call_frames_[j]={call.return_pc,call.id};
             }
-            if (selected && (i!=active || !vm->rebuild_selection())) snapshot::invalid("Invalid snapshot selection");
+            if (slot.selected && !vm->rebuild_selection()) snapshot::invalid("Invalid snapshot selection");
         }
         fresh[i]=std::move(vm);
     }
-    slots_.swap(fresh);pending_child_.reset();mode_=static_cast<ScriptMode>(active);parameters_=parameters;last_status_={};
+    slots_.swap(fresh);pending_child_.reset();mode_=static_cast<ScriptMode>(saved.active);parameters_=parameters;last_status_={};
 }
 
 bool ScriptScheduler::pc_adjustment_ids() const noexcept {

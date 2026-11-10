@@ -802,17 +802,30 @@ void GameAudio::save_snapshot(snapshot::Writer& out) const {
 
 void GameAudio::load_snapshot(snapshot::Reader& in,bool keep_music_position,
                               std::optional<unsigned> jump_voice_mask,bool finish_script_fades) {
+    read_snapshot(in,keep_music_position,jump_voice_mask,finish_script_fades,false);
+}
+
+void GameAudio::inspect_snapshot(snapshot::Reader& in) {
+    Settings settings;
+    settings.enabled=false;
+    GameAudio state({},settings);
+    state.read_snapshot(in,false,{},false,true);
+}
+
+void GameAudio::read_snapshot(snapshot::Reader& in,bool keep_music_position,
+                              std::optional<unsigned> jump_voice_mask,bool finish_script_fades,bool inspect) {
     using snapshot::invalid;
     std::lock_guard<std::mutex> command(impl_->commands);
     unsigned rate=0;bool paused=false,last=false,next=false;
     int se_fade=0,voice_fade=0;
     in(rate,paused,se_fade,voice_fade,last,next);
-    if (rate!=impl_->settings.sample_rate) invalid("Snapshot audio sample rate has changed");
+    if (rate<8000 || rate>192000 || (!inspect && rate!=impl_->settings.sample_rate))
+        invalid("Invalid snapshot audio sample rate");
     std::optional<std::pair<int,int>> last_music;
     std::optional<int> next_music;
     if (last) {
         last_music.emplace();in(last_music->first,last_music->second);
-        if (!impl_->files.has_bgm(last_music->first)) invalid("Invalid snapshot BGM number");
+        if (!inspect && !impl_->files.has_bgm(last_music->first)) invalid("Invalid snapshot BGM number");
     }
     if (next) { next_music.emplace();in(*next_music); }
     std::vector<int> flags;in(flags);
@@ -825,7 +838,7 @@ void GameAudio::load_snapshot(snapshot::Reader& in,bool keep_music_position,
     const auto track=[&](Track& t,int kind) {
         in(t.active);
         if (!t.active) return;
-        if (!impl_->settings.enabled) invalid("Cannot restore active audio when playback is disabled");
+        if (!inspect && !impl_->settings.enabled) invalid("Cannot restore active audio when playback is disabled");
         std::string name,segment;std::uint64_t frames=0;unsigned source_rate=0;
         in(name,t.source_number,segment,frames,source_rate);track_fields(in,t);
         if (name.empty() || name.size()>255 || name.find('\0')!=std::string::npos || t.remaining<0 ||
@@ -833,6 +846,11 @@ void GameAudio::load_snapshot(snapshot::Reader& in,bool keep_music_position,
             t.gain.reference_base<0 || t.gain.reference_base>100 || t.gain.role>=character_levels ||
             t.character< -1 || t.character>=72 || std::abs(t.pan.from)>1 || std::abs(t.pan.to)>1)
             invalid("Invalid snapshot audio track");
+        if (source_rate==0 || t.phase/rate>=frames || (kind!=0 && t.part!=0))
+            invalid("Invalid snapshot audio position");
+        for (const auto* curve:{&t.gain.from,&t.gain.to}) for (const auto gain:*curve)
+            if (gain<0 || gain>100) invalid("Invalid snapshot audio gain");
+        if (inspect) return;
         const auto matches=[&](const Program& program) {
             if (t.part>=program.parts.size()) return false;
             const auto& info=program.parts[t.part]->info;
@@ -849,16 +867,15 @@ void GameAudio::load_snapshot(snapshot::Reader& in,bool keep_music_position,
             p.name=name;p.parts.push_back(kind==1?impl_->files.speech(name):impl_->files.se(t.source_number,false));
             t.program=std::make_shared<Program>(std::move(p));
         }
-        if (!matches(*t.program) || t.phase/rate>=frames)
+        if (!matches(*t.program))
             invalid("Snapshot audio resource has changed");
-        for (const auto* curve:{&t.gain.from,&t.gain.to}) for (const auto gain:*curve)
-            if (gain<0 || gain>100) invalid("Invalid snapshot audio gain");
     };
     auto tracks=std::make_unique<ScriptTracks>();
     track(tracks->song,0);track(tracks->outgoing,0);
     for (auto& t:tracks->voices) track(t,1);
     for (auto& t:tracks->sounds) track(t,2);
     if (in.remaining()) invalid("Unexpected data at end of snapshot");
+    if (inspect) return;
     {
         std::lock_guard<std::mutex> mix(impl_->mixer);
         if (jump_voice_mask) {

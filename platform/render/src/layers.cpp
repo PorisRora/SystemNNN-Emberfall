@@ -366,17 +366,33 @@ template<class Plane> bool chart_extent(const Plane& plane,std::size_t row_bytes
     return plane.pixels && plane.stride>=row_bytes && plane.size>=row_bytes &&
         height-1U<=(plane.size-row_bytes)/plane.stride;
 }
-void chart_over(Surface& out,ChartLayerSource pane) {
+std::size_t chart_sample(unsigned pixel,unsigned source,unsigned destination) {
+    // Expanding the input plane must put each pixel back at the logical
+    // coordinate used to sample it when reading the composed frame out.
+    if (source<destination) return ((std::size_t{pixel}+1)*source-1)/destination;
+    return std::size_t{pixel}*source/destination;
+}
+std::vector<std::size_t> chart_columns(unsigned source_width,unsigned width,unsigned channels) {
+    std::vector<std::size_t> columns(width);
+    for (unsigned x=0;x<width;++x)
+        columns[x]=chart_sample(x,source_width,width)*channels;
+    return columns;
+}
+void chart_over(Surface& out,ChartLayerSource pane,const std::vector<std::size_t>& columns,
+                unsigned source_height,bool require_opaque=false) {
     if (!pane.pixels) return;
     auto* dst=out.rgb.data();
     for (unsigned y=0;y<out.height;++y) {
-        const auto* src=pane.pixels+static_cast<std::size_t>(y)*pane.stride;
-        for (unsigned x=0;x<out.width;++x,dst+=3,src+=4) {
+        const auto* row=pane.pixels+chart_sample(y,source_height,out.height)*pane.stride;
+        for (const auto offset:columns) {
+            const auto* src=row+offset;
             const unsigned alpha=pane.opaque?255U:src[3];
+            if (require_opaque && alpha!=255) throw std::invalid_argument("Chart base must be opaque");
             if (alpha==255) std::copy_n(src,3,dst);
             else if (alpha)
                 for (unsigned c=0;c<3;++c)
                     dst[c]=static_cast<Byte>(std::min(255U,src[c]+(dst[c]*(255U-alpha)+127U)/255U));
+            dst+=3;
         }
     }
 }
@@ -542,50 +558,55 @@ bool Layers::chart_needs_composite(unsigned center) const noexcept {
         if (first<last && std::any_of(slots_.begin()+first,slots_.begin()+last,chart_composite_layer)) return true;
     return false;
 }
-unsigned Layers::draw_chart_layers(unsigned center,const std::array<ChartLayerTarget,3>& targets,ChartLayerScratch& scratch) {
+unsigned Layers::draw_chart_layers(unsigned center,const std::array<ChartLayerTarget,3>& targets,ChartLayerScratch& scratch,
+                                   unsigned raster_width,unsigned raster_height) {
     const auto mask=chart_layer_mask(center);
     if (!mask) return 0;
     if (chart_needs_composite(center)) throw std::logic_error("Chart effects require the composed backdrop");
-    const auto row_bytes=std::size_t{width()}*4;
+    const auto w=raster_width ? raster_width : width(),h=raster_height ? raster_height : height();
+    if (w>width() || h>height()) throw std::invalid_argument("Invalid chart raster size");
+    const auto row_bytes=std::size_t{w}*4;
     for (unsigned group=0;group<targets.size();++group) {
-        if ((mask&(1U<<group)) && !chart_extent(targets[group],row_bytes,height()))
+        if ((mask&(1U<<group)) && !chart_extent(targets[group],row_bytes,h))
             throw std::invalid_argument("Invalid chart layer target extent");
     }
-    for (auto* surface:{&scratch.black,&scratch.white}) {
-        surface->width=width();surface->height=height();surface->rgb.resize(output_.rgb.size());
-    }
-    scratch.black_saved.rgb.clear();scratch.white_saved.rgb.clear();
-    const auto saved=[&](const Surface& local) -> const Surface& { return local.rgb.empty() ? saved_ : local; };
+    auto& matte=scratch.frame;
+    matte.width=width();matte.height=height();matte.rgb.resize(output_.rgb.size());
+    const auto columns=chart_columns(width(),w,3);
     const auto ranges=chart_ranges(center);
     bool once_changed=false;
     for (unsigned group=0;group<ranges.size();++group) {
         if (!(mask&(1U<<group))) continue;
-        auto& black=scratch.black;
-        auto& white=scratch.white;
-        std::fill(black.rgb.begin(),black.rgb.end(),Byte{0});
-        std::fill(white.rgb.begin(),white.rgb.end(),Byte{255});
         const auto [first,last]=ranges[group];
-        for (unsigned slot=first;slot<last;++slot) {
-            const auto& layer=slots_[slot];
-            if (!chart_layer(layer)) continue;
-            auto* once=layer.effect==75 ? layer.effect_state.get() : nullptr;
-            const bool was_drawn=once && once->once_drawn;
-            draw(black,slots_,slot,saved(scratch.black_saved),scratch.black_saved,animation_textures_,animation_off_,speaking_,true);
-            if (once) once->once_drawn=was_drawn;
-            draw(white,slots_,slot,saved(scratch.white_saved),scratch.white_saved,animation_textures_,animation_off_,speaking_,true);
-            once_changed|=once && once->once_drawn!=was_drawn;
-        }
         const auto& target=targets[group];
-        const auto* b=black.rgb.data();
-        const auto* w=white.rgb.data();
-        for (unsigned y=0;y<height();++y) {
-            auto* pixel=target.pixels+static_cast<std::size_t>(y)*target.stride;
-            for (unsigned x=0;x<width();++x,pixel+=4,b+=3,w+=3) {
-                std::copy_n(b,3,pixel);
-                // Reconstruct coverage with the original renderer's integer
-                // rounding and keep the black matte RGB premultiplied.
-                const auto remaining=std::min({w[0]-b[0],w[1]-b[1],w[2]-b[2]});
-                pixel[3]=static_cast<Byte>(255-std::max(0,remaining));
+        std::array<bool,32> once_drawn{};
+        // Reuse one logical-size surface for both mattes. Only the sampled
+        // black RGB is retained in the destination while the white matte draws.
+        for (const auto white:{false,true}) {
+            std::fill(matte.rgb.begin(),matte.rgb.end(),white ? Byte{255} : Byte{0});
+            for (unsigned slot=first;slot<last;++slot) {
+                const auto& layer=slots_[slot];
+                if (!chart_layer(layer)) continue;
+                auto* once=layer.effect==75 ? layer.effect_state.get() : nullptr;
+                if (once) {
+                    if (white) once->once_drawn=once_drawn[slot];
+                    else once_drawn[slot]=once->once_drawn;
+                }
+                draw(matte,slots_,slot,saved_,saved_,animation_textures_,animation_off_,speaking_,true);
+                once_changed|=white && once && once->once_drawn!=once_drawn[slot];
+            }
+            for (unsigned y=0;y<h;++y) {
+                const auto* row=matte.rgb.data()+chart_sample(y,height(),h)*width()*3;
+                auto* pixel=target.pixels+static_cast<std::size_t>(y)*target.stride;
+                for (const auto offset:columns) {
+                    const auto* color=row+offset;
+                    if (white) {
+                        // Reconstruct coverage with the renderer's integer rounding.
+                        const auto remaining=std::min({color[0]-pixel[0],color[1]-pixel[1],color[2]-pixel[2]});
+                        pixel[3]=static_cast<Byte>(255-std::max(0,remaining));
+                    } else std::copy_n(color,3,pixel);
+                    pixel+=4;
+                }
             }
         }
     }
@@ -593,24 +614,21 @@ unsigned Layers::draw_chart_layers(unsigned center,const std::array<ChartLayerTa
     return mask;
 }
 bool Layers::draw_chart_composite(unsigned center,ChartLayerSource base,ChartLayerSource center_plane,
-                                  ChartLayerSource content,ChartLayerTarget target,ChartLayerScratch& scratch) {
+                                  ChartLayerSource content,ChartLayerTarget target,ChartLayerScratch& scratch,
+                                  unsigned raster_width,unsigned raster_height) {
     if (!chart_needs_composite(center)) return false;
-    const auto row_bytes=std::size_t{width()}*4;
-    if (!chart_extent(base,row_bytes,height()) || !chart_extent(target,row_bytes,height()) ||
-        (center_plane.pixels && !chart_extent(center_plane,row_bytes,height())) ||
-        (content.pixels && !chart_extent(content,row_bytes,height())))
+    const auto w=raster_width ? raster_width : width(),h=raster_height ? raster_height : height();
+    if (w>width() || h>height()) throw std::invalid_argument("Invalid chart raster size");
+    const auto row_bytes=std::size_t{w}*4;
+    if (!chart_extent(base,row_bytes,h) || !chart_extent(target,row_bytes,h) ||
+        (center_plane.pixels && !chart_extent(center_plane,row_bytes,h)) ||
+        (content.pixels && !chart_extent(content,row_bytes,h)))
         throw std::invalid_argument("Invalid chart composition extent");
 
-    auto& out=scratch.black;
+    auto& out=scratch.frame;
     out.width=width();out.height=height();out.rgb.resize(output_.rgb.size());
-    auto* dst=out.rgb.data();
-    for (unsigned y=0;y<height();++y) {
-        const auto* src=base.pixels+static_cast<std::size_t>(y)*base.stride;
-        for (unsigned x=0;x<width();++x,dst+=3,src+=4) {
-            if (!base.opaque && src[3]!=255) throw std::invalid_argument("Chart base must be opaque");
-            std::copy_n(src,3,dst);
-        }
-    }
+    const auto input_columns=chart_columns(w,width(),4);
+    chart_over(out,base,input_columns,h,true);
 
     bool state_changed=false;
     const auto ranges=chart_ranges(center);
@@ -625,16 +643,18 @@ bool Layers::draw_chart_composite(unsigned center,ChartLayerSource base,ChartLay
             draw(out,slots_,slot,saved_,saved_,animation_textures_,animation_off_,speaking_,true);
             state_changed|=once && once->once_drawn!=was_drawn;
         }
-        if (group==0) chart_over(out,center_plane);
-        else if (group==1) chart_over(out,content);
+        if (group==0) chart_over(out,center_plane,input_columns,h);
+        else if (group==1) chart_over(out,content,input_columns,h);
     }
     if (state_changed) invalidate();
-    const auto* src=out.rgb.data();
-    for (unsigned y=0;y<height();++y) {
+    const auto output_columns=chart_columns(width(),w,3);
+    for (unsigned y=0;y<h;++y) {
+        const auto* row=out.rgb.data()+chart_sample(y,height(),h)*width()*3;
         auto* pixel=target.pixels+static_cast<std::size_t>(y)*target.stride;
-        for (unsigned x=0;x<width();++x,pixel+=4,src+=3) {
-            std::copy_n(src,3,pixel);
+        for (const auto offset:output_columns) {
+            std::copy_n(row+offset,3,pixel);
             pixel[3]=255;
+            pixel+=4;
         }
     }
     return true;
@@ -738,24 +758,49 @@ void Layers::save_snapshot(nnn::snapshot::Writer& out,bool decorated_overlap) co
     }
     if (decorated_overlap) surface_fields(out,overlap_display_);
 }
+unsigned Layers::inspect_snapshot(nnn::snapshot::Reader& in,bool compact_output,bool typed_overlap,
+                                  bool opacity_field,bool once_state,bool particle_state,bool decorated_overlap) {
+    Layers state;
+    state.load_snapshot(in,{},compact_output,typed_overlap,opacity_field,once_state,particle_state,decorated_overlap);
+    return state.overlap_remaining();
+}
+
 void Layers::load_snapshot(nnn::snapshot::Reader& in,const std::function<std::shared_ptr<const Texture>(const std::string&)>& texture,
                            bool compact_output,bool typed_overlap,bool opacity_field,bool once_state,bool particle_state,bool decorated_overlap) {
     using nnn::snapshot::invalid;
-    const auto width=output_.width,height=output_.height;
-    const auto bytes=output_.rgb.size();
+    const bool inspect=!texture;
+    auto width=output_.width,height=output_.height;
+    auto bytes=output_.rgb.size();
     in(overlap_time_,overlap_count_,hidden_,dirty_,output_changed_,saved_background_);
     overlap_type_=0;
     if (typed_overlap) in(overlap_type_);
     if (!supports_wipe(overlap_type_) || (!overlapping() && overlap_type_)) invalid("Invalid snapshot wipe type");
     Surface rendered;
-    for (auto* s:{&rendered,&previous_,&target_,&saved_}) {
-        surface_fields(in,*s);
-        if (s!=&rendered && s->rgb.empty() && s->width==0 && s->height==0) continue;
-        if (s==&rendered && compact_output && (!overlapping() || decorated_overlap) &&
-            s->rgb.empty() && s->width==width && s->height==height) continue;
-        if (s->width!=width || s->height!=height || s->rgb.size()!=bytes) invalid("Invalid snapshot surface dimensions");
-    }
-    if ((overlap_time_ && (overlap_count_>=overlap_time_ || previous_.rgb.empty() || target_.rgb.empty())) ||
+    const auto read_surface=[&](Surface& surface,bool primary,bool optional) {
+        in(surface.width,surface.height);
+        if (inspect && primary) {
+            width=surface.width;
+            height=surface.height;
+            if (!width || !height || width>max_dimension || height>max_dimension ||
+                static_cast<std::uint64_t>(width)*height>max_pixels)
+                invalid("Invalid snapshot canvas size");
+            bytes=static_cast<std::size_t>(width)*height*3;
+        }
+        const auto length=in.size(nnn::snapshot::max_bytes);
+        if (!inspect && !length) surface.rgb.clear();
+        if (!length && optional && !surface.width && !surface.height) return false;
+        const bool cached=primary && compact_output && (!overlapping() || decorated_overlap) && !length;
+        if (surface.width!=width || surface.height!=height || (!cached && length!=bytes))
+            invalid("Invalid snapshot surface dimensions");
+        const auto* rgb=in.raw(length);
+        if (!inspect && length) surface.rgb.assign(rgb,rgb+length);
+        return length!=0;
+    };
+    read_surface(rendered,true,false);
+    const bool previous_present=read_surface(previous_,false,true);
+    const bool target_present=read_surface(target_,false,true);
+    read_surface(saved_,false,true);
+    if ((overlap_time_ && (overlap_count_>=overlap_time_ || !previous_present || !target_present)) ||
         (!overlap_time_ && overlap_count_)) invalid("Invalid snapshot overlap");
     for (unsigned slot=0;slot<slots_.size();++slot) {
         auto& l=slots_[slot];
@@ -766,7 +811,7 @@ void Layers::load_snapshot(nnn::snapshot::Reader& in,const std::function<std::sh
         const bool old_fallback=effects::known(l.effect) && !effects::known_v5(l.effect) && !state;
         if (name.size()>Texture::max_asset_id_bytes || name.find('\0')!=std::string::npos || l.parameters.size()>4096 ||
             (effects::known(l.effect) && !old_fallback && (!state || l.parameters.size()<36))) invalid("Invalid snapshot layer");
-        if (!name.empty()) {
+        if (!inspect && !name.empty()) {
             l.texture=texture(name);
             if (!l.texture) invalid("Snapshot texture is unavailable");
         }
@@ -780,25 +825,23 @@ void Layers::load_snapshot(nnn::snapshot::Reader& in,const std::function<std::sh
             if (particle_state && l.effect==97) {
                 const auto area=l.texture && l.texture->has_mask?
                     static_cast<std::uint64_t>(l.texture->pixels.width)*l.texture->pixels.height:0;
-                const auto size=in.size(static_cast<std::size_t>(std::min(area,max_pixels)));
+                const auto maximum=inspect && !name.empty() ? max_pixels : std::min(area,max_pixels);
+                const auto size=in.size(static_cast<std::size_t>(maximum));
                 if (size) {
-                    if (size!=area) invalid("Invalid condensation mask dimensions");
+                    if (!inspect && size!=area) invalid("Invalid condensation mask dimensions");
                     const auto* bytes=in.raw(size);
-                    l.effect_state->condensation.assign(bytes,bytes+size);
+                    if (!inspect) l.effect_state->condensation.assign(bytes,bytes+size);
                 }
             }
-        } else if (old_fallback) {
+        } else if (old_fallback && !inspect) {
             const auto count=l.count;
             effects::configure(l,slot,static_cast<int>(width),static_cast<int>(height));
             l.count=count;
         }
     }
     overlap_display_={};
-    if (decorated_overlap) {
-        surface_fields(in,overlap_display_);
-        if (overlap_display_.width!=width || overlap_display_.height!=height || overlap_display_.rgb.size()!=bytes)
-            invalid("Invalid snapshot decorated transition");
-    }
+    if (decorated_overlap) read_surface(overlap_display_,false,false);
+    if (inspect) return;
     if (rendered.rgb.empty()) dirty_=true;
     else output_=std::move(rendered);
     output_changed_=true; ++revision_;

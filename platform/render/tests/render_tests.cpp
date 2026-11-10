@@ -58,7 +58,7 @@ void chart_layer_tests() {
         pixels[i].assign(32,0x7d);
         targets[i]={pixels[i].data(),16,pixels[i].size()};
     }
-    require(layers.draw_chart_layers(5,{},scratch)==0 && scratch.black.rgb.empty());
+    require(layers.draw_chart_layers(5,{},scratch)==0 && scratch.frame.rgb.empty());
     auto half=pattern(1,1);
     half->pixels.rgba={255,0,0,128};
     auto keyed=pattern(2,1);
@@ -81,6 +81,15 @@ void chart_layer_tests() {
     require(pixel(0,0)==std::array<Byte,4>{127,0,0,128} && pixel(0,1)==std::array<Byte,4>{0,0,0,0});
     require(pixel(1,0)==std::array<Byte,4>{0,0,0,0} && pixel(1,1)==std::array<Byte,4>{0,200,0,255});
     require(pixel(2,0)==std::array<Byte,4>{0,0,0,255} && pixels[2][12]==0x7d);
+    std::array<std::array<Byte,12>,3> reduced{};
+    std::array<ChartLayerTarget,3> reduced_targets;
+    for (std::size_t i=0;i<reduced.size();++i) {
+        reduced[i].fill(0x7d);
+        reduced_targets[i]={reduced[i].data(),reduced[i].size(),reduced[i].size()};
+    }
+    require(layers.draw_chart_layers(5,reduced_targets,scratch,2,1)==7);
+    for (std::size_t i=0;i<reduced.size();++i)
+        require(std::equal(reduced[i].begin(),reduced[i].begin()+8,pixels[i].begin()) && reduced[i][8]==0x7d);
     const auto stable=layers.composition_revision();
     layers.advance(1);
     require(layers.composition_revision()==stable);
@@ -126,6 +135,11 @@ void chart_composite_tests() {
         20,70,150,255,119,80,165,255,30,60,160,255,0x7d,0x7d,0x7d,0x7d,
         110,130,255,255,110,130,255,255,110,130,255,255,0x7d,0x7d,0x7d,0x7d};
     require(output==expected);
+    std::array<Byte,12> reduced;
+    reduced.fill(0x7d);
+    require(layers.draw_chart_composite(5,base_plane,{center.data(),16,center.size()},
+        {content.data(),16,content.size()},{reduced.data(),reduced.size(),reduced.size()},scratch,2,1));
+    require(std::equal(reduced.begin(),reduced.begin()+8,expected.begin()) && reduced[8]==0x7d);
 }
 void wipe_tests() {
     auto first=pattern(17,13),second=pattern(17,13);

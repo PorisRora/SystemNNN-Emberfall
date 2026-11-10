@@ -214,6 +214,8 @@ public:
     bool options_enabled() const;
     DrawMessage draw_message() const;
     nnn::snapshot::Bytes snapshot() const;
+    // Parse the full save without loading game assets or running a script.
+    static void inspect_snapshot(nnn::snapshot::Reader& in,const std::function<bool(const FrameState&)>& verify={});
     // Import uses a staged owner and commits only a fully validated PC slot.
     void restore_pc_save(const std::vector<nnn::Byte>& bytes);
     std::vector<nnn::Byte> export_pc_save();

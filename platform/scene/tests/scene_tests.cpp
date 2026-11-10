@@ -242,6 +242,16 @@ int main(){
         require(after.display_bytes=="New/First, word/outer" && after.raw_bytes==model.message_text &&
             game.runtime()->system_replacement(3)=="outer","four KANJI targets and original bytes");
         const auto saved=game.snapshot();
+        nnn::snapshot::Reader inspected(saved);
+        scene::GameSession::inspect_snapshot(inspected,[](const scene::FrameState& state){
+            return state.wait==scene::Wait::Dialogue && state.dialogue.display_bytes=="New/First, word/outer";
+        });
+        const nnn::snapshot::Bytes truncated(saved.begin(),saved.end()-1);
+        nnn::snapshot::Reader invalid_inspection(truncated);
+        bool inspection_rejected=false;
+        try { scene::GameSession::inspect_snapshot(invalid_inspection); }
+        catch (const std::runtime_error&) { inspection_rejected=true; }
+        require(inspection_rejected,"resource-independent snapshot inspection must reject a truncated payload");
         pending=game.step_frame(0,advance).modal;
         require(pending && game.complete_modal(pending->request,false,27,{}) &&
             game.variable(0)==0 && game.variable(1)==27 &&

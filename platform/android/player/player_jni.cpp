@@ -272,6 +272,9 @@ API void JNICALL FN(releaseSurface)(JNIEnv*,jclass,jlong token) {
     std::unique_ptr<SurfaceRef> binding(reinterpret_cast<SurfaceRef*>(token));
     if (binding) (*binding)->invalidate();
 }
+API void JNICALL FN(deactivateSurface)(JNIEnv*,jclass,jlong token) {
+    if (token) (*reinterpret_cast<const SurfaceRef*>(token))->deactivate();
+}
 API void JNICALL FN(bindSurface)(JNIEnv*,jclass,jlong handle,jlong token) {
     auto& p=player(handle);
     p.surface=token ? *reinterpret_cast<const SurfaceRef*>(token) : SurfaceRef{};
@@ -664,6 +667,24 @@ API jbyteArray JNICALL FN(exportPcSave)(JNIEnv* env,jclass,jlong handle) {
         if (result) env->SetByteArrayRegion(result,0,size,reinterpret_cast<const jbyte*>(data.data()));
         return result;
     } catch (const std::exception& e) { fail(env,e.what());return nullptr; }
+}
+API jboolean JNICALL FN(inspectSaveSnapshot)(JNIEnv* env,jclass,jobject raw,jint length,jint wait,jint word,jint line,
+                                            jobjectArray content) {
+    try {
+        if (!raw || !content || length<=0 || env->GetDirectBufferCapacity(raw)<length) return JNI_FALSE;
+        const auto* bytes=static_cast<const std::uint8_t*>(env->GetDirectBufferAddress(raw));
+        if (!bytes) return JNI_FALSE;
+        const auto expected=read_text_fields(env,content,1024,1024*1024);
+        if (env->ExceptionCheck() || expected.size()<2) return JNI_FALSE;
+        nnn::snapshot::Reader in(bytes,static_cast<std::size_t>(length));
+        GameSession::inspect_snapshot(in,[&](const emberfall::scene::FrameState& frame){
+            const auto choice=frame.wait==emberfall::scene::Wait::Choice;
+            return static_cast<jint>(frame.wait)==wait && static_cast<jint>(frame.word)==word &&
+                static_cast<jint>(frame.dialogue.sequence)==line && frame.script==expected[0] &&
+                frame.dialogue.display_bytes==expected[1] && (choice ? expected.size()>2 : expected.size()==2);
+        });
+        return JNI_TRUE;
+    } catch (const std::exception&) { return JNI_FALSE; }
 }
 API jboolean JNICALL FN(restoreSnapshot)(JNIEnv* env,jclass,jlong handle,jbyteArray raw,jint wait,jint word,jint line,
                                         jobjectArray content,jintArray meta,jboolean keep_music_position,jboolean migrate_legacy) {

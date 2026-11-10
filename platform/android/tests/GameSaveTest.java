@@ -219,7 +219,9 @@ public final class GameSaveTest {
         check(loaded.metadata.slot==7 && loaded.metadata.savedAt==123456 && loaded.metadata.line==5 && !loaded.metadata.legacy,"metadata roundtrip");
         check(loaded.metadata.summary.equals(metadata.summary) && Arrays.deepEquals(loaded.content,content()),"same-file text snapshot");
         check(loaded.save.ticks==4 && loaded.save.runs.get(1).skip && !loaded.save.runs.get(2).skip,"skip roundtrip");
-        GameSave.Loaded inspected=GameSave.readFrom(new ByteArrayInputStream(encoded),0,0,false);
+        ByteArrayOutputStream inspectedSave=new ByteArrayOutputStream();
+        history.writeTo(inspectedSave,metadata,Arrays.copyOf(content(),2));
+        GameSave.Loaded inspected=GameSave.readFrom(new ByteArrayInputStream(inspectedSave.toByteArray()),0,0,false);
         check(inspected.save==null && inspected.content==null && inspected.metadata.slot==7,"metadata scan without replay allocations");
         ByteArrayInputStream headerBytes=new ByteArrayInputStream(encoded);
         DataInputStream header=new DataInputStream(headerBytes);

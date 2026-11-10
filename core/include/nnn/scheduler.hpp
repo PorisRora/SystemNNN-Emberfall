@@ -68,6 +68,13 @@ public:
     const Status& LastStatus() const noexcept;
     void save_snapshot(snapshot::Writer& out,bool include_command_slots=false,bool save_pending_selection=true) const;
     void load_snapshot(snapshot::Reader& in,const ScriptScheduler* cached=nullptr,bool has_command_slots=false);
+    struct SnapshotPosition {
+        std::string path;
+        WordIndex pc;
+        bool selected;
+    };
+    // Script contents and addresses are checked against game assets on restore.
+    static SnapshotPosition inspect_snapshot(snapshot::Reader& in,bool has_command_slots);
     bool pc_adjustment_ids() const noexcept;
     // Read-only, including at the PC boundary within a user callback.
     Status capture_pc_positions(std::array<PcScriptSlot,script_mode_count>& positions,

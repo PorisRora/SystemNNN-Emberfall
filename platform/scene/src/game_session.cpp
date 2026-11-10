@@ -3716,38 +3716,43 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         playback.save_snapshot(out);
     }
 
-    void load_snapshot(nnn::snapshot::Reader& in,const std::function<bool(const FrameState&)>& verify,
-                       bool keep_music_position,bool jumping=false,bool migrate_legacy_system_variables=false) {
+    struct SnapshotProgress {
+        FrameState frame;
+        std::array<nnn::Value,variable_count> vars{};
+        int window_type=0,font_type=0,next_window=-1,next_message_speed=0,option_off=0;
+        int next_message_type=default_next_message_type;
+        int auto_message=0,cannot_click=0,cannot_skip=0;
+        bool effect_gate=false,message_has_voice=false;
+        std::uint32_t message_voice_ms=0,speaking_ms=0,random_state=1;
+        bool initial_calendar=false;
+        std::uint8_t log_layout=0,log_voices=1,last_heroine=0;
+        std::array<std::string,4> backlog_voices;
+        unsigned remainder=0;
+        unsigned period=20,choice_appear_remaining=0;
+        std::uint32_t draw_remaining=0;
+        std::array<nnn::Value,32> layer_variables{};
+        InputState input;
+        std::deque<BacklogEntry> backlog;
+        std::vector<std::string> replacements;
+        std::string surname,given_name;
+        nnn::Value choice_auto=0,choice_special=0;
+        nnn::Value suspended_mode=static_cast<nnn::Value>(nnn::RuntimeMode::Nothing);
+        std::optional<nnn::chart::RunState> chart_run;
+        std::optional<ChartInteraction> chart_visit;
+        int chart_scroll=0;
+        std::uint32_t version=0;
+        nnn::Value mode=0,return_mode=0,automatic=0;
+        bool skip=false;
+        ScriptModal saved_modal;
+        nnn::SkipFlags flags;
+    };
+
+    static std::unique_ptr<SnapshotProgress> read_snapshot_progress(nnn::snapshot::Reader& in,Impl* game) {
         using nnn::snapshot::invalid;
-        if (ui_mode || !replay_films.empty()) invalid("Cannot restore into a decorative or replay session");
-        struct Progress {
-            FrameState frame;
-            std::array<nnn::Value,variable_count> vars{};
-            int window_type=0,font_type=0,next_window=-1,next_message_speed=0,option_off=0;
-            int next_message_type=default_next_message_type;
-            int auto_message=0,cannot_click=0,cannot_skip=0;
-            bool effect_gate=false,message_has_voice=false;
-            std::uint32_t message_voice_ms=0,speaking_ms=0,random_state=1;
-            bool initial_calendar=false;
-            std::uint8_t log_layout=0,log_voices=1,last_heroine=0;
-            std::array<std::string,4> backlog_voices;
-            unsigned remainder=0;
-            unsigned period=20,choice_appear_remaining=0;
-            std::uint32_t draw_remaining=0;
-            std::array<nnn::Value,32> layer_variables{};
-            InputState input;
-            std::deque<BacklogEntry> backlog;
-            std::vector<std::string> replacements;
-            std::string surname,given_name;
-            nnn::Value choice_auto=0,choice_special=0;
-            nnn::Value suspended_mode=static_cast<nnn::Value>(nnn::RuntimeMode::Nothing);
-            std::optional<nnn::chart::RunState> chart_run;
-            std::optional<ChartInteraction> chart_visit;
-            int chart_scroll=0;
-        };
-        auto staged=std::make_unique<Progress>();
+        auto staged=std::make_unique<SnapshotProgress>();
         auto& next=*staged;
-        std::uint32_t magic=0,version=0,frame_period=0;std::uint8_t waiting=0;
+        std::uint32_t magic=0,frame_period=0;std::uint8_t waiting=0;
+        auto& version=next.version;
         in(magic,version);
         if (magic!=snapshot_magic || version<1 || version>snapshot_version) invalid("Unsupported native session snapshot");
         if (version>=9) {
@@ -3758,12 +3763,12 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         if (version>=12) in(next.next_message_type);
         in(frame_period,waiting,next.frame.script,next.frame.word,next.frame.remaining_frames);
         const bool pending_modal=version>=9 && waiting==static_cast<std::uint8_t>(Wait::Modal);
-        if (frame_period!=default_period ||
+        if (!frame_period || (game && frame_period!=game->default_period) ||
             (!pending_modal && waiting>static_cast<std::uint8_t>(Wait::Choice) &&
              (version<4 || waiting!=static_cast<std::uint8_t>(Wait::Place))))
             invalid("Unsupported native session snapshot");
         next.frame.wait=static_cast<Wait>(waiting);
-        ScriptModal saved_modal;
+        auto& saved_modal=next.saved_modal;
         if (pending_modal) {
             nnn::Value mode=0;
             in(mode,next.suspended_mode,saved_modal.arguments,saved_modal.group,saved_modal.page,saved_modal.selection);
@@ -3779,16 +3784,15 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
             }
         }
         dialogue_fields(in,next.frame.dialogue);
-        nnn::Value mode=0,return_mode=0,automatic=0;bool skip=false;
         in(next.vars,next.window_type,next.font_type,next.next_window,next.next_message_speed,next.option_off,
             next.auto_message,next.cannot_click,next.cannot_skip,next.effect_gate,next.message_has_voice,next.message_voice_ms,
             next.backlog_voices,next.remainder,next.draw_remaining,next.input.mouse_x,next.input.mouse_y,
-            next.input.advance,next.input.held,next.input.choice,mode,return_mode,skip,automatic);
-        if (next.frame.wait==Wait::Place) {
-            const auto* setup=place_config(mode);
+            next.input.advance,next.input.held,next.input.choice,next.mode,next.return_mode,next.skip,next.automatic);
+        if (game && next.frame.wait==Wait::Place) {
+            const auto* setup=game->place_config(next.mode);
             if (!setup || setup->result>=variable_count) invalid("Invalid place selection mode in snapshot");
         }
-        next.period=default_period;
+        next.period=frame_period;
         if (version>=3) in(next.period,next.layer_variables,next.frame.demo_mode,next.frame.config_mask,
             next.frame.film_name,next.frame.story_name,next.frame.choice_limit_ms,next.frame.choice_remaining_ms,next.choice_appear_remaining);
         auto& dialogue=next.frame.dialogue;
@@ -3805,13 +3809,15 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
                     return !nnn::valid_runtime_text(text,63);
                 }))
                 invalid("Invalid PC replacement state");
-        } else {
-            next.surname=surname;next.given_name=given_name;
+        } else if (game) {
+            next.surname=game->surname;next.given_name=game->given_name;
         }
-        next.log_layout=static_cast<std::uint8_t>(pc_log_layout);
-        next.log_voices=static_cast<std::uint8_t>(pc_log_voices);
+        if (game) {
+            next.log_layout=static_cast<std::uint8_t>(game->pc_log_layout);
+            next.log_voices=static_cast<std::uint8_t>(game->pc_log_voices);
+            next.random_state=game->legacy_random_state;
+        }
         if (version>=7) in(next.speaking_ms);
-        next.random_state=legacy_random_state;
         if (version>=8) {
             in(next.random_state,next.log_layout,next.log_voices,next.initial_calendar);
             if (next.log_layout>static_cast<std::uint8_t>(pc::LogLayout::MultiVoice) ||
@@ -3826,11 +3832,11 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         if (!next.period || next.period>1000 || next.remainder>=next.period ||
              next.frame.film_name.size()>62 || next.frame.story_name.size()>62 ||
              next.frame.choice_remaining_ms>next.frame.choice_limit_ms || next.frame.choice_limit_ms>INT32_MAX ||
-             next.choice_appear_remaining>choice_appear_frames || position.script.empty() || position.script.size()>255 ||
+             next.choice_appear_remaining>(game ? game->choice_appear_frames : 1000U) || position.script.empty() || position.script.size()>255 ||
             position.script.find('\0')!=std::string::npos || position.dialogue.sequence>INT32_MAX ||
             (position.wait==Wait::Draw && position.remaining_frames!=next.draw_remaining))
             invalid("Invalid native session position");
-        nnn::SkipFlags flags;skip_fields(in,flags);
+        skip_fields(in,next.flags);
         const auto count=in.size(backlog_capacity);
         for (std::size_t i=0;i<count;++i) {
             BacklogEntry line;backlog_fields(in,line);
@@ -3846,12 +3852,55 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
                 in.records(run.move_road,nnn::chart::max_progress_slots,[](auto& reader,nnn::Byte& edge){reader(edge);});
                 in.records(run.can_select,nnn::chart::max_selection_words,
                     [](auto& reader,nnn::Word& word){reader(word);});
-                if (!configure_chart() || !chart_graph->valid(run) || next.chart_scroll<0 ||
-                    next.chart_scroll>16*1024*1024)
+                if (next.chart_scroll<0 || next.chart_scroll>16*1024*1024 ||
+                    (game && (!game->configure_chart() || !game->chart_graph->valid(run))))
                     invalid("Invalid chart run state in snapshot");
             }
             if (next.chart_visit && !next.chart_run) invalid("Chart visit has no run state");
         }
+        return staged;
+    }
+
+    static void check_snapshot_overlap(const FrameState& frame,std::uint32_t version,unsigned remaining) {
+        if (version>=13 && frame.wait!=Wait::Overlap && frame.wait!=Wait::Running)
+            nnn::snapshot::invalid("Decorated transition outside its frame wait");
+        if (frame.wait==Wait::Overlap && remaining!=frame.remaining_frames)
+            nnn::snapshot::invalid("Invalid snapshot transition");
+    }
+
+    static void inspect_snapshot(nnn::snapshot::Reader& in,const std::function<bool(const FrameState&)>& verify) {
+        using nnn::snapshot::invalid;
+        const auto saved=read_snapshot_progress(in,nullptr);
+        const auto version=saved->version;
+        nnn::PlayerBehavior::inspect_snapshot(in);
+        const auto active=nnn::ScriptScheduler::inspect_snapshot(in,version>=10);
+        if ((saved->frame.wait==Wait::Choice)!=active.selected || (!active.selected &&
+            (saved->frame.choice_limit_ms || saved->choice_appear_remaining)))
+            invalid("Snapshot selection does not match the VM");
+        if (saved->frame.wait==Wait::Modal && (saved->mode!=static_cast<nnn::Value>(saved->saved_modal.mode) ||
+            active.path!=saved->frame.script || active.pc!=saved->frame.word))
+            invalid("Invalid snapshot modal mode");
+        if (verify && !verify(saved->frame)) invalid("Native snapshot does not match the save position");
+        const auto remaining=render::Layers::inspect_snapshot(in,version>=2,version>=3,version>=5,
+            version>=6,version>=7,version>=13);
+        check_snapshot_overlap(saved->frame,version,remaining);
+        nnn::audio::GameAudio::inspect_snapshot(in);
+    }
+
+    void load_snapshot(nnn::snapshot::Reader& in,const std::function<bool(const FrameState&)>& verify,
+                       bool keep_music_position,bool jumping=false,bool migrate_legacy_system_variables=false) {
+        using nnn::snapshot::invalid;
+        if (ui_mode || !replay_films.empty()) invalid("Cannot restore into a decorative or replay session");
+        auto staged=read_snapshot_progress(in,this);
+        auto& next=*staged;
+        const auto version=next.version;
+        const auto& position=next.frame;
+        const bool pending_modal=position.wait==Wait::Modal;
+        auto& saved_modal=next.saved_modal;
+        auto mode=next.mode;
+        const auto return_mode=next.return_mode,automatic=next.automatic;
+        const auto skip=next.skip;
+        const auto& flags=next.flags;
         auto next_behavior=std::make_unique<nnn::PlayerBehavior>(*behavior);
         next_behavior->load_snapshot(in);
         auto next_vm=make_scheduler();
@@ -3949,11 +3998,8 @@ struct GameSession::Impl final : nnn::CScriptCallBack {
         auto next_renderer=make_renderer(static_cast<int>(renderer->width()),static_cast<int>(renderer->height()));
         next_renderer->load_snapshot(in,[&](const std::string& name){return assets.image(name);},
             version>=2,version>=3,version>=5,version>=6,version>=7,version>=13);
-        if (version>=13 && position.wait!=Wait::Overlap && position.wait!=Wait::Running)
-            invalid("Decorated transition outside its frame wait");
         next_renderer->set_speaking(next.speaking_ms!=0);
-        if (position.wait==Wait::Overlap && next_renderer->overlap_remaining()!=position.remaining_frames)
-            invalid("Invalid snapshot transition");
+        check_snapshot_overlap(position,version,next_renderer->overlap_remaining());
         if (jumping) next_renderer->surface();
         std::optional<std::array<std::string,2>> restored_names;
         if (version>=5) {
@@ -4266,6 +4312,9 @@ nnn::RuntimeMode GameSession::place_mode() const {
 }
 nnn::snapshot::Bytes GameSession::snapshot() const {
     nnn::snapshot::Writer out;data_->save_snapshot(out);return std::move(out.bytes);
+}
+void GameSession::inspect_snapshot(nnn::snapshot::Reader& in,const std::function<bool(const FrameState&)>& verify) {
+    Impl::inspect_snapshot(in,verify);
 }
 void GameSession::restore_pc_save(const std::vector<nnn::Byte>& bytes) {
     if (data_->ui_mode || !data_->replay_films.empty()) nnn::snapshot::invalid("Cannot import a PC save in this mode");

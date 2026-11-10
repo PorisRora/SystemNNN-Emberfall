@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -106,16 +107,16 @@ unsigned chart_slot(jint slot) {
     if (slot<0 || slot>=32) throw std::invalid_argument("Invalid chart layer slot");
     return static_cast<unsigned>(slot);
 }
-void require_chart_canvas(const Layers& layers) {
-    if (!wipe_dimensions(static_cast<jint>(layers.width()),static_cast<jint>(layers.height())))
-        throw std::invalid_argument("Invalid chart layer canvas");
-}
-bool require_chart_bitmap(const Layers& layers,const LockedBitmap& image,bool allow_opaque) {
+bool require_chart_bitmap(const Layers& layers,const LockedBitmap& image,bool allow_opaque,
+                          unsigned& width,unsigned& height) {
     const auto alpha=image.info.flags&ANDROID_BITMAP_FLAGS_ALPHA_MASK;
     const bool opaque=alpha==ANDROID_BITMAP_FLAGS_ALPHA_OPAQUE;
-    if (image.info.width!=layers.width() || image.info.height!=layers.height() ||
+    const auto w=image.info.width,h=image.info.height;
+    if (w>layers.width() || h>layers.height() || !wipe_dimensions(static_cast<jint>(w),static_cast<jint>(h)) ||
+        (width && (w!=width || h!=height)) ||
         (alpha!=ANDROID_BITMAP_FLAGS_ALPHA_PREMUL && !(allow_opaque && opaque)))
-        throw std::invalid_argument("Chart bitmap must be logical-size premultiplied RGBA");
+        throw std::invalid_argument("Chart bitmap must match the bounded premultiplied RGBA raster");
+    width=w;height=h;
     return opaque;
 }
 ChartLayerTarget chart_target(const LockedBitmap& image) {
@@ -136,17 +137,26 @@ bool usable_chart_texture(const Texture* texture) {
 std::uint32_t texture_rgb(const std::uint8_t* src) noexcept {
     return (std::uint32_t{src[0]}<<16U)|(std::uint32_t{src[1]}<<8U)|src[2];
 }
-// Return the logical image, restoring the cropped DWQ margins. Tiles use the
-// opaque Put path. The repeated center uses Blt's mask or top-left color key.
+// Keep logical dimensions separate from the raster. Restore cropped DWQ
+// margins and use the PC's opaque tiles and masked or color-keyed center.
 jintArray chart_texture_pixels(JNIEnv* env,const Texture& texture,bool transparent,jint budget) {
     constexpr int pixel_limit=4*1024*1024;
     const int width=texture.canvas_width,height=texture.canvas_height;
-    const int area=width*height;
-    const bool include_pixels=width<=4096 && height<=4096 && area<=budget && area<=pixel_limit;
-    auto result=env->NewIntArray(include_pixels ? 2+area : 2);
+    if (budget<0) throw std::invalid_argument("Invalid chart texture budget");
+    const bool include_pixels=budget>0;
+    const int limit=include_pixels ? std::min<int>(pixel_limit,budget) : pixel_limit;
+    const double scale=std::min({1.0,4096.0/std::max(width,height),std::sqrt(static_cast<double>(limit)/width/height)});
+    int w=std::max(1,static_cast<int>(width*scale)),h=std::max(1,static_cast<int>(height*scale));
+    // Clamping a very thin texture to one pixel can increase the computed area.
+    if (w*h>limit) {
+        if (w>=h) w=limit/h;
+        else h=limit/w;
+    }
+    constexpr int header=4;
+    auto result=env->NewIntArray(include_pixels ? header+w*h : header);
     if (!result) return nullptr;
-    const jint dimensions[]{width,height};
-    env->SetIntArrayRegion(result,0,2,dimensions);
+    const jint dimensions[]{width,height,w,h};
+    env->SetIntArrayRegion(result,0,header,dimensions);
     if (!include_pixels || env->ExceptionCheck()) return result;
     constexpr int batch=16384;
     std::array<jint,batch> pixels;
@@ -154,20 +164,26 @@ jintArray chart_texture_pixels(JNIEnv* env,const Texture& texture,bool transpare
     const bool keyed=transparent && !texture.has_mask;
     const auto key=keyed && crop.x==0 && crop.y==0 ? texture_rgb(texture.pixels.rgba.data()) : 0U;
     const auto outside=transparent ? jint{0} : static_cast<jint>(0xff000000U);
-    const int rows=batch/width;
-    for (int top=0;top<height;top+=rows) {
-        const int count=std::min(rows,height-top);
-        std::fill_n(pixels.data(),width*count,outside);
-        for (int y=std::max(top,crop.y);y<std::min(top+count,crop.y+crop.height);++y) {
-            const auto* src=texture.pixels.rgba.data()+static_cast<std::size_t>(y-crop.y)*texture.pixels.width*4U;
-            auto* row=pixels.data()+(y-top)*width+crop.x;
-            for (int x=0;x<crop.width;++x,src+=4) {
-                const auto color=texture_rgb(src);
-                const unsigned alpha=transparent ? (keyed ? (color==key ? 0U : 255U) : src[3]) : 255U;
-                row[x]=static_cast<jint>((alpha<<24U)|color);
+    const int left=crop.x*w/width,right=((crop.x+crop.width)*w+width-1)/width;
+    const int first=crop.y*h/height,last=((crop.y+crop.height)*h+height-1)/height;
+    std::vector<std::size_t> columns(static_cast<std::size_t>(right-left));
+    for (int x=left;x<right;++x)
+        columns[static_cast<std::size_t>(x-left)]=static_cast<std::size_t>(std::max(0,x*width/w-crop.x))*4;
+    const int rows=batch/w;
+    for (int top=0;top<h;top+=rows) {
+        const int count=std::min(rows,h-top);
+        std::fill_n(pixels.data(),w*count,outside);
+        for (int y=std::max(top,first);y<std::min(top+count,last);++y) {
+            const auto sy=std::max(0,y*height/h-crop.y);
+            const auto* src=texture.pixels.rgba.data()+static_cast<std::size_t>(sy)*texture.pixels.width*4;
+            auto* row=pixels.data()+(y-top)*w+left;
+            for (const auto offset:columns) {
+                const auto color=texture_rgb(src+offset);
+                const unsigned alpha=transparent ? (keyed ? (color==key ? 0U : 255U) : src[offset+3]) : 255U;
+                *row++=static_cast<jint>((alpha<<24U)|color);
             }
         }
-        env->SetIntArrayRegion(result,2+top*width,width*count,pixels.data());
+        env->SetIntArrayRegion(result,header+top*w,w*count,pixels.data());
         if (env->ExceptionCheck()) return nullptr;
     }
     return result;
@@ -360,20 +376,20 @@ API jint JNICALL FN(chartLayers)(JNIEnv* env,jclass,jlong handle,jint center,job
         const auto mask=layers.chart_layer_mask(slot);
         if (!mask) return 0;
         if (layers.chart_needs_composite(slot)) throw std::logic_error("Chart effects require the composed backdrop");
-        require_chart_canvas(layers);
         const std::array<jobject,3> images{before,after,foreground};
         std::array<std::optional<LockedBitmap>,3> locks;
         std::array<ChartLayerTarget,3> targets;
+        unsigned width=0,height=0;
         for (unsigned group=0;group<images.size();++group) {
             if (!(mask&(1U<<group))) continue;
             for (unsigned prior=0;prior<group;++prior)
                 if (locks[prior] && env->IsSameObject(images[prior],images[group])==JNI_TRUE)
                     throw std::invalid_argument("Chart layer targets must be distinct");
             auto& image=locks[group].emplace(env,images[group]);
-            require_chart_bitmap(layers,image,false);
+            require_chart_bitmap(layers,image,false,width,height);
             targets[group]=chart_target(image);
         }
-        return static_cast<jint>(layers.draw_chart_layers(slot,targets,p.chart_scratch));
+        return static_cast<jint>(layers.draw_chart_layers(slot,targets,p.chart_scratch,width,height));
     }catch(const std::exception& e){fail(env,e.what());return 0;}
 }
 API jboolean JNICALL FN(chartComposite)(JNIEnv* env,jclass,jlong handle,jint center,
@@ -383,23 +399,23 @@ API jboolean JNICALL FN(chartComposite)(JNIEnv* env,jclass,jlong handle,jint cen
         auto& layers=p.game->chart_preview_layers();
         const auto slot=chart_slot(center);
         if (!layers.chart_needs_composite(slot)) return JNI_FALSE;
-        require_chart_canvas(layers);
         const std::array<jobject,4> images{base,center_plane,content,output};
         std::array<std::optional<LockedBitmap>,4> locks;
         std::array<ChartLayerSource,3> sources;
         ChartLayerTarget target;
+        unsigned width=0,height=0;
         for (std::size_t i=0;i<images.size();++i) {
             if (!images[i] && (i==1 || i==2)) continue;
             for (std::size_t prior=0;prior<i;++prior)
                 if (locks[prior] && env->IsSameObject(images[prior],images[i])==JNI_TRUE)
                     throw std::invalid_argument("Chart composition bitmaps must be distinct");
             auto& image=locks[i].emplace(env,images[i]);
-            const auto opaque=require_chart_bitmap(layers,image,true);
+            const auto opaque=require_chart_bitmap(layers,image,true,width,height);
             const auto bytes=chart_target(image);
             if (i<sources.size()) sources[i]={bytes.pixels,bytes.stride,bytes.size,opaque};
             else target=bytes;
         }
-        return layers.draw_chart_composite(slot,sources[0],sources[1],sources[2],target,p.chart_scratch) ?
+        return layers.draw_chart_composite(slot,sources[0],sources[1],sources[2],target,p.chart_scratch,width,height) ?
             JNI_TRUE : JNI_FALSE;
     } catch (const std::exception& e) {fail(env,e.what());return JNI_FALSE;}
 }
