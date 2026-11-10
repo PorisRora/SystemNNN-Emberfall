@@ -412,16 +412,16 @@ struct ShardEdge {
 void shatter(Wipe wipe,bool reverse) {
     if (reverse) wipe.reverse();
     wipe.rectangle(*wipe.after,0,0,wipe.width,wipe.height,0,0);
-    std::array<Point,default_shard_vertices.size()> vertices{};
+    std::array<Point,default_shard_mesh.vertices.size()> vertices{};
     for (std::size_t i=0;i<vertices.size();++i)
-        vertices[i]={default_shard_vertices[i].x*wipe.width/640,default_shard_vertices[i].y*wipe.height/480};
+        vertices[i]=scale_shard_vertex(default_shard_mesh.vertices[i],wipe.width,wipe.height);
 
     const auto hold=wipe.frames/5U;
     const auto early=(10.0F*0.001F)*static_cast<float>(std::min(wipe.frame,hold));
     const auto burst=static_cast<float>(std::hypot(wipe.width,wipe.height))/30.0F*0.3F;
     const auto elapsed=static_cast<float>(wipe.frame-std::min(wipe.frame,hold));
     const auto duration=static_cast<float>(wipe.frames-hold);
-    for (const auto& face:default_shard_faces) {
+    for (const auto& face:default_shard_mesh.faces) {
         const int count=face[0];
         std::array<Point,10> polygon{};
         Point center{};

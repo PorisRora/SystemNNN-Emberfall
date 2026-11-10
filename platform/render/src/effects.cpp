@@ -1749,9 +1749,11 @@ void shards_init(Layer& layer,int width,int height,const FragmentMesh* mesh) {
             }
         }
     } else {
-        for (const auto& point:default_shard_vertices)
-            vertices.push_back({std::min(width-1,point.x*width/640),std::min(height-1,point.y*height/480)});
-        for (const auto& face:default_shard_faces) faces.emplace_back(face.begin()+1,face.begin()+1+face[0]);
+        for (const auto& point:default_shard_mesh.vertices) {
+            const auto scaled=scale_shard_vertex(point,width,height);
+            vertices.push_back({scaled.x,scaled.y});
+        }
+        for (const auto& face:default_shard_mesh.faces) faces.emplace_back(face.begin()+1,face.begin()+1+face[0]);
     }
     auto& shards=layer.effect_state->shards;
     shards.reserve(faces.size());

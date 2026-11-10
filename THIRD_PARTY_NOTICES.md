@@ -2,7 +2,7 @@
 
 ## SystemNNN
 
-原版引擎由 tinyan 开发。Emberfall 的脚本兼容行为和 UI 参数参考了原版，核心来源说明见 [移植记录](core/PORTING.md)。上游仓库未列明再分发许可证。公开发布前需确认原版衍生内容的授权，并由维护者确定 Emberfall 自有代码的许可证。 [SystemNNN 上游仓库](https://github.com/tinyan/SystemNNN) · [GitHub 许可说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
+原版引擎由 tinyan 开发。Emberfall 的脚本行为、文件格式和 UI 参数参考了原版。全屏转场和图层碎裂的默认网格由 Emberfall 自行生成。公开分发前需核对实际随包复用的上游内容及其许可，并由权利人确定 Emberfall 自有代码的许可证。 [移植记录](core/PORTING.md) · [SystemNNN 上游仓库](https://github.com/tinyan/SystemNNN)
 
 ## 随构建分发的组件
 

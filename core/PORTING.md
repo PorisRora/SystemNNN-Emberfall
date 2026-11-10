@@ -1,6 +1,6 @@
 # SystemNNN source and porting notes
 
-SystemNNN-Emberfall is a source-derived port of tinyan's SystemNNN. The portable code follows the original execution order, callback behavior and file layouts where those behaviors are implemented, with explicit little-endian decoding, checked bounds and owned state.
+SystemNNN-Emberfall is an Android compatibility implementation of tinyan's SystemNNN. The portable code uses the original engine as a reference for execution order, callback behavior and file layouts, with explicit little-endian decoding, checked bounds and owned state.
 
 - The engine reference is `tinyan/SystemNNN` at commit `78a05053c78b3b80065a9a209c6685a7c60a2e83`. It provides the script interpreter, engine callbacks, configuration handling and resource readers. [Engine source](https://github.com/tinyan/SystemNNN/tree/78a05053c78b3b80065a9a209c6685a7c60a2e83)
 - The script compiler reference is `tinyan/SystemNNN_Editor` at commit `e5c46148fa1dc429f3e0391da7c056d7baa82622`. `scriptCompiler.cpp` and `minicompiler.cpp` document how the executable records, branches and script adjustment tables are written. [Editor source](https://github.com/tinyan/SystemNNN_Editor/tree/e5c46148fa1dc429f3e0391da7c056d7baa82622)
@@ -17,5 +17,7 @@ SystemNNN-Emberfall is a source-derived port of tinyan's SystemNNN. The portable
 | Audio command paths in `nnnLib/gamecallback.cpp` and the original music and voice controllers | `src/music.cpp`, `src/voice.cpp`, `src/audio_assets.cpp` and `src/game_audio.cpp` implement command handling, decoding and PCM output. |
 
 The SPT inputs in `tests/fixtures/` include authored programs from the port's initial VM tests, with decoded word lists and expected traces. The historical comparisons used selected upstream method bodies with encoding and host adapters. The repository's CMake test targets use fixtures shipped with the source tree. [Core build and APIs](README.md)
+
+The renderer generates a default mesh of 32 shards from a fixed seed. Full-screen wipes and the default layer shatter effect share this mesh.
 
 For licensing and third-party component details, see the project notices. [Third-party notices](../THIRD_PARTY_NOTICES.md)
