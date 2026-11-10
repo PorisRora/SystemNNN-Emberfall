@@ -80,11 +80,17 @@ def main():
         shutil.copyfile(manifest, stage / "AndroidManifest.xml")
         licenses = stage / "assets/licenses"
         licenses.mkdir(parents=True)
-        for source, name in ((ROOT / "core/third_party/zlib/LICENSE", "zlib.txt"),
+        for source, name in ((ROOT / "LICENSE", "Emberfall-GPL-2.0-only.txt"),
+                             (ROOT / "core/third_party/zlib/LICENSE", "zlib.txt"),
                              (ROOT / "core/third_party/libpng/LICENSE", "libpng.txt"),
                              (codec / "source/COPYING.LGPLv2.1", "ffmpeg-lgpl-2.1.txt"),
                              (ANDROID / "app/assets/licenses/VNTranslationTools-MIT.txt", "VNTranslationTools-MIT.txt")):
             shutil.copyfile(source, licenses / name)
+        (licenses / "emberfall-source.txt").write_text(
+            "Copyright (c) 2026 PorisRora (Rooboko)\n"
+            "Emberfall original code: GPL-2.0-only.\n"
+            "Source and build instructions: https://github.com/PorisRora/SystemNNN-Emberfall\n",
+            encoding="utf-8")
         linked = "statically linked into libsystemnnn.so" if linkage == "static" else "dynamically linked"
         relinking = ("Static relinking: https://github.com/PorisRora/SystemNNN-Emberfall/blob/main/platform/android/tyn/README.md\n"
                      if linkage == "static" else "")

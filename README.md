@@ -23,4 +23,4 @@
 
 ## 来源
 
-原版 [SystemNNN](https://github.com/tinyan/SystemNNN) 由 tinyan 开发。第三方组件与许可信息见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+原版 SystemNNN 由 tinyan 开发。Emberfall 自有代码采用 GPL-2.0-only，随包第三方组件按各自许可分发。 [原版 SystemNNN](https://github.com/tinyan/SystemNNN) · [GPL-2.0 许可证](LICENSE) · [第三方声明](THIRD_PARTY_NOTICES.md)

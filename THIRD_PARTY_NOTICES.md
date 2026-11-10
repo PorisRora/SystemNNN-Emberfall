@@ -1,8 +1,12 @@
 # 第三方声明
 
+## Emberfall
+
+Copyright © 2026 PorisRora（Rooboko）。Emberfall 自有代码按 GPL-2.0-only 提供，涵盖当前运行库所用的自有源码。第三方组件的许可见下表。 [GPL-2.0 许可证](LICENSE)
+
 ## SystemNNN
 
-原版引擎由 tinyan 开发。Emberfall 的脚本行为、文件格式和 UI 参数参考了原版。全屏转场和图层碎裂的默认网格由 Emberfall 自行生成。公开分发前需核对实际随包复用的上游内容及其许可，并由权利人确定 Emberfall 自有代码的许可证。 [移植记录](core/PORTING.md) · [SystemNNN 上游仓库](https://github.com/tinyan/SystemNNN)
+原版引擎由 tinyan 开发。Emberfall 的脚本行为、文件格式和 UI 参数参考了原版。全屏转场和图层碎裂共用 Emberfall 自行生成的默认网格。 [移植记录](core/PORTING.md) · [SystemNNN 上游仓库](https://github.com/tinyan/SystemNNN)
 
 ## 随构建分发的组件
 
